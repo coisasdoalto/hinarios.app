@@ -11,26 +11,22 @@ import {
   MediaQuery,
   Navbar,
   Text,
-  TextInput,
-  Textarea,
   useMantineTheme,
 } from '@mantine/core';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 
+import { Feedback } from 'components/Feedback';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useHymnBooks } from '../../context/HymnBooks';
 import LoginMenu from '../LoginMenu';
 import Search from '../Search/Search';
 import VerticalNavigation from '../VerticalNavigation/VerticalNavigation';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
 
 export default function AppShell({ children }: PropsWithChildren) {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
-
-  const [feedbackEnabled, setFeedbackEnabled] = useState(false);
-  const [feedbackValue, setFeedbackValue] = useState('');
 
   const router = useRouter();
 
@@ -39,10 +35,6 @@ export default function AppShell({ children }: PropsWithChildren) {
   const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
 
   const shouldUseBetaTesterInviteModal = useFeatureFlagEnabled('beta-tester-invite-modal');
-
-  useEffect(() => {
-    setFeedbackEnabled(false);
-  }, []);
 
   return (
     <MantineAppShell
@@ -115,33 +107,7 @@ export default function AppShell({ children }: PropsWithChildren) {
         {children}
       </Container>
 
-      <Container size="xs" mt="xl">
-        <form action="https://formspree.io/f/xayzroby" method="POST">
-          <Textarea
-            placeholder="Encontrou um erro ou tem uma sugestão? Escreva aqui"
-            label={feedbackEnabled ? 'Feedback' : undefined}
-            name={feedbackEnabled ? 'feedback' : undefined}
-            value={feedbackValue}
-            onChange={(event) => setFeedbackValue(event.target.value)}
-            onClick={() => setFeedbackEnabled(true)}
-            withAsterisk
-          />
-
-          {feedbackEnabled && (
-            <>
-              <TextInput label="Nome (opcional)" placeholder="Seu nome" name="name" />
-
-              <TextInput label="Contato (opcional)" placeholder="email ou whats" name="contact" />
-
-              <TextInput type="hidden" name="page_path" value={router.asPath} />
-
-              <Group position="right" mt="md">
-                <Button type="submit">Enviar</Button>
-              </Group>
-            </>
-          )}
-        </form>
-      </Container>
+      <Feedback />
 
       {shouldUseBetaTesterInviteModal && (
         <Container size="xs" mt="xl">
