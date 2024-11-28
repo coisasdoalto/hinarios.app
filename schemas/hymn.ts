@@ -20,3 +20,6 @@ export const hymnSchema = z.object({
 });
 
 export type Hymn = z.infer<typeof hymnSchema>;
+
+export type HymnLyricStanzaType = Extract<Hymn['lyrics'][number], { type: 'stanza' }>;
+export type HymnLyricChorusType = Extract<Hymn['lyrics'][number], { type: 'chorus' }>;
