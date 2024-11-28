@@ -1,10 +1,10 @@
-import { Fragment, useState } from 'react';
 import { Box, Group, NavLink, Space, Text, Title } from '@mantine/core';
 import Link from 'next/link';
+import { Fragment, useState } from 'react';
 import LazyLoad from 'react-lazyload';
+import { HymnBook } from '../../schemas/hymnBook';
 import { HymnsIndex } from '../../schemas/hymnsIndex';
 import BackButton from '../BackButton/BackButton';
-import { HymnBook } from '../../schemas/hymnBook';
 
 function HymnsList({ hymnsIndex, hymnBook }: { hymnsIndex: HymnsIndex; hymnBook: HymnBook }) {
   const [active, setActive] = useState(0);
@@ -24,7 +24,7 @@ function HymnsList({ hymnsIndex, hymnBook }: { hymnsIndex: HymnsIndex; hymnBook:
           //   </Group>
           // }
           icon={
-            <Text sx={{ minWidth: 29, textAlign: 'right', fontFamily: 'mono' }} size="sm">
+            <Text sx={{ minWidth: 29, textAlign: 'right' }} size="sm">
               {item.number}
             </Text>
           }
