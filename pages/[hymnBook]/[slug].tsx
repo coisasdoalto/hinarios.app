@@ -31,7 +31,7 @@ type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
 
 export default function HymnView(props: AppProps & PageProps) {
   const {
-    content: { number, title, subtitle, stanzas, chorus },
+    content: { number, title, subtitle, lyrics },
   } = props;
 
   useHymnBooksSave(props.hymnBooks);
@@ -50,9 +50,9 @@ export default function HymnView(props: AppProps & PageProps) {
     localStorage.setItem('fontSize', fontSize);
   }, [fontSize]);
 
-  const chorusComponent = chorus && (
+  const Chorus = ({ text }: { text: string }) => (
     <Text size={fontSize} mt={16} pl={40} italic>
-      <HymnTextWithVariations>{chorus}</HymnTextWithVariations>
+      <HymnTextWithVariations>{text}</HymnTextWithVariations>
     </Text>
   );
 
@@ -97,18 +97,19 @@ export default function HymnView(props: AppProps & PageProps) {
           ]}
         />
       </Box>
-      {!stanzas.length && <Box mt={16}>{chorusComponent}</Box>}
-      {stanzas.map((stanza, index) => (
-        <Fragment key={stanza.number}>
-          {/* <Text>{stanza.number}.</Text> */}
-          <Text size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 0 }}>{stanza.number}.</span>
-            <HymnTextWithVariations>{stanza.text}</HymnTextWithVariations>
-          </Text>
+      {lyrics.map((lyric) => {
+        if (lyric.type === 'chorus') return <Chorus text={lyric.text} />;
 
-          {index === 0 && chorus && chorusComponent}
-        </Fragment>
-      ))}
+        return (
+          <Fragment key={lyric.number}>
+            {/* <Text>{stanza.number}.</Text> */}
+            <Text size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
+              <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
+            </Text>
+          </Fragment>
+        );
+      })}
 
       {hymnBook?.slug === 'hinos-e-canticos' ? (
         <>
