@@ -1,16 +1,15 @@
 import {
   Anchor,
-  Box,
   Breadcrumbs,
   Burger,
   Button,
+  Center,
   Container,
   Group,
   Header,
   AppShell as MantineAppShell,
   MediaQuery,
   Navbar,
-  Text,
   useMantineTheme,
 } from '@mantine/core';
 import { PropsWithChildren, useState } from 'react';
@@ -18,7 +17,6 @@ import { PropsWithChildren, useState } from 'react';
 import { Feedback } from 'components/Feedback';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useHymnBooks } from '../../context/HymnBooks';
 import LoginMenu from '../LoginMenu';
 import Search from '../Search/Search';
@@ -33,8 +31,6 @@ export default function AppShell({ children }: PropsWithChildren) {
   const [hymnBooks] = useHymnBooks();
 
   const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
-
-  const shouldUseBetaTesterInviteModal = useFeatureFlagEnabled('beta-tester-invite-modal');
 
   return (
     <MantineAppShell
@@ -109,31 +105,22 @@ export default function AppShell({ children }: PropsWithChildren) {
 
       <Feedback />
 
-      {shouldUseBetaTesterInviteModal && (
-        <Container size="xs" mt="xl">
-          <Box
-            sx={(theme) => ({
-              border: `1px solid ${
-                theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[4]
-              }`,
-              borderRadius: theme.radius.sm,
-              padding: theme.spacing.md,
-            })}
+      <Container size="xs" mt="xl">
+        <Center mb="md">
+          <Anchor
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://play.google.com/store/apps/details?id=app.hinarios.twa"
+            title="Baixar no Google Play"
           >
-            <Text>Graças à sua ajuda conseguimos publicar o app na Play Store!</Text>
-
-            <Text>
-              <Anchor
-                href="https://play.google.com/store/apps/details?id=app.hinarios.twa"
-                target="_blank"
-              >
-                Clique aqui
-              </Anchor>{' '}
-              para instalar.
-            </Text>
-          </Box>
-        </Container>
-      )}
+            <img
+              alt="Disponível no Google Play"
+              src="https://play.google.com/intl/en_us/badges/static/images/badges/pt_badge_web_generic.png"
+              height={64}
+            />
+          </Anchor>
+        </Center>
+      </Container>
     </MantineAppShell>
   );
 }
