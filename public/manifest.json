@@ -14,6 +14,13 @@
   "short_name": "Hinários App",
   "start_url": "/",
   "theme_color": "#25262B",
+  "related_applications": [
+    {
+      "id": "app.hinarios.twa",
+      "platform": "play",
+      "url": "https://hinarios.app"
+    }
+  ],
   "categories": [
     "books",
     "music",
