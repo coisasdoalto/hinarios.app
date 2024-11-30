@@ -1,9 +1,7 @@
 import {
-  Anchor,
   Breadcrumbs,
   Burger,
   Button,
-  Center,
   Container,
   Group,
   Header,
@@ -15,6 +13,7 @@ import {
 import { PropsWithChildren, useState } from 'react';
 
 import { Feedback } from 'components/Feedback';
+import { PlayStoreButton } from 'components/PlayStoreButton';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useHymnBooks } from '../../context/HymnBooks';
@@ -105,22 +104,7 @@ export default function AppShell({ children }: PropsWithChildren) {
 
       <Feedback />
 
-      <Container size="xs" mt="xl">
-        <Center mb="md">
-          <Anchor
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://play.google.com/store/apps/details?id=app.hinarios.twa"
-            title="Baixar no Google Play"
-          >
-            <img
-              alt="Disponível no Google Play"
-              src="https://play.google.com/intl/en_us/badges/static/images/badges/pt_badge_web_generic.png"
-              height={64}
-            />
-          </Anchor>
-        </Center>
-      </Container>
+      <PlayStoreButton />
     </MantineAppShell>
   );
 }
