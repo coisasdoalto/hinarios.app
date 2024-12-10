@@ -23,7 +23,8 @@
     "data:download": "yarn scripts:run scripts/downloadData.ts",
     "generate:index": "yarn scripts:run scripts/generateHymnsIndex.ts",
     "generate:searchIndex": "yarn scripts:run scripts/generateSearchIndex.ts",
-    "generate:pathsForPrecache": "yarn scripts:run scripts/generatePathsForPrecache.ts"
+    "generate:pathsForPrecache": "yarn scripts:run scripts/generatePathsForPrecache.ts",
+    "hymns": "tsx cli/hymns/index.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
@@ -60,8 +61,10 @@
     "slugify": "^1.6.5",
     "typesaurus": "^10.3.0",
     "wretch": "^2.4.1",
+    "yargs": "^17.7.2",
     "zod": "^3.20.6",
-    "zod-fetch": "^0.1.0"
+    "zod-fetch": "^0.1.0",
+    "zx": "^8.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
