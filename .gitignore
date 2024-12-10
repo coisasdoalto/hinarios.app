@@ -55,3 +55,6 @@ cert.json
 **/public/worker-*.js
 **/public/worker-*.js.map
 supabase/.temp/
+
+# internal scripts
+.release_data
