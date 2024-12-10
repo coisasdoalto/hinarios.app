@@ -35,7 +35,7 @@ async function Command() {
     return process.exit(0);
   }
 
-  const releaseTitle = new Date().toISOString().split('T')[0];
+  const releaseTitle = (await $`date +%Y-%m-%d-%H-%M`.quiet()).text().trim();
 
   const releaseUpdates = releaseData.updates
     .map((update) => `- ${update.hymn}: ${update.message}`)
