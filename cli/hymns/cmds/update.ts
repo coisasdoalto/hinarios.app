@@ -6,7 +6,8 @@ import { CommandModule } from 'yargs';
 import { z } from 'zod';
 import { fs as fszx } from 'zx';
 
-import getParsedData from 'data/getParsedData';
+import getParsedData, { joinDataPath } from 'data/getParsedData';
+import { storage } from 'firebase';
 import { hymnSchema } from 'schemas/hymn';
 import { ReleaseData } from 'types/cli/ReleaseData';
 
@@ -63,12 +64,23 @@ async function Command(argv: unknown) {
     })) as ReleaseData;
   })();
 
-  const hymnDataFilePath = `${update.hymn.book}/${update.hymn.number}.json`;
+  const hymnFilePath = `${update.hymn.book}/${update.hymn.number}.json`;
+  const hymnContentPath = joinDataPath(hymnFilePath);
+
+  const firebaseBucket = storage.bucket();
+
+  await firebaseBucket.upload(hymnContentPath, {
+    destination: hymnFilePath,
+    metadata: {
+      contentType: 'application/json',
+    },
+  });
+  logger.info('File uploaded to Firebase Storage successfully');
+
   const hymnData = await getParsedData({
-    filePath: hymnDataFilePath,
+    filePath: hymnFilePath,
     schema: hymnSchema,
   });
-
   const hymnFirstLyric = hymnData.lyrics[0].text.split('\n')[0].replaceAll('"', '');
 
   const releaseHymnReference = `${update.hymn.reference} (${hymnFirstLyric})`;
