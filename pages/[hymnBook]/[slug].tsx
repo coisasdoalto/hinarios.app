@@ -97,11 +97,11 @@ export default function HymnView(props: AppProps & PageProps) {
           ]}
         />
       </Box>
-      {lyrics.map((lyric) => {
-        if (lyric.type === 'chorus') return <Chorus text={lyric.text} />;
+      {lyrics.map((lyric, index) => {
+        if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
 
         return (
-          <Fragment key={lyric.number}>
+          <Fragment key={index}>
             {/* <Text>{stanza.number}.</Text> */}
             <Text size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
               <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
