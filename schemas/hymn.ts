@@ -15,6 +15,10 @@ export const hymnSchema = z.object({
         type: z.literal('chorus'),
         text: z.string(),
       }),
+      z.object({
+        type: z.literal('unnumbered_stanza'),
+        text: z.string(),
+      }),
     ])
   ),
 });

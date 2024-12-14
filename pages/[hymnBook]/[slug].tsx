@@ -97,17 +97,22 @@ export default function HymnView(props: AppProps & PageProps) {
           ]}
         />
       </Box>
-      {lyrics.map((lyric) => {
-        if (lyric.type === 'chorus') return <Chorus text={lyric.text} />;
 
-        return (
-          <Fragment key={lyric.number}>
-            {/* <Text>{stanza.number}.</Text> */}
-            <Text size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
+      {lyrics.map((lyric, index) => {
+        if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
+
+        if (lyric.type === 'unnumbered_stanza')
+          return (
+            <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
               <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
             </Text>
-          </Fragment>
+          );
+
+        return (
+          <Text key={lyric.number} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+            <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
+            <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
+          </Text>
         );
       })}
 
