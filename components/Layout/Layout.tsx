@@ -31,6 +31,8 @@ export default function AppShell({ children }: PropsWithChildren) {
 
   const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
 
+  // const { data: proximityHymns } = useProximityHymns();
+
   return (
     <MantineAppShell
       styles={{
@@ -105,6 +107,18 @@ export default function AppShell({ children }: PropsWithChildren) {
       <Feedback />
 
       <PlayStoreButton />
+
+      {/* <Affix
+        position={{
+          bottom: '3rem',
+          right: '3rem',
+        }}
+        zIndex={2}
+      >
+        <ActionIcon radius="xl" variant="filled" size="xl" className={classes.proximityButton}>
+          <IconGps />
+        </ActionIcon>
+      </Affix> */}
     </MantineAppShell>
   );
 }

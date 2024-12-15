@@ -11,11 +11,13 @@ import {
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
-import { Fragment, useEffect, useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
+import { useLocalStorage } from '@mantine/hooks';
 import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
+import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
+import { supabase } from 'supabase';
 import BackButton from '../../components/BackButton/BackButton';
 import { BookmarkButton } from '../../components/BookmarkButton';
 import { useHymnBooks, useHymnBooksSave } from '../../context/HymnBooks';
@@ -61,6 +63,46 @@ export default function HymnView(props: AppProps & PageProps) {
   const [hymnBooks] = useHymnBooks();
 
   const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
+
+  const { data: geolocation, isLoading } = useGeolocationFromIp();
+
+  const [visitId, setVisitId] = useLocalStorage({
+    key: 'visitId',
+    deserialize: (value) => Number(value),
+    defaultValue: null,
+  });
+
+  useEffect(() => {
+    if (isLoading || !geolocation) return;
+
+    const hymnBook = String(router.query.hymnBook);
+    const slug = String(router.query.slug);
+
+    (async () => {
+      const ipData = await supabase
+        .from('hymns_visits')
+        .insert({
+          slug: `${hymnBook}/${slug}`,
+          latitude: geolocation.latitude,
+          longitude: geolocation.longitude,
+        })
+        .select()
+        .single();
+
+      if (ipData.error) return;
+
+      setVisitId(ipData.data.id);
+      console.log('Saving visit');
+    })();
+
+    return () => {
+      (async () => {
+        if (!visitId) return;
+        await supabase.from('hymns_visits').delete().eq('id', visitId);
+        console.log('Deleting visit');
+      })();
+    };
+  }, [isLoading]);
 
   return (
     <Container size="xs">
