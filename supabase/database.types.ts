@@ -56,24 +56,33 @@ export type Database = {
       }
       hymns_visits: {
         Row: {
+          hymn_book_slug: string
+          hymn_number: string
+          hymn_slug: string
+          hymn_title: string
           id: number
           latitude: number
           longitude: number
-          slug: string
           timestamp: string
         }
         Insert: {
+          hymn_book_slug: string
+          hymn_number: string
+          hymn_slug: string
+          hymn_title: string
           id?: number
           latitude: number
           longitude: number
-          slug: string
           timestamp?: string
         }
         Update: {
+          hymn_book_slug?: string
+          hymn_number?: string
+          hymn_slug?: string
+          hymn_title?: string
           id?: number
           latitude?: number
           longitude?: number
-          slug?: string
           timestamp?: string
         }
         Relationships: []
@@ -89,7 +98,10 @@ export type Database = {
           lon: number
         }
         Returns: {
-          slug: string
+          hymn_slug: string
+          hymn_book_slug: string
+          hymn_number: string
+          hymn_title: string
           latitude: number
           longitude: number
           distance: number

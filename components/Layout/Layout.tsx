@@ -20,6 +20,7 @@ import { useHymnBooks } from '../../context/HymnBooks';
 import LoginMenu from '../LoginMenu';
 import Search from '../Search/Search';
 import VerticalNavigation from '../VerticalNavigation/VerticalNavigation';
+import { NearbySongs } from 'components/NearbySongs';
 
 export default function AppShell({ children }: PropsWithChildren) {
   const theme = useMantineTheme();
@@ -30,8 +31,6 @@ export default function AppShell({ children }: PropsWithChildren) {
   const [hymnBooks] = useHymnBooks();
 
   const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
-
-  // const { data: proximityHymns } = useProximityHymns();
 
   return (
     <MantineAppShell
@@ -108,17 +107,7 @@ export default function AppShell({ children }: PropsWithChildren) {
 
       <PlayStoreButton />
 
-      {/* <Affix
-        position={{
-          bottom: '3rem',
-          right: '3rem',
-        }}
-        zIndex={2}
-      >
-        <ActionIcon radius="xl" variant="filled" size="xl" className={classes.proximityButton}>
-          <IconGps />
-        </ActionIcon>
-      </Affix> */}
+      <NearbySongs />
     </MantineAppShell>
   );
 }
