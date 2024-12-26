@@ -25,8 +25,12 @@ export function useProximityHymns() {
         return [];
       }
 
-      return data.filter((hymn) => hymn.slug !== `${hymnBook}/${slug}`);
+      return data.filter(
+        ({ hymn_book_slug, hymn_slug }) =>
+          `${hymn_book_slug}/${hymn_slug}` !== `${hymnBook}/${slug}`
+      );
     },
     enabled: !isLoading && Boolean(geolocation),
+    refetchInterval: 1000,
   });
 }

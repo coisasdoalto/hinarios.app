@@ -82,9 +82,12 @@ export default function HymnView(props: AppProps & PageProps) {
       const ipData = await supabase
         .from('hymns_visits')
         .insert({
-          slug: `${hymnBook}/${slug}`,
+          hymn_slug: slug,
+          hymn_book_slug: hymnBook,
           latitude: geolocation.latitude,
           longitude: geolocation.longitude,
+          hymn_title: title,
+          hymn_number: String(number),
         })
         .select()
         .single();
