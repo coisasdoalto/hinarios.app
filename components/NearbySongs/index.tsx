@@ -12,7 +12,7 @@ export function NearbySongs() {
 
   const isNearbySongsEnabled = useFeatureFlagEnabled('nearby-songs');
 
-  if (!isNearbySongsEnabled) {
+  if (!isNearbySongsEnabled || !proximityHymns?.length) {
     return null;
   }
 
