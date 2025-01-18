@@ -6,7 +6,8 @@ import { CommandModule } from 'yargs';
 import { z } from 'zod';
 import { fs as fszx } from 'zx';
 
-import getParsedData, { joinDataPath } from 'data/getParsedData';
+import getParsedData from 'data/getParsedData';
+import { joinDataPath } from 'data/joinDataPath';
 import { storage } from 'firebase';
 import { hymnSchema } from 'schemas/hymn';
 import { ReleaseData } from 'types/cli/ReleaseData';

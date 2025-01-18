@@ -3,19 +3,27 @@ import { useOs } from '@mantine/hooks';
 import type { SpotlightAction } from '@mantine/spotlight';
 import { SpotlightProvider, openSpotlight } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
-import elasticlunr from 'elasticlunr';
-import { NextRouter, useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { HymnBook } from '../../schemas/hymnBook';
-import searchIndexJson from '../../search/searchIndex.json';
+import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
+import flexsearch from 'flexsearch';
 
-const searchIndex = elasticlunr.Index.load<{
-  title: string;
-  body: string;
-  slug: string;
-  hymnBook: HymnBook;
-}>(searchIndexJson as any);
+const searchIndex = new flexsearch.Document<
+  { title: string; body: string; slug: string; hymnBookSlug: string },
+  true
+>({
+  document: {
+    id: 'id',
+    index: ['number', 'title', 'body'],
+  },
+});
+
+keys.forEach(async (key) => {
+  const data = (await import(`../../search/${key}.json`)).default;
+
+  searchIndex.import(key, data);
+});
 
 interface SearchControlProps extends DefaultProps, React.ComponentPropsWithoutRef<'button'> {
   onClick(): void;
@@ -60,32 +68,36 @@ export function SearchControl({ className, ...others }: SearchControlProps) {
   );
 }
 
-const actions: SpotlightAction[] = [];
-
-const search = (router: NextRouter) => (query: string) => {
-  const results = searchIndex.search(query, {
-    fields: { title: { boost: 1 }, body: { boost: 1 } },
-  });
-
-  const filteredData: SpotlightAction[] = results.map((result) => {
-    const doc = searchIndex.documentStore.getDoc(result.ref);
-
-    const href = `/${doc.hymnBook.slug}/${doc.slug}`;
-
-    return {
-      id: href,
-      title: doc.title,
-      description: `${doc.body.slice(0, 90)}...`,
-      onTrigger: () => router.push(href),
-      group: doc.hymnBook.name,
-    };
-  });
-
-  return filteredData;
-};
-
 function Search() {
   const router = useRouter();
+
+  const [actions, setActions] = useState<SpotlightAction[]>([]);
+
+  const onQueryChange = async (query: string) => {
+    const searchResultsByIndex = searchIndex.search<true>(query, undefined, {
+      index: ['body', 'title'],
+      limit: 10,
+      suggest: true,
+      enrich: true,
+    });
+
+    const filteredData: SpotlightAction[] = searchResultsByIndex
+      .map((searchResultByIndex) =>
+        searchResultByIndex.result.map((result) => {
+          // console.log('found', result);
+
+          return {
+            id: String(result.id),
+            title: String(result.doc.title),
+            description: String(result.doc.body),
+            onTrigger: () => router.push(`/${result.id}`),
+          };
+        })
+      )
+      .flat();
+
+    setActions(filteredData);
+  };
 
   return (
     <SpotlightProvider
@@ -94,7 +106,7 @@ function Search() {
       searchPlaceholder="Buscar..."
       shortcut={['mod + P', 'mod + K', '/']}
       nothingFoundMessage="Nada encontrado..."
-      filter={search(router)}
+      onQueryChange={onQueryChange}
     >
       <SearchControl onClick={() => openSpotlight()} />
     </SpotlightProvider>
