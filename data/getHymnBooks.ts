@@ -1,6 +1,6 @@
 import { readdir } from 'fs/promises';
 import getHymnBookInfo from './getHymnBookInfo';
-import { joinDataPath } from './getParsedData';
+import { joinDataPath } from './joinDataPath';
 
 const getHymnBooks = async () => {
   const hymnBooksSlugs = await readdir(joinDataPath(''));

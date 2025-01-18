@@ -3820,11 +3820,6 @@
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.4.1.tgz#bfd02c1f2224567676c1545199f87c3a861d878d"
   integrity sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==
 
-"@types/elasticlunr@^0.9.5":
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/@types/elasticlunr/-/elasticlunr-0.9.5.tgz#d769e49c77b6a9bc684b8defac46f5dd0ff47d24"
-  integrity sha512-gzY3gZLI6HczDO3vXM+u3P0dClEQ68k2d0UsZY1lyOaOZiGiamu7Ha/YBoc8CgAu5/3R+/u0HguDgD+xakmSEA==
-
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.4.tgz#37fc1223f0786c39627068a12e94d6e6fc61de16"
@@ -7161,11 +7156,6 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
-elasticlunr@^0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/elasticlunr/-/elasticlunr-0.9.5.tgz#65541bb309dddd0cf94f2d1c8861b2be651bb0d5"
-  integrity sha512-5YM9LFQgVYfuLNEoqMqVWIBuF2UNCA+xu/jz1TyryLN/wmBcQSb+GNAwvLKvEpGESwgGN8XA1nbLAt6rKlyHYQ==
-
 electron-to-chromium@^1.4.188:
   version "1.4.195"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.195.tgz#139b2d95a42a3f17df217589723a1deac71d1473"
@@ -8515,6 +8505,11 @@ flatted@^3.1.0:
   version "3.2.5"
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.5.tgz#76c8584f4fc843db64702a6bd04ab7a8bd666da3"
   integrity sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==
+
+flexsearch@^0.7.43:
+  version "0.7.43"
+  resolved "https://registry.yarnpkg.com/flexsearch/-/flexsearch-0.7.43.tgz#34f89b36278a466ce379c5bf6fb341965ed3f16c"
+  integrity sha512-c5o/+Um8aqCSOXGcZoqZOm+NqtVwNsvVpWv6lfmSclU954O3wvQKxxK8zj74fPaSJbXpSLTs4PRhh+wnoCXnKg==
 
 flush-write-stream@^1.0.0:
   version "1.1.1"

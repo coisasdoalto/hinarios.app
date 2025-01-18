@@ -2,7 +2,8 @@ import { readdir, writeFile } from 'fs/promises';
 import path from 'path';
 import slugify from 'slugify';
 import getHymnBooks from '../data/getHymnBooks';
-import getParsedData, { joinDataPath } from '../data/getParsedData';
+import getParsedData from '../data/getParsedData';
+import { joinDataPath } from 'data/joinDataPath';
 import { hymnSchema } from '../schemas/hymn';
 
 async function generateHymnsIndex() {
