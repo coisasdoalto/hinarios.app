@@ -10,7 +10,7 @@ import useStyles from './SearchControl.styles';
 import flexsearch from 'flexsearch';
 
 const searchIndex = new flexsearch.Document<
-  { title: string; body: string; slug: string; hymnBookSlug: string },
+  { title: string; body: string; slug: string; hymnBookName: string },
   true
 >({
   document: {
@@ -88,13 +88,14 @@ function Search() {
 
           const matchStart = result.doc.body.search(regexForContent) || 0;
 
-          const description = result.doc.body.substring(matchStart, matchStart + 100) + '...';
+          const description = result.doc.body.substring(matchStart, matchStart + 80) + '...';
 
           return {
             id: String(result.id),
             title: result.doc.title,
             description,
             onTrigger: () => router.push(`/${result.id}`),
+            group: result.doc.hymnBookName,
           };
         })
       )

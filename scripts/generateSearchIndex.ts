@@ -63,6 +63,7 @@ async function generateHymnsIndex() {
           id: `${hymnBook.slug}/${hymn.number}-${slugify(hymn.title)}`,
           title: `${hymn.number}. ${hymn.title}`,
           body: composeLyrics(hymn),
+          hymnBookName: hymnBook.name,
         }))
         .forEach((hymn) => index.add(hymn.id, hymn));
     })
