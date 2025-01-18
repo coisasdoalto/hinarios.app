@@ -22,7 +22,7 @@
     "scripts:run": "tsx",
     "data:download": "yarn scripts:run scripts/downloadData.ts",
     "generate:index": "yarn scripts:run scripts/generateHymnsIndex.ts",
-    "generate:searchIndex": "rm ./search/*.json && yarn scripts:run scripts/generateSearchIndex.ts",
+    "generate:searchIndex": "rm ./search/*.json || true && yarn scripts:run scripts/generateSearchIndex.ts",
     "generate:pathsForPrecache": "yarn scripts:run scripts/generatePathsForPrecache.ts",
     "generate:supabaseTypes": "yarn scripts:run scripts/generateSupabaseTypes.ts",
     "hymns": "tsx cli/hymns/index.ts"
