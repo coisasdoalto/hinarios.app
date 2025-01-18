@@ -84,12 +84,16 @@ function Search() {
     const filteredData: SpotlightAction[] = searchResultsByIndex
       .map((searchResultByIndex) =>
         searchResultByIndex.result.map((result) => {
-          // console.log('found', result);
+          const regexForContent = new RegExp(query, 'gi');
+
+          const matchStart = result.doc.body.search(regexForContent) || 0;
+
+          const description = result.doc.body.substring(matchStart, matchStart + 100) + '...';
 
           return {
             id: String(result.id),
-            title: String(result.doc.title),
-            description: String(result.doc.body),
+            title: result.doc.title,
+            description,
             onTrigger: () => router.push(`/${result.id}`),
           };
         })
