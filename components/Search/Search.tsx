@@ -3,11 +3,11 @@ import { useOs } from '@mantine/hooks';
 import type { SpotlightAction } from '@mantine/spotlight';
 import { SpotlightProvider, openSpotlight } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
+import flexsearch from 'flexsearch';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
-import flexsearch from 'flexsearch';
 
 const searchIndex = new flexsearch.Document<
   { title: string; body: string; slug: string; hymnBookName: string },
@@ -112,6 +112,7 @@ function Search() {
       shortcut={['mod + P', 'mod + K', '/']}
       nothingFoundMessage="Nada encontrado..."
       onQueryChange={onQueryChange}
+      filter={() => actions}
     >
       <SearchControl onClick={() => openSpotlight()} />
     </SpotlightProvider>
