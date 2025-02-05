@@ -1,9 +1,6 @@
 import {
-  Box,
   Container,
   Flex,
-  MantineSize,
-  SegmentedControl,
   Space,
   Text,
   Title,
@@ -11,7 +8,7 @@ import {
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
@@ -26,8 +23,8 @@ import getHymnsIndex from '../../data/getHymnsIndex';
 import getParsedData from '../../data/getParsedData';
 import { Hymn, hymnSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
+import HymnTextSize from '../../components/VerticalNavigation/HymnTextSize';
 
-const validateFontSize = (fontSize: string): fontSize is MantineSize => /md|lg|xl/.test(fontSize);
 
 type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
 
@@ -38,25 +35,6 @@ export default function HymnView(props: AppProps & PageProps) {
 
   useHymnBooksSave(props.hymnBooks);
 
-  const [fontSize, setFontSize] = useState<MantineSize>('md');
-
-  useEffect(() => {
-    const localStorageFontSize = localStorage.getItem('fontSize') || '';
-
-    if (validateFontSize(localStorageFontSize)) {
-      setFontSize(localStorageFontSize);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('fontSize', fontSize);
-  }, [fontSize]);
-
-  const Chorus = ({ text }: { text: string }) => (
-    <Text size={fontSize} mt={16} pl={40} italic>
-      <HymnTextWithVariations>{text}</HymnTextWithVariations>
-    </Text>
-  );
 
   const router = useRouter();
 
@@ -94,21 +72,21 @@ export default function HymnView(props: AppProps & PageProps) {
 
       if (ipData.error) return;
 
-      setVisitId(ipData.data.id);
-      console.log('Saving visit');
-    })();
+      setVisitId(ipData.data.id);   })();
 
     return () => {
       (async () => {
         if (!visitId) return;
         await supabase.from('hymns_visits').delete().eq('id', visitId);
-        console.log('Deleting visit');
       })();
     };
   }, [isLoading]);
 
   return (
     <Container size="xs">
+           
+
+      <Space h="md" />
       {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
@@ -131,35 +109,15 @@ export default function HymnView(props: AppProps & PageProps) {
         </div>
       </Flex>
       <Space h="md" />
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <SegmentedControl
-          value={fontSize}
-          onChange={(value: MantineSize) => setFontSize(value)}
-          data={[
-            { label: 'Pequeno', value: 'md' },
-            { label: 'Médio', value: 'lg' },
-            { label: 'Grande', value: 'xl' },
-          ]}
-        />
-      </Box>
-
-      {lyrics.map((lyric, index) => {
-        if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
-
-        if (lyric.type === 'unnumbered_stanza')
-          return (
-            <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-              <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-            </Text>
-          );
-
-        return (
-          <Text key={lyric.number} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
+    
+      <HymnTextSize>
+        {lyrics.map((lyric, index) => (
+          <Text key={index} mt={16} pl={20}>
             <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
           </Text>
-        );
-      })}
+        ))}
+      </HymnTextSize>
+
 
       {hymnBook?.slug === 'hinos-e-canticos' ? (
         <>
