@@ -13,7 +13,7 @@ import { IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
@@ -38,7 +38,6 @@ import { HymnBook } from '../../schemas/hymnBook';
 import { OtherSong } from '../../schemas/otherSong';
 import { HymnNavigationItem } from '../../components/HymnBottomNavigation';
 
-const validateFontSize = (fontSize: string): fontSize is MantineSize => /md|lg|xl/.test(fontSize);
 
 const visuallyHiddenStyles = {
   border: 0,
@@ -136,15 +135,12 @@ export default function HymnView(props: HymnViewPageProps) {
 
       if (ipData.error) return;
 
-      setVisitId(ipData.data.id);
-      console.log('Saving visit');
-    })();
+      setVisitId(ipData.data.id);   })();
 
     return () => {
       (async () => {
         if (!visitId) return;
         await supabase.from('hymns_visits').delete().eq('id', visitId);
-        console.log('Deleting visit');
       })();
     };
   }, [canViewHymnBook, isLoading]);

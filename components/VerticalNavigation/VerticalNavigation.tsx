@@ -27,6 +27,8 @@ function VerticalNavigation({ onNavigation }: VerticalNavigationProps): JSX.Elem
 
   const shouldShowBookmarksLink = user && isBookmarksEnabled;
 
+
+
   return (
     <Box>
       <NavLink
