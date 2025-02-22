@@ -1,12 +1,9 @@
 import {
-  ActionIcon,
-  Badge,
+  Alert,
   Card,
   Collapse,
   Container,
-  Flex,
   Group,
-  Paper,
   Text,
 } from '@mantine/core';
 import { GetStaticProps } from 'next';
@@ -14,7 +11,7 @@ import Link from 'next/link';
 import { useHymnBooksSave } from '../context/HymnBooks';
 import getHymnBooks from '../data/getHymnBooks';
 import { HymnBook } from '../schemas/hymnBook';
-import { IconX } from '@tabler/icons';
+import { IconAlertCircle } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 
 type PageProps = { hymnBooks: HymnBook[] };
@@ -32,16 +29,16 @@ export default function Home({ hymnBooks }: PageProps) {
     <>
       <Collapse in={!dismissed}>
         <Container size="xs" mb={35}>
-          <Paper p={20} withBorder>
-            <Flex mb={10} justify="space-between" align="center">
-              <Badge>Novidade</Badge>
-              <ActionIcon onClick={() => setDismissed(true)}>
-                <IconX size={18} />
-              </ActionIcon>
-            </Flex>
-            Implementamos um novo sistema de busca, mais rápido e mais preciso! Caso encontre algum
-            problema deixe um feedback abaixo.
-          </Paper>
+          <Alert
+            icon={<IconAlertCircle size={16} />}
+            title="Nova busca!"
+            color="indigo"
+            withCloseButton
+            onClose={() => setDismissed(true)}
+          >
+            Implementamos um <strong>novo sistema de busca</strong>, mais rápido e mais preciso!
+            Caso encontre algum problema deixe um <strong>feedback abaixo</strong>.
+          </Alert>
         </Container>
       </Collapse>
 
