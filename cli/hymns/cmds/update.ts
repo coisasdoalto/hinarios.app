@@ -19,8 +19,9 @@ import { logger } from '../logger';
  *  "hc/1"
  *  "he/1"
  *  "ccs/1"
+ *  "ma/1"
  */
-const hymnArgRegex = /^(hc|he|ccs)\/(\d+)/;
+const hymnArgRegex = /^(hc|he|ccs|ma)\/(\d+)/;
 
 const argvSchema = z.object({
   hymn: z
@@ -35,6 +36,7 @@ const argvSchema = z.object({
         hc: 'hinos-e-canticos',
         he: 'hinos-espirituais',
         ccs: 'corinhos-e-canticos-de-salvacao',
+        ma: 'musicas-avulsas',
       }[book];
 
       return {
@@ -51,7 +53,14 @@ const rootPath = path.resolve(__dirname, '..', '..', '..');
 const RELEASE_DATA_FILE_NAME = '.release_data';
 
 async function Command(argv: unknown) {
-  const update = argvSchema.parse(argv);
+  const result = argvSchema.safeParse(argv);
+
+  if (!result.success) {
+    console.error('Error:', JSON.stringify(result.error.issues, null, 2));
+    throw result.error;
+  }
+
+  const update = result.data;
 
   const alreadyExistsReleaseFile = await fszx.pathExists(
     path.resolve(rootPath, RELEASE_DATA_FILE_NAME)
@@ -125,7 +134,8 @@ export const UpdateHymnsCommand: CommandModule = {
         Hymn books alias: 
           - hc: Hino e cânticos
           - he: Hinos espirituais
-          - ccs: Corinhos e cânticos de salvação`,
+          - ccs: Corinhos e cânticos de salvação
+          - ma: Músicas Avulsas`,
         alias: 'hymn',
       })
       .option('message', {
