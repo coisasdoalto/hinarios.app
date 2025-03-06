@@ -9,28 +9,41 @@ declare const self: ServiceWorkerGlobalScope & {
   __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
 };
 
+// const hymnsDataCacheConfig: SerwistOptions['runtimeCaching'] = [
+//   {
+//     urlPattern: /\/hinos-espirituais\/.*/,
+//     handler: 'CacheFirst',
+//     options: {
+//       cacheName: 'hymns-data',
+//     },
+//   },
+//   {
+//     urlPattern: /\/hinos-e-canticos\/.*/,
+//     handler: 'CacheFirst',
+//     options: {
+//       cacheName: 'hymns-data',
+//     },
+//   },
+//   {
+//     urlPattern: /\/corinhos-e-canticos-de-salvacao\/.*/,
+//     handler: 'CacheFirst',
+//     options: {
+//       cacheName: 'hymns-data',
+//     },
+//   },
+//   {
+//     urlPattern: /\/musicas-avulsas\/.*/,
+//     handler: 'CacheFirst',
+//     options: {
+//       cacheName: 'hymns-data',
+//     },
+//   },
+// ];
+
 installSerwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: [
-    ...defaultCache,
-    {
-      urlPattern: /\/hinos-espirituais\/.*/,
-      handler: 'CacheFirst',
-    },
-    {
-      urlPattern: /\/hinos-e-canticos\/.*/,
-      handler: 'CacheFirst',
-    },
-    {
-      urlPattern: /\/corinhos-e-canticos-de-salvacao\/.*/,
-      handler: 'CacheFirst',
-    },
-    {
-      urlPattern: /\/musicas-avulsas\/.*/,
-      handler: 'CacheFirst',
-    },
-  ],
+  runtimeCaching: defaultCache,
 });
