@@ -38,6 +38,14 @@ export default async (phase, { defaultConfig }) => {
     trailingSlash: true,
     generateBuildId: () => buildId,
     productionBrowserSourceMaps: true,
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'play.google.com',
+        },
+      ],
+    },
   };
 
   return withSerwist(nextConfig);
