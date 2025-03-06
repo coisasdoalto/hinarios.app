@@ -14,5 +14,23 @@ installSerwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: [
+    ...defaultCache,
+    {
+      urlPattern: /\/hinos-espirituais\/.*/,
+      handler: 'CacheFirst',
+    },
+    {
+      urlPattern: /\/hinos-e-canticos\/.*/,
+      handler: 'CacheFirst',
+    },
+    {
+      urlPattern: /\/corinhos-e-canticos-de-salvacao\/.*/,
+      handler: 'CacheFirst',
+    },
+    {
+      urlPattern: /\/musicas-avulsas\/.*/,
+      handler: 'CacheFirst',
+    },
+  ],
 });
