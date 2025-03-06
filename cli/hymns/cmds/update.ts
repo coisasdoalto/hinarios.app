@@ -45,7 +45,11 @@ const argvSchema = z.object({
         number: Number(number),
       };
     }),
-  message: z.string().min(1, "Message can't be empty"),
+  message: z
+    .string({
+      required_error: "Message can't be empty",
+    })
+    .min(1, "Message can't be empty"),
 });
 
 const rootPath = path.resolve(__dirname, '..', '..', '..');
@@ -53,14 +57,7 @@ const rootPath = path.resolve(__dirname, '..', '..', '..');
 const RELEASE_DATA_FILE_NAME = '.release_data';
 
 async function Command(argv: unknown) {
-  const result = argvSchema.safeParse(argv);
-
-  if (!result.success) {
-    console.error('Error:', JSON.stringify(result.error.issues, null, 2));
-    throw result.error;
-  }
-
-  const update = result.data;
+  const update = argvSchema.parse(argv);
 
   const alreadyExistsReleaseFile = await fszx.pathExists(
     path.resolve(rootPath, RELEASE_DATA_FILE_NAME)
@@ -122,7 +119,7 @@ async function Command(argv: unknown) {
 }
 
 export const UpdateHymnsCommand: CommandModule = {
-  command: 'update <hymnReference>',
+  command: 'update [hymnReference] [message]',
   describe: 'Update hymn and save changes in release file',
   builder: (yargs) =>
     yargs
@@ -138,8 +135,9 @@ export const UpdateHymnsCommand: CommandModule = {
           - ma: Músicas Avulsas`,
         alias: 'hymn',
       })
-      .option('message', {
-        description: 'Update message. This is will be included in release',
+      .positional('message', {
+        type: 'string',
+        description: 'Description of the update to be included in the release notes.',
         alias: 'm',
       }),
   handler: (argv) => Command(argv),
