@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { supabase } from 'supabase';
+
 import { useGeolocationFromIp } from './useGeolocationFromIp';
 
 export function useProximityHymns() {
   const router = useRouter();
+  const hasInternet = typeof navigator !== 'undefined' && navigator.onLine;
 
   const { data: geolocation, isLoading } = useGeolocationFromIp();
 
@@ -30,7 +32,7 @@ export function useProximityHymns() {
           `${hymn_book_slug}/${hymn_slug}` !== `${hymnBook}/${slug}`
       );
     },
-    enabled: !isLoading && Boolean(geolocation),
+    enabled: hasInternet && !isLoading && Boolean(geolocation),
     refetchInterval: 1000,
   });
 }
