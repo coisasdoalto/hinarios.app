@@ -2,7 +2,7 @@ import { Affix, ActionIcon, Drawer, NavLink } from '@mantine/core';
 import { IconGlobeFilled } from '@tabler/icons-react';
 import { useProximityHymns } from 'hooks/useProximityHymns';
 import Link from 'next/link';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled, usePostHog } from 'posthog-js/react';
 import { useState } from 'react';
 
 export function NearbySongs() {
@@ -11,6 +11,8 @@ export function NearbySongs() {
   const [opened, setOpened] = useState(false);
 
   const isNearbySongsEnabled = useFeatureFlagEnabled('nearby-songs');
+
+  const posthog = usePostHog();
 
   if (!isNearbySongsEnabled || !proximityHymns?.length) {
     return null;
@@ -27,7 +29,10 @@ export function NearbySongs() {
       >
         <ActionIcon
           title="Hinos próximos a você"
-          onClick={() => setOpened(true)}
+          onClick={() => {
+            setOpened(true);
+            posthog.capture('nearby_songs_click');
+          }}
           radius="xl"
           variant="filled"
           size={60}
