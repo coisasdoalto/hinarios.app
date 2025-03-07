@@ -1,11 +1,4 @@
-import {
-  Alert,
-  Card,
-  Collapse,
-  Container,
-  Group,
-  Text,
-} from '@mantine/core';
+import { Alert, Card, Collapse, Container, Group, Text } from '@mantine/core';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
 import { useHymnBooksSave } from '../context/HymnBooks';
@@ -13,11 +6,14 @@ import getHymnBooks from '../data/getHymnBooks';
 import { HymnBook } from '../schemas/hymnBook';
 import { IconAlertCircle } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
+import { usePostHog } from 'posthog-js/react';
 
 type PageProps = { hymnBooks: HymnBook[] };
 
 export default function Home({ hymnBooks }: PageProps) {
   useHymnBooksSave(hymnBooks);
+
+  const posthog = usePostHog();
 
   const [dismissed, setDismissed] = useLocalStorage({
     key: 'UpdateNewSearchDimissed',
@@ -34,7 +30,10 @@ export default function Home({ hymnBooks }: PageProps) {
             title="Nova busca!"
             color="indigo"
             withCloseButton
-            onClose={() => setDismissed(true)}
+            onClose={() => {
+              setDismissed(true);
+              posthog.capture('dismiss_new_search_click');
+            }}
           >
             Implementamos um <strong>novo sistema de busca</strong>, mais rápido e mais preciso!
             Caso encontre algum problema deixe um <strong>feedback abaixo</strong>.
