@@ -25,7 +25,13 @@ export function NearbySongs() {
         }}
         zIndex={2}
       >
-        <ActionIcon onClick={() => setOpened(true)} radius="xl" variant="filled" size={60}>
+        <ActionIcon
+          title="Hinos próximos a você"
+          onClick={() => setOpened(true)}
+          radius="xl"
+          variant="filled"
+          size={60}
+        >
           <IconGlobeFilled />
         </ActionIcon>
       </Affix>
