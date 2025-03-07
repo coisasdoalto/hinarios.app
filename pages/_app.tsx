@@ -29,6 +29,8 @@ if (typeof window !== 'undefined') {
   posthog.setPersonPropertiesForFlags({
     environment: process.env.NODE_ENV,
   });
+
+  localStorage.getItem('UpdateNewSearchDimissed') === 'true' && posthog.capture('have_dismissed_new_search');
 }
 
 export const queryClient = new QueryClient();
