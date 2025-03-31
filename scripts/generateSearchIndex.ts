@@ -14,6 +14,7 @@ const index = new flexsearch.Document({
     index: ['number', 'title', 'body'],
     store: true,
   },
+  tokenize: 'forward',
 });
 
 const composeStanzaText = (stanza?: { number: string | number; text: string }) => {
@@ -69,11 +70,21 @@ async function generateHymnsIndex() {
     })
   );
 
-  // Quick test
+  // // Quick test
+  // console.log(
+  //   JSON.stringify(
+  //     index.search({
+  //       query: 'só tristeza',
+  //       enrich: true,
+  //     })
+  //   )
+  // );
+
+  // Quick test 2
   console.log(
     JSON.stringify(
       index.search({
-        query: 'só tristeza',
+        query: 'chuva',
         enrich: true,
       })
     )

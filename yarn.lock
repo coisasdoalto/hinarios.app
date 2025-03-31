@@ -8506,10 +8506,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.5.tgz#76c8584f4fc843db64702a6bd04ab7a8bd666da3"
   integrity sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==
 
-flexsearch@^0.7.43:
-  version "0.7.43"
-  resolved "https://registry.yarnpkg.com/flexsearch/-/flexsearch-0.7.43.tgz#34f89b36278a466ce379c5bf6fb341965ed3f16c"
-  integrity sha512-c5o/+Um8aqCSOXGcZoqZOm+NqtVwNsvVpWv6lfmSclU954O3wvQKxxK8zj74fPaSJbXpSLTs4PRhh+wnoCXnKg==
+flexsearch@^0.8.147:
+  version "0.8.147"
+  resolved "https://registry.yarnpkg.com/flexsearch/-/flexsearch-0.8.147.tgz#d5c283e3cfa658a3477bcacf7cffa243d136b937"
+  integrity sha512-3wHHlSXrgzZgW2mIo0MbhkAz+HKERjxUp+Km8x/A0/u8yfrR+PWZiIPfcvcnlH/6PR9VzPWStmUTEWxI1YZXoQ==
 
 flush-write-stream@^1.0.0:
   version "1.1.1"

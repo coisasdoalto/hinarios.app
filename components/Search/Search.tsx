@@ -9,10 +9,7 @@ import { useEffect, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
 
-const searchIndex = new flexsearch.Document<
-  { title: string; body: string; slug: string; hymnBookName: string },
-  true
->({
+const searchIndex = new flexsearch.Document({
   document: {
     id: 'id',
     index: ['number', 'title', 'body'],
@@ -68,38 +65,74 @@ export function SearchControl({ className, ...others }: SearchControlProps) {
   );
 }
 
+function docCheck(
+  doc: unknown
+): doc is { title: string; body: string; slug: string; hymnBookName: string } {
+  if (doc) {
+    return true;
+  }
+  return false;
+}
+
 function Search() {
   const router = useRouter();
 
   const [actions, setActions] = useState<SpotlightAction[]>([]);
 
   const onQueryChange = async (query: string) => {
-    const searchResultsByIndex = searchIndex.search<true>(query, undefined, {
+    const searchResultsByIndex = searchIndex.search(query, {
       index: ['body', 'title'],
       limit: 10,
       suggest: true,
       enrich: true,
+      highlight: '<b>$1</b>',
     });
 
+    if (!Array.isArray(searchResultsByIndex)) {
+      return;
+    }
+
     const filteredData: SpotlightAction[] = searchResultsByIndex
-      .map((searchResultByIndex) =>
-        searchResultByIndex.result.map((result) => {
+      .flatMap((searchResultByIndex) => {
+        const hasResult = 'result' in searchResultByIndex;
+
+        if (!hasResult) {
+          return null;
+        }
+
+        return searchResultByIndex.result.map((result) => {
+          if (typeof result === 'string' || typeof result === 'number') {
+            return null;
+          }
+
+          const doc = result.doc;
+
+          if (!docCheck(doc)) {
+            return null;
+          }
+
+          console.log(result);
+
           const regexForContent = new RegExp(query, 'gi');
 
-          const matchStart = result.doc.body.search(regexForContent) || 0;
+          const matchStart = doc.body.search(regexForContent) || 0;
 
-          const description = result.doc.body.substring(matchStart, matchStart + 80) + '...';
+          const description = doc.body.substring(matchStart, matchStart + 80) + '...';
 
-          return {
+          const action: SpotlightAction = {
             id: String(result.id),
-            title: result.doc.title,
+            title: doc.title,
             description,
             onTrigger: () => router.push(`/${result.id}`),
-            group: result.doc.hymnBookName,
+            group: doc.hymnBookName,
           };
-        })
-      )
-      .flat();
+
+          return action;
+        });
+      })
+      .filter((item): item is SpotlightAction => {
+        return Boolean(item);
+      });
 
     setActions(filteredData);
   };
