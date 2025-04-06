@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
+import { CustomAction } from './CustomAction';
 
 const searchIndex = new flexsearch.Document({
   document: {
@@ -85,7 +86,7 @@ function Search() {
       limit: 10,
       suggest: true,
       enrich: true,
-      highlight: '<b>$1</b>',
+      highlight: '@@@$1@@@',
     });
 
     if (!Array.isArray(searchResultsByIndex)) {
@@ -111,16 +112,11 @@ function Search() {
             return null;
           }
 
-          console.log(result);
-
-          const regexForContent = new RegExp(query, 'gi');
-
-          const matchStart = doc.body.search(regexForContent) || 0;
-
-          const description = doc.body.substring(matchStart, matchStart + 80) + '...';
+          // Gets 3 words before the first highlight (@@@term@@@), and the rest of the string
+          const description = result.highlight?.match(/(?:\S+\s+){0,3}@@@.+@@@.*/)?.[0];
 
           const action: SpotlightAction = {
-            id: String(result.id),
+            id: `${doc.title}${description}`,
             title: doc.title,
             description,
             onTrigger: () => router.push(`/${result.id}`),
@@ -140,6 +136,7 @@ function Search() {
   return (
     <SpotlightProvider
       actions={actions}
+      actionComponent={CustomAction}
       searchIcon={<IconSearch size={18} />}
       searchPlaceholder="Buscar..."
       shortcut={['mod + P', 'mod + K', '/']}
