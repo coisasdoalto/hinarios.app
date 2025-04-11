@@ -14,14 +14,7 @@ export function yargsErrorHandler(...args: Parameters<YargsFailHandlerArgs>) {
 
     logger.error('Invalid arguments:');
 
-    error.issues.forEach((issue) => {
-      // prettier-ignore
-      console.log(
-        "-",
-        chalk.red(`${issue.path.join('.')}:`),
-        issue.message
-      );
-    });
+    logger.zodError(error)
 
     logger.blue('\nSee help for more details:\n');
 

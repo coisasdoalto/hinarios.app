@@ -18,7 +18,7 @@ yarn hymns <command>
 
 ### Available commands
 
-#### `hymns update <hymn-reference> <message>`: Updates a hymn and records the change in a release file (`.release_data`).
+#### `hymns update <hymn-reference> <message>`: Open VS Code (or EDITOR) to update a hymn and records the change in a release file (`.release_data`).
 
 ```bash
 # Example
