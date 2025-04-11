@@ -4,7 +4,7 @@ import path from 'node:path';
 import slugify from 'slugify';
 import { CommandModule } from 'yargs';
 import { z } from 'zod';
-import { fs as fszx } from 'zx';
+import { $, chalk, fs as fszx, question, useBash, which } from 'zx';
 
 import getParsedData from 'data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
@@ -13,6 +13,8 @@ import { hymnSchema } from 'schemas/hymn';
 import { ReleaseData } from 'types/cli/ReleaseData';
 
 import { logger } from '../logger';
+
+useBash();
 
 /**
  * @example
@@ -74,6 +76,54 @@ async function Command(argv: unknown) {
   const hymnFilePath = `${update.hymn.book}/${update.hymn.number}.json`;
   const hymnContentPath = joinDataPath(hymnFilePath);
 
+  const codeExists = await which('code', { nothrow: true });
+
+  const EDITOR = codeExists ? 'code' : process.env.EDITOR;
+
+  if (!EDITOR) {
+    logger.error('No editor found. Please, set the EDITOR environment variable or use VSCode (verify if it is in the PATH)');
+
+    return;
+  }
+
+  logger.info(`Using ${chalk.blue(EDITOR)} to open hymn file`);
+
+  await $`${EDITOR} ${hymnContentPath}`;
+
+  const uploadConfirmation = await question(
+    `Do you want to upload the file ${hymnFilePath}? (y/n) `
+  );
+
+  if (uploadConfirmation !== 'y') {
+    logger.info('Aborting...');
+    return;
+  }
+
+  
+  try {
+    const hymnFileContent = await fszx.readJSON(hymnContentPath, 'utf-8');
+    hymnSchema.parse(hymnFileContent);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.error('Hymn file schema is not valid. Please, check the file content.');
+      logger.zodError(error);
+      logger.info('Aborting...');
+      return;
+    }
+    
+    if (error instanceof SyntaxError) {
+      logger.error('Hymn file is not valid JSON. Please, check the file content.');
+      logger.error('Error:', error.message);
+      logger.info('Aborting...');
+      return;
+    }
+    
+    logger.error('Some unknown error occurred while parsing the hymn file.');
+    logger.error('Error:', error);
+    logger.info('Aborting...');
+    return;
+  }
+
   const firebaseBucket = storage.bucket();
 
   await firebaseBucket.upload(hymnContentPath, {
@@ -120,7 +170,7 @@ async function Command(argv: unknown) {
 
 export const UpdateHymnsCommand: CommandModule = {
   command: 'update [hymnReference] [message]',
-  describe: 'Update hymn and save changes in release file',
+  describe: 'Open code or EDITOR to update hymn and save changes in release file',
   builder: (yargs) =>
     yargs
       .positional('hymnReference', {
