@@ -12,6 +12,7 @@ import { storage } from 'firebase';
 import { hymnSchema } from 'schemas/hymn';
 import { ReleaseData } from 'types/cli/ReleaseData';
 
+import { RELEASE_DATA_FILE_NAME, ROOT_PATH } from '../constants';
 import { logger } from '../logger';
 
 useBash();
@@ -54,21 +55,17 @@ const argvSchema = z.object({
     .min(1, "Message can't be empty"),
 });
 
-const rootPath = path.resolve(__dirname, '..', '..', '..');
-
-const RELEASE_DATA_FILE_NAME = '.release_data';
+const releaseFilePath = path.resolve(ROOT_PATH, RELEASE_DATA_FILE_NAME);
 
 async function Command(argv: unknown) {
   const update = argvSchema.parse(argv);
 
-  const alreadyExistsReleaseFile = await fszx.pathExists(
-    path.resolve(rootPath, RELEASE_DATA_FILE_NAME)
-  );
+  const alreadyExistsReleaseFile = await fszx.pathExists(releaseFilePath);
 
-  const currentReleaseData = await (async () => {
+  const currentReleaseData: ReleaseData = await (async () => {
     if (!alreadyExistsReleaseFile) return { updates: [] };
 
-    return (await fszx.readJSON(path.resolve(rootPath, RELEASE_DATA_FILE_NAME), {
+    return (await fszx.readJSON(releaseFilePath, {
       encoding: 'utf-8',
     })) as ReleaseData;
   })();
@@ -81,7 +78,9 @@ async function Command(argv: unknown) {
   const EDITOR = codeExists ? 'code' : process.env.EDITOR;
 
   if (!EDITOR) {
-    logger.error('No editor found. Please, set the EDITOR environment variable or use VSCode (verify if it is in the PATH)');
+    logger.error(
+      'No editor found. Please, set the EDITOR environment variable or use VSCode (verify if it is in the PATH)'
+    );
 
     return;
   }
@@ -99,7 +98,6 @@ async function Command(argv: unknown) {
     return;
   }
 
-  
   try {
     const hymnFileContent = await fszx.readJSON(hymnContentPath, 'utf-8');
     hymnSchema.parse(hymnFileContent);
@@ -110,14 +108,14 @@ async function Command(argv: unknown) {
       logger.info('Aborting...');
       return;
     }
-    
+
     if (error instanceof SyntaxError) {
       logger.error('Hymn file is not valid JSON. Please, check the file content.');
       logger.error('Error:', error.message);
       logger.info('Aborting...');
       return;
     }
-    
+
     logger.error('Some unknown error occurred while parsing the hymn file.');
     logger.error('Error:', error);
     logger.info('Aborting...');
@@ -158,7 +156,7 @@ async function Command(argv: unknown) {
 
   const newReleaseFileContent = JSON.stringify(newReleaseData, null, 2);
 
-  await fs.writeFile(path.resolve(rootPath, RELEASE_DATA_FILE_NAME), newReleaseFileContent);
+  await fs.writeFile(releaseFilePath, newReleaseFileContent);
 
   if (!alreadyExistsReleaseFile) {
     logger.info('Release file created successfully');
