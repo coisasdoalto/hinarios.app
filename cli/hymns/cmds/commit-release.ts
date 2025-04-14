@@ -4,37 +4,45 @@ import { CommandModule } from 'yargs';
 import { $, ProcessOutput, chalk, fs as fszx, question, useBash, which } from 'zx';
 
 import { ReleaseData } from 'types/cli/ReleaseData';
+import { RELEASE_DATA_FILE_NAME, ROOT_PATH } from '../constants';
 import { logger } from '../logger';
 
 useBash();
 
-const rootPath = path.resolve(__dirname, '..', '..', '..');
+const releaseFilePath = path.resolve(ROOT_PATH, RELEASE_DATA_FILE_NAME);
 
-const RELEASE_DATA_FILE_NAME = '.release_data';
+async function clearReleaseFile() {
+  const releaseFileData: ReleaseData = {
+    updates: [],
+  }
+
+  await fszx.writeFile(releaseFilePath, JSON.stringify(releaseFileData, null, 2));
+}
 
 async function Command() {
-  const existsReleaseFile = await fszx.pathExists(path.resolve(rootPath, RELEASE_DATA_FILE_NAME));
+  const existsReleaseFile = await fszx.pathExists(path.resolve(ROOT_PATH, RELEASE_DATA_FILE_NAME));
 
   if (!existsReleaseFile) {
-    logger.error("Release file doesn't exists. Please, create one before commiting");
+    logger.error("Release file doesn't exists. Please, create one before commiting using", chalk.blue('`hymns update`'));
 
     return process.exit(0);
   }
 
-  const releaseData = await (async () => {
+  const releaseData: ReleaseData = await (async () => {
     if (!existsReleaseFile) return { updates: [] };
 
-    return (await fszx.readJSON(path.resolve(rootPath, RELEASE_DATA_FILE_NAME), {
+    return (await fszx.readJSON(releaseFilePath, {
       encoding: 'utf-8',
     })) as ReleaseData;
   })();
 
   if (releaseData.updates.length === 0) {
-    logger.error("Release file doesn't have any updates. Please, add one before commiting");
+    logger.error("Release file doesn't have any updates. Please, add one before commiting using", chalk.blue('`hymns update`'));
 
     return process.exit(0);
   }
 
+  // Example: 2023-10-01-12-00
   const releaseTitle = (await $`date +%Y-%m-%d-%H-%M`.quiet()).text().trim();
 
   const releaseUpdates = releaseData.updates
@@ -76,7 +84,11 @@ async function Command() {
       logger.red(error.stderr);
     }
 
-    return;
+    logger.info('Cleaning release file...');
+    await clearReleaseFile();
+    logger.info('Release file cleaned successfully!');
+
+    return
   }
 
   logger.info(
@@ -90,6 +102,10 @@ async function Command() {
   createReleaseURL.searchParams.set('tag', releaseTitle);
 
   logger.blue(createReleaseURL.toString());
+
+  logger.info('Cleaning release file...');
+  await clearReleaseFile();
+  logger.info('Release file cleaned successfully!');
 }
 
 export const CommitReleaseCommand: CommandModule = {
