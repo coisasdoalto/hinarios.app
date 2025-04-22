@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
 import { CustomAction } from './CustomAction';
+import { useHymnBooks } from 'context/HymnBooks';
 
 const searchIndex = new flexsearch.Document({
   document: {
@@ -78,9 +79,42 @@ function docCheck(
 function Search() {
   const router = useRouter();
 
+  const [hymnBooks] = useHymnBooks();
+
   const [actions, setActions] = useState<SpotlightAction[]>([]);
 
   const onQueryChange = async (query: string) => {
+    const queryAsNumber = parseInt(query, 10);
+
+    if (!Number.isNaN(queryAsNumber)) {
+      const regex = new RegExp(`^${queryAsNumber}`);
+
+      const results = hymnBooks
+        ?.flatMap((hymnBook) => {
+          const actions = hymnBook.index
+            .filter((hymn) => regex.test(hymn.slug))
+            .map((hymn) => {
+              const action: SpotlightAction = {
+                id: hymn.slug,
+                title: `${hymn.number}. ${hymn.title}`,
+                description: `@@@${hymn.number}@@@. ${hymn.title}`,
+                onTrigger: () => router.push(`/${hymnBook.slug}/${hymn.slug}`),
+                group: hymnBook.name,
+              };
+
+              return action;
+            });
+
+          return actions;
+        })
+        .filter((item): item is SpotlightAction => {
+          return Boolean(item);
+        });
+
+      setActions(results ?? []);
+      return;
+    }
+
     const searchResultsByIndex = searchIndex.search(query, {
       index: ['body', 'title'],
       limit: 10,

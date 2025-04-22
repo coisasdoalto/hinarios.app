@@ -41,12 +41,14 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const hymnBookInfo = await getHymnBookInfo(hymnBookSlug);
 
   const hymnBooks = await getHymnBooks();
+
   return {
     props: {
       hymnsIndex,
       hymnBook: {
         ...hymnBookInfo,
         slug: hymnBookSlug,
+        index: hymnsIndex,
       },
       hymnBooks,
     },
