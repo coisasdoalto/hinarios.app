@@ -92,7 +92,7 @@ function Search() {
       const results = hymnBooks
         ?.flatMap((hymnBook) => {
           const actions = hymnBook.index
-            .filter((hymn) => regex.test(hymn.slug))
+            ?.filter((hymn) => regex.test(hymn.slug))
             .map((hymn) => {
               const action: SpotlightAction = {
                 id: hymn.slug,
