@@ -7,7 +7,7 @@ import { joinDataPath } from 'data/joinDataPath';
 import { hymnSchema } from '../schemas/hymn';
 
 async function generateHymnsIndex() {
-  const hymnBooks = await getHymnBooks();
+  const hymnBooks = await getHymnBooks({ withIndex: false });
 
   await Promise.all(
     hymnBooks.map(async (hymnBook) => {
