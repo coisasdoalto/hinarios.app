@@ -169,6 +169,7 @@ function Search() {
 
   return (
     <SpotlightProvider
+      limit={Infinity}
       actions={actions}
       actionComponent={CustomAction}
       searchIcon={<IconSearch size={18} />}
