@@ -87,12 +87,10 @@ function Search() {
     const queryAsNumber = parseInt(query, 10);
 
     if (!Number.isNaN(queryAsNumber)) {
-      const regex = new RegExp(`^${queryAsNumber}`);
-
       const results = hymnBooks
         ?.flatMap((hymnBook) => {
           const actions = hymnBook.index
-            ?.filter((hymn) => regex.test(hymn.slug))
+            ?.filter((hymn) => parseInt(String(hymn.number), 10) === queryAsNumber)
             .map((hymn) => {
               const action: SpotlightAction = {
                 id: hymn.slug,
