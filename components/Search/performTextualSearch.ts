@@ -1,5 +1,4 @@
 import { SpotlightAction } from '@mantine/spotlight';
-import { HymnBooksState } from 'context/HymnBooks';
 import { Document } from 'flexsearch';
 
 function docCheck(
