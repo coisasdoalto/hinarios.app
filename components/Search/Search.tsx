@@ -10,6 +10,7 @@ import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
 import { CustomAction } from './CustomAction';
 import { useHymnBooks } from 'context/HymnBooks';
+import { debug } from 'utils/debug';
 
 const searchIndex = new flexsearch.Document({
   document: {
@@ -82,6 +83,8 @@ function Search() {
   const [hymnBooks] = useHymnBooks();
 
   const [actions, setActions] = useState<SpotlightAction[]>([]);
+
+  debug('search results: %O', actions);
 
   const onQueryChange = async (query: string) => {
     const queryAsNumber = parseInt(query, 10);
