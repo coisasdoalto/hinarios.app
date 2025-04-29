@@ -69,7 +69,7 @@ export function performTextualSearch({
         return action;
       });
     })
-    .reduce<SpotlightAction[]>((final, item, index, original) => {
+    .reduce<SpotlightAction[]>((final, item, original) => {
       if (!item || final.find((item2) => item2?.id === item?.id)) {
         return final;
       }
