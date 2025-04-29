@@ -1,5 +1,6 @@
 import { SpotlightAction } from '@mantine/spotlight';
 import { HymnBooksState } from 'context/HymnBooks';
+import { NextRouter } from 'next/router';
 
 export function performNumericSearch({
   hymnBooks,
@@ -8,7 +9,7 @@ export function performNumericSearch({
 }: {
   hymnBooks?: HymnBooksState;
   queryAsNumber: number;
-  router: any;
+  router: NextRouter;
 }) {
   return hymnBooks
     ?.flatMap((hymnBook) => {
