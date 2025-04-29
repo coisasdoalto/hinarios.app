@@ -1,5 +1,6 @@
 import { SpotlightAction } from '@mantine/spotlight';
 import { Document } from 'flexsearch';
+import { NextRouter } from 'next/router';
 
 function docCheck(
   doc: unknown
@@ -69,7 +70,7 @@ export function performTextualSearch({
         return action;
       });
     })
-    .reduce<SpotlightAction[]>((final, item, original) => {
+    .reduce<SpotlightAction[]>((final, item, _, original) => {
       if (!item || final.find((item2) => item2?.id === item?.id)) {
         return final;
       }
