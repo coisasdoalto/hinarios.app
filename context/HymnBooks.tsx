@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { HymnBook } from '../schemas/hymnBook';
 
-type HymnBooksState = HymnBook[] | null;
+export type HymnBooksState = HymnBook[] | null;
 
 export const HymnBooksContext = createContext<
   [HymnBooksState, Dispatch<SetStateAction<HymnBooksState>>] | [undefined, Function]

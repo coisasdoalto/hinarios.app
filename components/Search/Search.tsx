@@ -11,6 +11,8 @@ import useStyles from './SearchControl.styles';
 import { CustomAction } from './CustomAction';
 import { useHymnBooks } from 'context/HymnBooks';
 import { debug } from 'utils/debug';
+import { performTextualSearch } from './performTextualSearch';
+import { performNumericSearch } from './performNumericSearch';
 
 const searchIndex = new flexsearch.Document({
   document: {
@@ -68,15 +70,6 @@ export function SearchControl({ className, ...others }: SearchControlProps) {
   );
 }
 
-function docCheck(
-  doc: unknown
-): doc is { title: string; body: string; slug: string; hymnBookName: string } {
-  if (doc) {
-    return true;
-  }
-  return false;
-}
-
 function Search() {
   const router = useRouter();
 
@@ -90,82 +83,19 @@ function Search() {
     const queryAsNumber = parseInt(query, 10);
 
     if (!Number.isNaN(queryAsNumber)) {
-      const results = hymnBooks
-        ?.flatMap((hymnBook) => {
-          const actions = hymnBook.index
-            ?.filter((hymn) => parseInt(String(hymn.number), 10) === queryAsNumber)
-            .map((hymn) => {
-              const action: SpotlightAction = {
-                id: hymn.slug,
-                title: `${hymn.number}. ${hymn.title}`,
-                description: `@@@${hymn.number}@@@. ${hymn.title}`,
-                onTrigger: () => router.push(`/${hymnBook.slug}/${hymn.slug}`),
-                group: hymnBook.name,
-              };
-
-              return action;
-            });
-
-          return actions;
-        })
-        .filter((item): item is SpotlightAction => {
-          return Boolean(item);
-        });
+      const results = performNumericSearch({ hymnBooks, queryAsNumber, router });
 
       setActions(results ?? []);
       return;
     }
 
-    const searchResultsByIndex = searchIndex.search(query, {
-      index: ['body', 'title'],
-      limit: 10,
-      suggest: true,
-      enrich: true,
-      highlight: '@@@$1@@@',
+    const filteredData = performTextualSearch({
+      searchIndex,
+      query,
+      router,
     });
 
-    if (!Array.isArray(searchResultsByIndex)) {
-      return;
-    }
-
-    const filteredData: SpotlightAction[] = searchResultsByIndex
-      .flatMap((searchResultByIndex) => {
-        const hasResult = 'result' in searchResultByIndex;
-
-        if (!hasResult) {
-          return null;
-        }
-
-        return searchResultByIndex.result.map((result) => {
-          if (typeof result === 'string' || typeof result === 'number') {
-            return null;
-          }
-
-          const doc = result.doc;
-
-          if (!docCheck(doc)) {
-            return null;
-          }
-
-          // Gets 3 words before the first highlight (@@@term@@@), and the rest of the string
-          const description = result.highlight?.match(/(?:\S+\s+){0,3}@@@.+@@@.*/)?.[0];
-
-          const action: SpotlightAction = {
-            id: `${doc.title}${description}`,
-            title: doc.title,
-            description,
-            onTrigger: () => router.push(`/${result.id}`),
-            group: doc.hymnBookName,
-          };
-
-          return action;
-        });
-      })
-      .filter((item): item is SpotlightAction => {
-        return Boolean(item);
-      });
-
-    setActions(filteredData);
+    setActions(filteredData || []);
   };
 
   return (
