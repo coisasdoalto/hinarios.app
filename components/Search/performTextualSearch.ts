@@ -17,7 +17,7 @@ export function performTextualSearch({
 }: {
   searchIndex: Document;
   query: string;
-  router: any;
+  router: NextRouter;
 }) {
   const searchResultsByIndex = searchIndex.search(query, {
     index: ['body', 'title'],
