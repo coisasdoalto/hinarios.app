@@ -1,4 +1,5 @@
 import {
+  Box,
   Breadcrumbs,
   Burger,
   Button,
@@ -99,15 +100,17 @@ export default function AppShell({ children }: PropsWithChildren) {
         </Header>
       }
     >
-      <Container px={0} py={16}>
-        {children}
-      </Container>
+      <Box pb="6rem">
+        <Container px={0} py={16}>
+          {children}
+        </Container>
 
-      <Feedback />
+        <Feedback />
 
-      <PlayStoreButton />
+        <PlayStoreButton />
 
-      <NearbySongs />
+        <NearbySongs />
+      </Box>
     </MantineAppShell>
   );
 }
