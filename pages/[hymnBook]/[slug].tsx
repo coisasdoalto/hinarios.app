@@ -154,7 +154,13 @@ export default function HymnView(props: AppProps & PageProps) {
           );
 
         return (
-          <Text key={lyric.number} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+          <Text
+            key={`${lyric.number}.${title}`}
+            size={fontSize}
+            mt={16}
+            pl={20}
+            style={{ position: 'relative' }}
+          >
             <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
             <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
           </Text>
