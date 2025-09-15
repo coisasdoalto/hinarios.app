@@ -2,6 +2,7 @@ import {
   Box,
   Container,
   Flex,
+  Group,
   MantineSize,
   SegmentedControl,
   Space,
@@ -16,6 +17,7 @@ import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
 import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
+import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { supabase } from 'supabase';
 import BackButton from '../../components/BackButton/BackButton';
@@ -115,7 +117,10 @@ export default function HymnView(props: AppProps & PageProps) {
       <Flex justify="space-between">
         <BackButton to={hymnBook?.slug} />
 
-        <BookmarkButton />
+        <Group>
+          <BookmarkButton />
+          <UpdateHymnButton />
+        </Group>
       </Flex>
       <Space h="md" />
       <Flex align="flex-start" gap="sm">
