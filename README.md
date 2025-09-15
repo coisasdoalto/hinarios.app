@@ -4,6 +4,37 @@ Agregador de hinários para uso pessoal online ou offline.
 
 # Dev
 
+## Next.js API Routes + Hono
+
+This project uses [Hono](https://hono.dev/) to create API routes instead of the default Next.js API routes.
+
+> Remember to add slash at the end of the route when createing a new route, for example: `/api/hymns/`, because `next.config.js` has the `trailingSlash: true` option enabled, all API routes must end with a slash. Including `app.route` calls (`app.route('/hymns/', hymnsApp)`).
+
+To create new routes, create a new file in the `api-handlers` folder and export the Hono app as default, following the example below:
+
+```ts
+// api-handlers/example.ts
+import { Hono } from 'hono';
+
+const exampleApp = new Hono();
+
+exampleApp.get('/', (c) => {
+  return c.json({ message: 'Example' });
+});
+
+export { exampleApp };
+```
+
+Then, import and use the Hono app in the `pages/api/[[...route]].ts` file:
+
+```ts
+// pages/api/[[...route]].ts
+import { exampleApp } from 'api-handlers/example';
+[...]
+app.route('/example', exampleApp);
+[...]
+```
+
 ## hymns CLI
 
 The hymns CLI is a command-line tool for managing hymns and releases in the hinarios.app.

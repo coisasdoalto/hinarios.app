@@ -2072,6 +2072,16 @@
     protobufjs "^7.2.4"
     yargs "^17.7.2"
 
+"@hono/node-server@^1.19.2":
+  version "1.19.2"
+  resolved "https://registry.yarnpkg.com/@hono/node-server/-/node-server-1.19.2.tgz#d690efaa25bfa112b3d2f00d96b5e6f305a12453"
+  integrity sha512-lndWsd9De/btN998Aiv6gkeMVV2h9Cc0AR0qwFTmxx/YFh/PbrjgoxTpHaNaRn6F4GAkPiVJwI0W0gQF4Wn8EA==
+
+"@hono/zod-validator@^0.7.2":
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/@hono/zod-validator/-/zod-validator-0.7.2.tgz#1ab23efb89c777d718f4e14db3d5592f606fae42"
+  integrity sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==
+
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.5"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.9.5.tgz#2cbaf9a89460da24b5ca6531b8bbfc23e1df50c7"
@@ -3796,13 +3806,6 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/bun@latest":
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/@types/bun/-/bun-1.2.9.tgz#57598fab1c2d0de0e6ff69239fe48341f85bac3a"
-  integrity sha512-epShhLGQYc4Bv/aceHbmBhOz1XgUnuTZgcxjxk+WXwNyDXavv5QHD1QEFV0FwbTSQtNq6g4ZcV6y0vZakTjswg==
-  dependencies:
-    bun-types "1.2.9"
-
 "@types/caseless@*":
   version "0.12.5"
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.5.tgz#db9468cb1b1b5a925b8f34822f1669df0c5472f5"
@@ -4252,13 +4255,6 @@
     "@types/webpack-sources" "*"
     anymatch "^3.0.0"
     source-map "^0.6.0"
-
-"@types/ws@*":
-  version "8.18.1"
-  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.18.1.tgz#48464e4bf2ddfd17db13d845467f6070ffea4aa9"
-  integrity sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==
-  dependencies:
-    "@types/node" "*"
 
 "@types/ws@^8.5.10":
   version "8.5.10"
@@ -5950,14 +5946,6 @@ builtin-status-codes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
-
-bun-types@1.2.9:
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/bun-types/-/bun-types-1.2.9.tgz#e0208ba62f534eb64284c1f347f73bde7105c0f0"
-  integrity sha512-dk/kOEfQbajENN/D6FyiSgOKEuUi9PWfqKQJEgwKrCMWbjS/S6tEXp178mWvWAcUSYm9ArDlWHZKO3T/4cLXiw==
-  dependencies:
-    "@types/node" "*"
-    "@types/ws" "*"
 
 busboy@1.6.0:
   version "1.6.0"
@@ -9372,6 +9360,11 @@ hoist-non-react-statics@^3.3.1:
   integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==
   dependencies:
     react-is "^16.7.0"
+
+hono@^4.9.7:
+  version "4.9.7"
+  resolved "https://registry.yarnpkg.com/hono/-/hono-4.9.7.tgz#8ac244477397de71d7d3d393fad129209b5b631e"
+  integrity sha512-t4Te6ERzIaC48W3x4hJmBwgNlLhmiEdEE5ViYb02ffw4ignHNHa5IBtPjmbKstmtKa8X6C35iWwK4HaqvrzG9w==
 
 hosted-git-info@^2.1.4:
   version "2.8.9"
