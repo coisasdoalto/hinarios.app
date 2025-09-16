@@ -1,8 +1,9 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 
 import { AppProps } from 'next/app';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 import {
   closestCenter,
@@ -36,7 +37,10 @@ import {
 } from '@mantine/core';
 import { useForm, UseFormReturnType, zodResolver } from '@mantine/form';
 import { useListState, useMediaQuery } from '@mantine/hooks';
+import { showNotification } from '@mantine/notifications';
 import { IconGripVertical } from '@tabler/icons-react';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
 import { omitBy } from 'lodash-es';
 import { z } from 'zod';
 
@@ -49,7 +53,8 @@ import { HymnBook } from 'schemas/hymnBook';
 
 type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
 
-type LyricFormItem = { id: number } & Hymn['lyrics'][number];
+type Lyric = Hymn['lyrics'][number];
+type LyricFormItem = { id: number } & Lyric;
 
 type FormValues = { lyrics: LyricFormItem[] };
 
@@ -147,6 +152,8 @@ export default function Page(props: AppProps & PageProps) {
 
   useHymnBooksSave(props.hymnBooks);
 
+  const router = useRouter();
+
   const initialListState = lyrics.map((lyric, index) => ({ ...lyric, id: index }));
 
   const form = useForm<FormValues>({
@@ -163,6 +170,29 @@ export default function Page(props: AppProps & PageProps) {
         ),
       })
     ),
+  });
+
+  const { mutateAsync: updateHymnMutation, isPending } = useMutation({
+    mutationFn: async (lyrics: Lyric[]) => {
+      return await axios.patch(`/api/hymns/${hymnBook?.slug}/${number}`, { lyrics });
+    },
+    onSuccess: (data) => {
+      showNotification({
+        title: 'Hino atualizado',
+        message: 'O hino foi atualizado com sucesso.',
+        color: 'green',
+      });
+
+      router.push(`/${hymnBook?.slug}/${params?.slug}`);
+    },
+    onError: () => {
+      showNotification({
+        title: 'Erro ao atualizar',
+        message: 'Ocorreu um erro ao atualizar o hino. Tente novamente.',
+        color: 'red',
+      });
+    },
+    throwOnError: false,
   });
 
   const params = useParams();
@@ -199,16 +229,14 @@ export default function Page(props: AppProps & PageProps) {
     }
   };
 
-  function handleSubmit(values: FormValues) {
+  async function handleSubmit(values: FormValues) {
     const newLyrics = values.lyrics.map(({ id, ...lyric }) =>
-      omitBy(lyric, (v) => v === undefined)
-    );
+      omitBy<Lyric>(lyric, (v) => v === undefined)
+    ) as Lyric[];
 
-    console.log({
-      before: lyrics,
-      after: newLyrics,
-      values,
-    });
+    const res = await updateHymnMutation(newLyrics);
+
+    console.log(res.data);
   }
 
   function handleReset() {
@@ -267,7 +295,7 @@ export default function Page(props: AppProps & PageProps) {
               Reverter
             </Button>
           </Tooltip>
-          <Button type="submit" disabled={!isDirty || !isValid}>
+          <Button type="submit" disabled={!isDirty || !isValid || isPending} loading={isPending}>
             Salvar
           </Button>
         </Group>
@@ -276,7 +304,7 @@ export default function Page(props: AppProps & PageProps) {
   );
 }
 
-export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
   const hymnBook = z.string().parse(context.params?.hymnBook);
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
@@ -291,8 +319,3 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
     props: { content, hymnBooks, hymnBook },
   };
 };
-
-export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: [],
-  fallback: 'blocking',
-});
