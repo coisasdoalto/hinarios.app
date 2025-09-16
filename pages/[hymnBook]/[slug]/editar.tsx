@@ -10,6 +10,7 @@ import {
   DragEndEvent,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -34,7 +35,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useForm, UseFormReturnType, zodResolver } from '@mantine/form';
-import { useListState } from '@mantine/hooks';
+import { useListState, useMediaQuery } from '@mantine/hooks';
 import { IconGripVertical } from '@tabler/icons-react';
 import { omitBy } from 'lodash-es';
 import { z } from 'zod';
@@ -63,6 +64,8 @@ function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
     id: item.id,
   });
 
+  const isMobile = useMediaQuery('(max-width: 48em)');
+
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -90,6 +93,7 @@ function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
       sx={(theme) => ({
         boxShadow: isDragging ? theme.shadows.sm : 'none',
         zIndex: isDragging ? 1 : 'unset',
+        borderColor: isDragging ? theme.colors.blue[6] : undefined,
       })}
       {...attributes}
     >
@@ -101,14 +105,23 @@ function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
             "&[data-dragging='true']": {
               cursor: 'grabbing',
             },
+            touchAction: 'none',
           }}
           {...listeners}
         >
-          <IconGripVertical size={18} stroke={1.5} />
+          <IconGripVertical size={24} stroke={1.5} />
         </Flex>
         <Group w="100%">
-          <Group>
-            <Badge w="fit-content">{position}</Badge>
+          <Group spacing="xs">
+            <Badge
+              w="fit-content"
+              sx={{
+                userSelect: 'none',
+              }}
+              size="lg"
+            >
+              {position}
+            </Badge>
             <SegmentedControl
               data={[
                 { value: 'stanza', label: 'Estrofe' },
@@ -117,6 +130,7 @@ function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
               ]}
               {...form.getInputProps(`lyrics.${index}.type`)}
               onChange={handleTypeChange}
+              size={isMobile ? 'xs' : 'sm'}
             />
           </Group>
           <Textarea autosize w="100%" {...form.getInputProps(`lyrics.${index}.text`)} />
@@ -160,6 +174,7 @@ export default function Page(props: AppProps & PageProps) {
   const [listState, listStateHandlers] = useListState(initialListState);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { distance: 0 } }),
     useSensor(KeyboardSensor)
   );
 
