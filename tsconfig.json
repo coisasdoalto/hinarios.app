@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext", "webworker"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+      "webworker"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -21,8 +26,18 @@
         "name": "next"
       }
     ],
-    "types": ["@serwist/next/typings", "bun"]
+    "types": [
+      "@serwist/next/typings"
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "pages/api/api.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
