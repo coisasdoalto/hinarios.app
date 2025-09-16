@@ -234,9 +234,7 @@ export default function Page(props: AppProps & PageProps) {
       omitBy<Lyric>(lyric, (v) => v === undefined)
     ) as Lyric[];
 
-    const res = await updateHymnMutation(newLyrics);
-
-    console.log(res.data);
+    await updateHymnMutation(newLyrics);
   }
 
   function handleReset() {
