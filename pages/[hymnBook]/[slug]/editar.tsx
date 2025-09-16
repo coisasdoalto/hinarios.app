@@ -1,7 +1,8 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 
 import { AppProps } from 'next/app';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 import {
   closestCenter,
@@ -30,32 +31,34 @@ import {
   Space,
   Textarea,
   Title,
+  Tooltip,
 } from '@mantine/core';
+import { useForm, UseFormReturnType, zodResolver } from '@mantine/form';
 import { useListState } from '@mantine/hooks';
 import { IconGripVertical } from '@tabler/icons-react';
-import cx from 'clsx';
+import { omitBy } from 'lodash-es';
 import { z } from 'zod';
 
 import BackButton from 'components/BackButton/BackButton';
 import { useHymnBooks, useHymnBooksSave } from 'context/HymnBooks';
 import getHymnBooks from 'data/getHymnBooks';
-import getHymnsIndex from 'data/getHymnsIndex';
 import getParsedData from 'data/getParsedData';
 import { Hymn, hymnSchema } from 'schemas/hymn';
 import { HymnBook } from 'schemas/hymnBook';
 
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import classes from './styles.module.css';
-
 type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
 
-type ItemProps = {
-  item: Hymn['lyrics'][number] & { id: number };
+type LyricFormItem = { id: number } & Hymn['lyrics'][number];
+
+type FormValues = { lyrics: LyricFormItem[] };
+
+type LyricSortableItemProps = {
   index: number;
+  item: LyricFormItem;
+  form: UseFormReturnType<FormValues>;
 };
 
-function SortableItem({ item, index }: ItemProps) {
+function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
   });
@@ -67,31 +70,56 @@ function SortableItem({ item, index }: ItemProps) {
 
   const position = index + 1;
 
+  function handleTypeChange(value: string) {
+    form.getInputProps(`lyrics.${index}.type`).onChange(value);
+
+    if (value === 'stanza') {
+      form.setFieldValue(`lyrics.${index}.number`, position);
+      return;
+    }
+
+    form.setFieldValue(`lyrics.${index}.number`, undefined);
+  }
+
   return (
     <Paper
-      className={cx({ [classes.itemDragging]: isDragging })}
+      withBorder
       p="xs"
       ref={setNodeRef}
       style={style}
+      sx={(theme) => ({
+        boxShadow: isDragging ? theme.shadows.sm : 'none',
+        zIndex: isDragging ? 1 : 'unset',
+      })}
       {...attributes}
     >
-      <Group noWrap>
-        <Flex className={classes.dragHandle} {...listeners}>
+      <Group noWrap spacing="xs">
+        <Flex
+          data-dragging={isDragging}
+          sx={{
+            cursor: 'grab',
+            "&[data-dragging='true']": {
+              cursor: 'grabbing',
+            },
+          }}
+          {...listeners}
+        >
           <IconGripVertical size={18} stroke={1.5} />
         </Flex>
         <Group w="100%">
           <Group>
             <Badge w="fit-content">{position}</Badge>
             <SegmentedControl
-              defaultValue={item.type}
               data={[
                 { value: 'stanza', label: 'Estrofe' },
                 { value: 'chorus', label: 'Estribilho' },
                 { value: 'unnumbered_stanza', label: 'Sem número' },
               ]}
+              {...form.getInputProps(`lyrics.${index}.type`)}
+              onChange={handleTypeChange}
             />
           </Group>
-          <Textarea autosize w="100%" value={item.text} />
+          <Textarea autosize w="100%" {...form.getInputProps(`lyrics.${index}.text`)} />
         </Group>
       </Group>
     </Paper>
@@ -105,16 +133,31 @@ export default function Page(props: AppProps & PageProps) {
 
   useHymnBooksSave(props.hymnBooks);
 
-  const router = useRouter();
+  const initialListState = lyrics.map((lyric, index) => ({ ...lyric, id: index }));
+
+  const form = useForm<FormValues>({
+    initialValues: { lyrics: initialListState },
+    validateInputOnChange: true,
+    validate: zodResolver(
+      z.object({
+        lyrics: z.array(
+          z.object({
+            type: z.enum(['stanza', 'chorus', 'unnumbered_stanza']),
+            text: z.string().min(1, 'O texto é obrigatório'),
+            number: z.number().optional(),
+          })
+        ),
+      })
+    ),
+  });
+
   const params = useParams();
 
   const [hymnBooks] = useHymnBooks();
 
   const hymnBook = hymnBooks?.find((item) => item.slug === params.hymnBook)!;
 
-  const listState = lyrics.map((lyric, index) => ({ ...lyric, id: index }));
-
-  const [state, handlers] = useListState(listState);
+  const [listState, listStateHandlers] = useListState(initialListState);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor)
@@ -125,10 +168,41 @@ export default function Page(props: AppProps & PageProps) {
     if (!over || active.id === over.id) {
       return;
     }
-    const oldIndex = state.findIndex((i) => i.id === active.id);
-    const newIndex = state.findIndex((i) => i.id === over.id);
-    handlers.setState(arrayMove(state, oldIndex, newIndex));
+    const oldIndex = listState.findIndex((i) => i.id === active.id);
+    const newIndex = listState.findIndex((i) => i.id === over.id);
+    form.reorderListItem('lyrics', {
+      from: oldIndex,
+      to: newIndex,
+    });
+    listStateHandlers.setState(arrayMove(listState, oldIndex, newIndex));
+
+    const formItem = form.values.lyrics[newIndex];
+
+    if (formItem.type === 'stanza') {
+      const position = newIndex + 1;
+      form.setFieldValue(`lyrics.${newIndex}.number`, position);
+    }
   };
+
+  function handleSubmit(values: FormValues) {
+    const newLyrics = values.lyrics.map(({ id, ...lyric }) =>
+      omitBy(lyric, (v) => v === undefined)
+    );
+
+    console.log({
+      before: lyrics,
+      after: newLyrics,
+      values,
+    });
+  }
+
+  function handleReset() {
+    form.setValues({ lyrics: initialListState });
+    listStateHandlers.setState(initialListState);
+  }
+
+  const isDirty = form.isDirty();
+  const isValid = form.isValid();
 
   return (
     <Container size="xs">
@@ -151,26 +225,38 @@ export default function Page(props: AppProps & PageProps) {
 
       <Space h="md" />
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={state.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-          <Flex direction="column" gap="sm">
-            {state.map((item, index) => (
-              <SortableItem key={item.id} item={item} index={index} />
-            ))}
-          </Flex>
-        </SortableContext>
-      </DndContext>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext
+            items={listState.map((i) => i.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <Flex direction="column" gap="sm">
+              {listState.map((item, index) => (
+                <LyricSortableItem key={item.id} item={item} index={index} form={form} />
+              ))}
+            </Flex>
+          </SortableContext>
+        </DndContext>
 
-      <Space h="md" />
+        <Space h="md" />
 
-      <Group position="right">
-        <Link href={`/${hymnBook?.slug}/${params?.slug}`} passHref>
-          <Button color="red" variant="outline">
-            Cancelar
+        <Group position="right">
+          <Link href={`/${hymnBook?.slug}/${params?.slug}`}>
+            <Button color="red" variant="outline">
+              Cancelar
+            </Button>
+          </Link>
+          <Tooltip label="Reverter para a última versão salva">
+            <Button variant="outline" onClick={handleReset} disabled={!isDirty}>
+              Reverter
+            </Button>
+          </Tooltip>
+          <Button type="submit" disabled={!isDirty || !isValid}>
+            Salvar
           </Button>
-        </Link>
-        <Button>Salvar</Button>
-      </Group>
+        </Group>
+      </form>
     </Container>
   );
 }
@@ -191,25 +277,7 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const hymnBooks = await getHymnBooks();
-
-  const allPaths = (
-    await Promise.all(
-      hymnBooks.map(async (hymnBook) => {
-        const hymnsIndex = await getHymnsIndex(hymnBook.slug);
-
-        const paths = hymnsIndex.map(({ slug }) => ({
-          params: { hymnBook: hymnBook.slug, slug },
-        }));
-
-        return paths;
-      })
-    )
-  ).flat();
-
-  return {
-    paths: allPaths,
-    fallback: false,
-  };
-};
+export const getStaticPaths: GetStaticPaths = async () => ({
+  paths: [],
+  fallback: 'blocking',
+});

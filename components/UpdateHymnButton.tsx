@@ -6,8 +6,10 @@ import { useRouter } from 'next/router';
 export function UpdateHymnButton() {
   const router = useRouter();
 
+  const pathWithoutSlash = router.asPath.replace(/\/$/, '');
+
   return (
-    <Link href={`${router.asPath}/editar`}>
+    <Link href={`${pathWithoutSlash}/editar`}>
       <Tooltip label="Editar hino">
         <ActionIcon variant="subtle" size="lg">
           <IconPencil stroke={1.5} />
