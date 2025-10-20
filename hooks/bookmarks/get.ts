@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { db } from '../../firebase/web/database';
 
 export function useGetBookmarks() {
-  const user = useUser();
+  const {user} = useUser();
 
   const queryClient = useQueryClient();
 

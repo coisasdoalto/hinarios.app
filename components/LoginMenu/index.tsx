@@ -5,11 +5,11 @@ import { signInWithGoogle, signOut } from '../../firebase/web/auth';
 import { useUser } from '../../hooks/useUser';
 
 function LoginMenu() {
-  const user = useUser();
+  const {user, isLoading} = useUser();
 
   const isLoginEnabled = useFeatureFlagEnabled('login');
 
-  if (!isLoginEnabled) {
+  if (!isLoginEnabled || isLoading) {
     return null;
   }
 
