@@ -33,13 +33,14 @@ import {
   SegmentedControl,
   Space,
   Textarea,
+  TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useForm, UseFormReturnType, zodResolver } from '@mantine/form';
 import { useListState, useMediaQuery } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
-import { IconGripVertical } from '@tabler/icons-react';
+import { IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { omitBy } from 'lodash-es';
 import { z } from 'zod';
@@ -58,15 +59,20 @@ type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
 type Lyric = Hymn['lyrics'][number];
 type LyricFormItem = { id: number } & Lyric;
 
-type FormValues = { lyrics: LyricFormItem[] };
+type FormValues = {
+  title: string;
+  subtitle?: string;
+  lyrics: LyricFormItem[];
+};
 
 type LyricSortableItemProps = {
   index: number;
   item: LyricFormItem;
   form: UseFormReturnType<FormValues>;
+  onDelete: (index: number) => void;
 };
 
-function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
+function LyricSortableItem({ item, index, form, onDelete }: LyricSortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
   });
@@ -140,7 +146,25 @@ function LyricSortableItem({ item, index, form }: LyricSortableItemProps) {
               size={isMobile ? 'xs' : 'sm'}
             />
           </Group>
-          <Textarea autosize w="100%" {...form.getInputProps(`lyrics.${index}.text`)} />
+          <Flex w="100%" gap="xs" align="flex-start">
+            <Textarea
+              autosize
+              style={{ flex: 1 }}
+              {...form.getInputProps(`lyrics.${index}.text`)}
+            />
+            <Tooltip label="Excluir estrofe">
+              <Button
+                variant="subtle"
+                color="red"
+                size="sm"
+                p="xs"
+                onClick={() => onDelete(index)}
+                style={{ minWidth: 'auto' }}
+              >
+                <IconTrash size={16} />
+              </Button>
+            </Tooltip>
+          </Flex>
         </Group>
       </Group>
     </Paper>
@@ -159,10 +183,16 @@ export default function Page(props: AppProps & PageProps) {
   const initialListState = lyrics.map((lyric, index) => ({ ...lyric, id: index }));
 
   const form = useForm<FormValues>({
-    initialValues: { lyrics: initialListState },
+    initialValues: {
+      title,
+      subtitle,
+      lyrics: initialListState,
+    },
     validateInputOnChange: true,
     validate: zodResolver(
       z.object({
+        title: z.string().min(1, 'O título é obrigatório'),
+        subtitle: z.string().optional(),
         lyrics: z.array(
           z.object({
             type: z.enum(['stanza', 'chorus', 'unnumbered_stanza']),
@@ -175,10 +205,10 @@ export default function Page(props: AppProps & PageProps) {
   });
 
   const { mutateAsync: updateHymnMutation, isPending } = useMutation({
-    mutationFn: async (lyrics: Lyric[]) => {
+    mutationFn: async (data: { title: string; subtitle?: string; lyrics: Lyric[] }) => {
       return await authenticatedAxios(`/api/hymns/${hymnBook?.slug}/${number}`, {
         method: 'PATCH',
-        data: { lyrics },
+        data,
       });
     },
     onSuccess: (data) => {
@@ -251,16 +281,55 @@ export default function Page(props: AppProps & PageProps) {
       omitBy<Lyric>(lyric, (v) => v === undefined)
     ) as Lyric[];
 
-    await updateHymnMutation(newLyrics);
+    await updateHymnMutation({
+      title: values.title,
+      subtitle: values.subtitle,
+      lyrics: newLyrics,
+    });
   }
 
   function handleReset() {
-    form.setValues({ lyrics: initialListState });
+    form.setValues({
+      title,
+      subtitle,
+      lyrics: initialListState,
+    });
     listStateHandlers.setState(initialListState);
+  }
+
+  function handleInsertLyric() {
+    const newId = Math.max(...listState.map((item) => item.id), 0) + 1;
+    const newLyric: LyricFormItem = {
+      id: newId,
+      type: 'stanza',
+      text: '',
+      number: listState.length + 1,
+    };
+
+    form.insertListItem('lyrics', newLyric);
+    listStateHandlers.append(newLyric);
+  }
+
+  function handleDeleteLyric(index: number) {
+    form.removeListItem('lyrics', index);
+    const newListState = [...listState];
+    newListState.splice(index, 1);
+    listStateHandlers.setState(newListState);
   }
 
   const isDirty = form.isDirty();
   const isValid = form.isValid();
+
+  const submitButtonTooltipLabel = (() => {
+    if (form.values.lyrics.length === 0) {
+      return 'Adicione pelo menos uma estrofe';
+    }
+
+    if (!isValid) {
+      return 'Corrija os erros no formulário';
+    }
+    return '';
+  })();
 
   return (
     <Container size="xs">
@@ -269,21 +338,58 @@ export default function Page(props: AppProps & PageProps) {
       <Space h="md" />
 
       <Flex align="flex-start" gap="sm">
-        <div>
-          <Title order={1} size="h2">
-            {number}. {title}
-          </Title>
-          {subtitle && (
-            <Title order={5} color="dimmed" italic>
-              {subtitle}
+        <div style={{ width: '100%' }}>
+          <Group align="center" spacing="xs">
+            <Title order={1} size="h2" style={{ minWidth: 'fit-content' }}>
+              {number}.
             </Title>
-          )}
+            <TextInput
+              placeholder="Título do hino"
+              variant="unstyled"
+              w="100%"
+              sx={(theme) => ({
+                flex: 1,
+                input: {
+                  padding: 0,
+                  fontSize: `calc(${theme.fontSizes.lg}px * 1.5)`,
+                  fontWeight: 'bold',
+                  color: 'var(--mantine-color-dimmed)',
+                },
+              })}
+              {...form.getInputProps('title')}
+            />
+          </Group>
+          <TextInput
+            placeholder="Subtítulo (opcional)"
+            size="md"
+            variant="unstyled"
+            sx={(theme) => ({
+              input: {
+                padding: 0,
+                fontSize: theme.fontSizes.md,
+                fontStyle: 'italic',
+                color: 'var(--mantine-color-dimmed)',
+              },
+            })}
+            {...form.getInputProps('subtitle')}
+          />
         </div>
       </Flex>
 
       <Space h="md" />
 
       <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Group position="apart" mb="sm">
+          <Button
+            leftIcon={<IconPlus size={16} />}
+            variant="light"
+            size="sm"
+            onClick={handleInsertLyric}
+          >
+            Adicionar estrofe
+          </Button>
+        </Group>
+
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
             items={listState.map((i) => i.id)}
@@ -291,7 +397,13 @@ export default function Page(props: AppProps & PageProps) {
           >
             <Flex direction="column" gap="sm">
               {listState.map((item, index) => (
-                <LyricSortableItem key={item.id} item={item} index={index} form={form} />
+                <LyricSortableItem
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  form={form}
+                  onDelete={handleDeleteLyric}
+                />
               ))}
             </Flex>
           </SortableContext>
@@ -310,9 +422,15 @@ export default function Page(props: AppProps & PageProps) {
               Reverter
             </Button>
           </Tooltip>
-          <Button type="submit" disabled={!isDirty || !isValid || isPending} loading={isPending}>
-            Salvar
-          </Button>
+          <Tooltip label={submitButtonTooltipLabel}>
+            <Button
+              type="submit"
+              disabled={!isDirty || !isValid || isPending || form.values.lyrics.length === 0}
+              loading={isPending}
+            >
+              Salvar
+            </Button>
+          </Tooltip>
         </Group>
       </form>
     </Container>
