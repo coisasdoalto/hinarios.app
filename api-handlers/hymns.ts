@@ -65,12 +65,14 @@ hymnsApp.patch(
   zValidator(
     'json',
     hymnSchema.pick({
+      title: true,
+      subtitle: true,
       lyrics: true,
     })
   ),
   async (c) => {
     const { hymnBook, hymnNumber } = c.req.valid('param');
-    const { lyrics } = c.req.valid('json');
+    const { title, subtitle, lyrics } = c.req.valid('json');
 
     const hymnDataFile = path.resolve('hymnsData', hymnBook, `${hymnNumber}.json`);
 
@@ -89,14 +91,20 @@ hymnsApp.patch(
 
     const updatedHymnData = {
       ...existingHymnData,
+      title,
+      subtitle,
       lyrics,
     };
 
-    const hymnSlug = `${hymnNumber}-${slugify(existingHymnData.title)}`;
+    const hymnSlug = `${hymnNumber}-${slugify(title)}`;
 
     await writeFile(hymnDataFile, JSON.stringify(updatedHymnData, null, 2));
 
-    await c.env.outgoing.revalidate(`/${hymnBook}/${hymnSlug}/`);
+    try {
+      await c.env.outgoing.revalidate(`/${hymnBook}/${hymnSlug}/`);
+    } catch (error) {
+      console.error('Revalidation error:', error);
+    }
 
     return c.body(null, 202);
   }
