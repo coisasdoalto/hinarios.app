@@ -1,12 +1,16 @@
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconPencil } from '@tabler/icons';
+import { useAdmin } from 'hooks/useAdmin';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 export function UpdateHymnButton() {
+  const { isAdmin } = useAdmin();
   const router = useRouter();
 
   const pathWithoutSlash = router.asPath.replace(/\/$/, '');
+
+  if (!isAdmin) return null;
 
   return (
     <Link href={`${pathWithoutSlash}/editar`}>

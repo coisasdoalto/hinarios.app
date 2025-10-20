@@ -1,4 +1,5 @@
 import { GetServerSideProps } from 'next';
+import { useEffect } from 'react';
 
 import { AppProps } from 'next/app';
 import Link from 'next/link';
@@ -40,7 +41,6 @@ import { useListState, useMediaQuery } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
 import { IconGripVertical } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { omitBy } from 'lodash-es';
 import { z } from 'zod';
 
@@ -48,8 +48,10 @@ import BackButton from 'components/BackButton/BackButton';
 import { useHymnBooks, useHymnBooksSave } from 'context/HymnBooks';
 import getHymnBooks from 'data/getHymnBooks';
 import getParsedData from 'data/getParsedData';
+import { useAdmin } from 'hooks/useAdmin';
 import { Hymn, hymnSchema } from 'schemas/hymn';
 import { HymnBook } from 'schemas/hymnBook';
+import { authenticatedAxios } from 'utils/authenticatedFetch';
 
 type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
 
@@ -174,7 +176,10 @@ export default function Page(props: AppProps & PageProps) {
 
   const { mutateAsync: updateHymnMutation, isPending } = useMutation({
     mutationFn: async (lyrics: Lyric[]) => {
-      return await axios.patch(`/api/hymns/${hymnBook?.slug}/${number}`, { lyrics });
+      return await authenticatedAxios(`/api/hymns/${hymnBook?.slug}/${number}`, {
+        method: 'PATCH',
+        data: { lyrics },
+      });
     },
     onSuccess: (data) => {
       showNotification({
@@ -207,6 +212,18 @@ export default function Page(props: AppProps & PageProps) {
     useSensor(TouchSensor, { activationConstraint: { distance: 0 } }),
     useSensor(KeyboardSensor)
   );
+
+  const { isAdmin, isLoading: isLoadingUser } = useAdmin();
+
+  useEffect(() => {
+    if (isLoadingUser || isAdmin) return;
+
+    router.replace(`/${params.hymnBook}/${params.slug}`);
+  }, [isAdmin, isLoadingUser]);
+
+  if (isLoadingUser) {
+    return null;
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

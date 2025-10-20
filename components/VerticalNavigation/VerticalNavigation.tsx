@@ -9,7 +9,7 @@ import { DarkModeToggle } from './DarkModeToggle';
 function VerticalNavigation({ onNavigation }: { onNavigation: () => void }) {
   const [hymnBooks] = useHymnBooks();
 
-  const user = useUser();
+  const {user} = useUser();
   const isBookmarksEnabled = useFeatureFlagEnabled('bookmarks');
 
   const shouldShowBookmarksLink = user && isBookmarksEnabled;

@@ -19,7 +19,7 @@ export function BookmarkButton() {
 
   const { data: bookmarks, isLoading } = useGetBookmarks();
 
-  const user = useUser();
+  const {user} = useUser();
 
   const { mutateAsync: addBookmark } = useAddBookmark();
   const { mutateAsync: removeBookmark } = useRemoveBookmark();

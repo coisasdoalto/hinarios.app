@@ -5,7 +5,7 @@ import { Bookmark } from '../../types/database/Bookmark';
 import { useUser } from '../useUser';
 
 export function useAddBookmark() {
-  const user = useUser();
+  const {user} = useUser();
 
   return useMutation({
     mutationFn: async (hymn: Bookmark) => {

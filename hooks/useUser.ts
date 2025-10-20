@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { auth } from '../firebase/web';
 
 export function useUser() {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
@@ -14,6 +15,7 @@ export function useUser() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       setUser(authUser);
+      setIsLoading(false);
 
       if (!authUser) return posthog.reset();
 
@@ -36,5 +38,8 @@ export function useUser() {
     });
   }, [user]);
 
-  return user;
+  return {
+    user,
+    isLoading,
+  };
 }

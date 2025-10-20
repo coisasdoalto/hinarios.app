@@ -10,6 +10,7 @@ import { z } from 'zod';
 import getParsedData from 'data/getParsedData';
 import { hymnSchema } from 'schemas/hymn';
 import { hymnBookInfoSchema } from 'schemas/hymnBookInfo';
+import { adminAuthMiddleware } from './middleware/adminAuth';
 
 const hymnsApp = new Hono();
 
@@ -26,8 +27,6 @@ hymnsApp.get(
     const { hymnBook, hymnNumber } = c.req.valid('param');
 
     const hymnDataFile = path.resolve('hymnsData', hymnBook, `${hymnNumber}.json`);
-
-    console.log(hymnDataFile);
 
     const hymnDataFileExists = existsSync(hymnDataFile);
 
@@ -55,6 +54,7 @@ hymnsApp.get(
 
 hymnsApp.patch(
   '/:hymnBook/:hymnNumber/',
+  adminAuthMiddleware,
   zValidator(
     'param',
     z.object({
@@ -91,15 +91,6 @@ hymnsApp.patch(
       ...existingHymnData,
       lyrics,
     };
-
-    console.log(
-      JSON.stringify({
-        before: existingHymnData,
-        after: updatedHymnData,
-      }),
-      null,
-      2
-    );
 
     const hymnSlug = `${hymnNumber}-${slugify(existingHymnData.title)}`;
 
