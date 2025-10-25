@@ -72,6 +72,19 @@ type LyricSortableItemProps = {
   onDelete: (index: number) => void;
 };
 
+function getNextStanzaNumber(listState: LyricFormItem[]) {
+  const isStanzaItem = (item: LyricFormItem): item is Extract<LyricFormItem, { type: 'stanza' }> =>
+    item.type === 'stanza';
+
+  const stanzaNumbers = listState.filter(isStanzaItem).map((item) => item.number);
+
+  if (stanzaNumbers.length === 0) {
+    return 1;
+  }
+
+  return Math.max(...stanzaNumbers) + 1;
+}
+
 function LyricSortableItem({ item, index, form, onDelete }: LyricSortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
@@ -90,7 +103,7 @@ function LyricSortableItem({ item, index, form, onDelete }: LyricSortableItemPro
     form.getInputProps(`lyrics.${index}.type`).onChange(value);
 
     if (value === 'stanza') {
-      form.setFieldValue(`lyrics.${index}.number`, position);
+      form.setFieldValue(`lyrics.${index}.number`, getNextStanzaNumber(form.values.lyrics));
       return;
     }
 
@@ -303,7 +316,7 @@ export default function Page(props: AppProps & PageProps) {
       id: newId,
       type: 'stanza',
       text: '',
-      number: listState.length + 1,
+      number: getNextStanzaNumber(listState),
     };
 
     form.insertListItem('lyrics', newLyric);
