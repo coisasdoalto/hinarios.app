@@ -72,10 +72,10 @@ type LyricSortableItemProps = {
   onDelete: (index: number) => void;
 };
 
-function getNextStanzaNumber(listState: LyricFormItem[]) {
-  const isStanzaItem = (item: LyricFormItem): item is Extract<LyricFormItem, { type: 'stanza' }> =>
-    item.type === 'stanza';
+const isStanzaItem = (item: Lyric): item is Extract<Lyric, { type: 'stanza' }> =>
+  item.type === 'stanza';
 
+function getNextStanzaNumber(listState: Lyric[]) {
   const stanzaNumbers = listState.filter(isStanzaItem).map((item) => item.number);
 
   if (stanzaNumbers.length === 0) {
@@ -102,12 +102,9 @@ function LyricSortableItem({ item, index, form, onDelete }: LyricSortableItemPro
   function handleTypeChange(value: string) {
     form.getInputProps(`lyrics.${index}.type`).onChange(value);
 
-    if (value === 'stanza') {
-      form.setFieldValue(`lyrics.${index}.number`, getNextStanzaNumber(form.values.lyrics));
-      return;
+    if (value !== 'stanza') {
+      form.setFieldValue(`lyrics.${index}.number`, undefined);
     }
-
-    form.setFieldValue(`lyrics.${index}.number`, undefined);
   }
 
   return (
@@ -291,8 +288,13 @@ export default function Page(props: AppProps & PageProps) {
 
   async function handleSubmit(values: FormValues) {
     const newLyrics = values.lyrics.map(({ id, ...lyric }) =>
-      omitBy<Lyric>(lyric, (v) => v === undefined)
+      omitBy(lyric, (v) => v === undefined)
     ) as Lyric[];
+
+    // Recalculate stanza numbers to ensure they are sequential
+    newLyrics.filter(isStanzaItem).forEach((lyric, index) => {
+      lyric.number = index + 1;
+    });
 
     await updateHymnMutation({
       title: values.title,
