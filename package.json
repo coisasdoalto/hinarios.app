@@ -2,6 +2,9 @@
   "name": "mantine-next-template",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "dev": "next dev",
     "prebuild": "rm -rf ./hymnsData && yarn data:download && yarn generate:index && yarn generate:searchIndex && yarn generate:pathsForPrecache",
@@ -81,7 +84,7 @@
     "@types/cli-progress": "^3.11.5",
     "@types/debug": "^4.1.12",
     "@types/jest": "^27.4.1",
-    "@types/node": "^18.11.4",
+    "@types/node": "22",
     "@types/progress": "^2.0.5",
     "@types/react": "18.0.21",
     "@types/react-lazyload": "^3.2.0",
