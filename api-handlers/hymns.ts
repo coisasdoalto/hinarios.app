@@ -1,13 +1,12 @@
-import { existsSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import slugify from 'slugify';
 import { z } from 'zod';
+import { fs } from 'zx';
 
 import getParsedData from 'data/getParsedData';
+import { storage } from 'firebase';
 import { hymnSchema } from 'schemas/hymn';
 import { hymnBookInfoSchema } from 'schemas/hymnBookInfo';
 import { adminAuthMiddleware } from './middleware/adminAuth';
@@ -28,7 +27,7 @@ hymnsApp.get(
 
     const hymnDataFile = path.resolve('hymnsData', hymnBook, `${hymnNumber}.json`);
 
-    const hymnDataFileExists = existsSync(hymnDataFile);
+    const hymnDataFileExists = await fs.exists(hymnDataFile);
 
     if (!hymnDataFileExists) {
       c.status(404);
@@ -74,9 +73,10 @@ hymnsApp.patch(
     const { hymnBook, hymnNumber } = c.req.valid('param');
     const { title, subtitle, lyrics } = c.req.valid('json');
 
-    const hymnDataFile = path.resolve('hymnsData', hymnBook, `${hymnNumber}.json`);
+    const hymnFilePath = path.join(hymnBook, `${hymnNumber}.json`);
+    const resolvedHymnDataPath = path.resolve('hymnsData', hymnFilePath);
 
-    const hymnDataFileExists = existsSync(hymnDataFile);
+    const hymnDataFileExists = await fs.exists(resolvedHymnDataPath);
 
     if (!hymnDataFileExists) {
       c.status(404);
@@ -96,15 +96,11 @@ hymnsApp.patch(
       lyrics,
     };
 
-    const hymnSlug = `${hymnNumber}-${slugify(title)}`;
+    const firebaseBucket = storage.bucket();
 
-    await writeFile(hymnDataFile, JSON.stringify(updatedHymnData, null, 2));
-
-    try {
-      await c.env.outgoing.revalidate(`/${hymnBook}/${hymnSlug}/`);
-    } catch (error) {
-      console.error('Revalidation error:', error);
-    }
+    await firebaseBucket.file(hymnFilePath).save(JSON.stringify(updatedHymnData, null, 2), {
+      contentType: 'application/json',
+    });
 
     return c.body(null, 202);
   }
