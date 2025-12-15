@@ -60,6 +60,7 @@
     "cookies-next": "^2.1.1",
     "dayjs": "^1.11.6",
     "debug": "^4.4.0",
+    "diff": "^8.0.2",
     "dotenv": "^16.0.3",
     "embla-carousel-react": "^7.0.3",
     "eslint-config-next": "^14.1.0",

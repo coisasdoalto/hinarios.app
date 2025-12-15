@@ -1,3 +1,4 @@
+import { Change, diffLines } from 'diff';
 import path from 'node:path';
 import { App } from 'octokit';
 import slugify from 'slugify';
@@ -8,12 +9,10 @@ import { Hymn, hymnSchema } from 'schemas/hymn';
 import { storage } from '../../firebase';
 import { assertNever } from '../../utils/assertNever';
 
-interface LyricChange {
+interface StanzaChange {
   stanzaIndex: number;
   stanzaLabel: string;
-  lineNumber: number;
-  oldLine: string;
-  newLine: string;
+  diff: Change[];
 }
 
 class UpdateHymnUsecase {
@@ -86,19 +85,25 @@ class UpdateHymnUsecase {
     }
   }
 
-  private generateLyricsDiff(oldHymn: Hymn, newHymn: Hymn): LyricChange[] {
-    const changes: LyricChange[] = [];
-
+  private generateLyricsDiff(oldHymn: Hymn, newHymn: Hymn): StanzaChange[] {
     const maxStanzas = Math.max(oldHymn.lyrics.length, newHymn.lyrics.length);
 
-    const stanzaChanges = Array.from({ length: maxStanzas }, (_, i) => {
+    const changes = Array.from({ length: maxStanzas }, (_, i) => {
       const oldStanza = oldHymn.lyrics[i];
       const newStanza = newHymn.lyrics[i];
 
-      if (!oldStanza || !newStanza) return [];
+      if (!oldStanza || !newStanza) return;
 
-      const oldLines = oldStanza.text.split('\n');
-      const newLines = newStanza.text.split('\n');
+      const oldText = oldStanza.text;
+      const newText = newStanza.text;
+
+      // Use diffLines to get the diff for this stanza
+      const stanzaDiff = diffLines(oldText, newText);
+
+      // Only include if there are actual changes (added or removed)
+      const hasChanges = stanzaDiff.some((part) => part.added || part.removed);
+
+      if (!hasChanges) return;
 
       const stanzaLabel = (() => {
         switch (oldStanza.type) {
@@ -113,26 +118,12 @@ class UpdateHymnUsecase {
         }
       })();
 
-      const maxLines = Math.max(oldLines.length, newLines.length);
-
-      return Array.from({ length: maxLines }, (_, lineIndex) => {
-        const oldLine = oldLines[lineIndex] || '';
-        const newLine = newLines[lineIndex] || '';
-
-        if (oldLine !== newLine) {
-          return {
-            stanzaIndex: i + 1,
-            stanzaLabel,
-            lineNumber: lineIndex + 1,
-            oldLine,
-            newLine,
-          };
-        }
-        return null;
-      }).filter((change): change is LyricChange => change !== null);
-    });
-
-    changes.push(...stanzaChanges.flat());
+      return {
+        stanzaIndex: i + 1,
+        stanzaLabel,
+        diff: stanzaDiff,
+      };
+    }).filter((c): c is StanzaChange => c !== undefined);
 
     return changes;
   }
@@ -143,10 +134,11 @@ class UpdateHymnUsecase {
 
    - [HC 123 (Nome do Hino)](http://hinarios.app/...): Mensagem opcional
 
-    **Estrofe 1, linha 2:**
+    **Estrofe 1:**
     ```diff
     - linha antiga
     + linha nova
+      linha comum
     ```
    */
   private generateReleaseBody({
@@ -159,7 +151,7 @@ class UpdateHymnUsecase {
     hymnBook: string;
     hymnNumber: number;
     hymnTitle: string;
-    changes: LyricChange[];
+    changes: StanzaChange[];
     message?: string;
   }): string {
     const hymnSlug = `${hymnNumber}-${slugify(hymnTitle)}`;
@@ -176,10 +168,29 @@ class UpdateHymnUsecase {
     body += `\n\n`;
 
     for (const change of changes) {
-      body += `  **${change.stanzaLabel}, linha ${change.lineNumber}:**\n`;
+      body += `  **${change.stanzaLabel}:**\n`;
       body += '  ```diff\n';
-      if (change.oldLine) body += `  - ${change.oldLine}\n`;
-      if (change.newLine) body += `  + ${change.newLine}\n`;
+
+      for (const part of change.diff) {
+        // Split by lines and format each line
+        const lines = part.value.split('\n');
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+
+          // Skip empty lines at the end
+          if (i === lines.length - 1 && line === '') continue;
+
+          if (part.added) {
+            body += `  + ${line}\n`;
+          } else if (part.removed) {
+            body += `  - ${line}\n`;
+          } else {
+            body += `    ${line}\n`;
+          }
+        }
+      }
+
       body += '  ```\n\n';
     }
 
