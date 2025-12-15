@@ -4,8 +4,8 @@ import slugify from 'slugify';
 import { fs } from 'zx';
 
 import getParsedData from 'data/getParsedData';
-import { storage } from 'firebase';
 import { Hymn, hymnSchema } from 'schemas/hymn';
+import { storage } from '../../firebase';
 
 interface LyricChange {
   stanzaIndex: number;
@@ -25,8 +25,9 @@ class UpdateHymnUsecase {
     title: string;
     subtitle: string;
     lyrics: Hymn['lyrics'];
+    message?: string;
   }) {
-    const { hymnBook, hymnNumber, title, subtitle, lyrics } = params;
+    const { hymnBook, hymnNumber, title, subtitle, lyrics, message } = params;
 
     const hymnFilePath = path.join(hymnBook, `${hymnNumber}.json`);
     const resolvedHymnDataPath = path.resolve('hymnsData', hymnFilePath);
@@ -35,7 +36,7 @@ class UpdateHymnUsecase {
 
     if (!hymnDataFileExists)
       throw new Error('Hymn not found', {
-        cause: 'hymn-not-found',
+        cause: 'HymnNotFound',
       });
 
     const existingHymnData = await getParsedData({
@@ -59,21 +60,27 @@ class UpdateHymnUsecase {
     });
 
     // Create GitHub release if there are changes
-    if (lyricChanges.length > 0) {
-      try {
-        const releaseTitle = new Date()
-          .toISOString()
-          .replace(/T/, '-')
-          .replace(/\..+/, '')
-          .replace(/:/g, '-');
+    if (lyricChanges.length === 0) return;
 
-        const releaseBody = this.generateReleaseBody(hymnBook, hymnNumber, title, lyricChanges);
+    try {
+      const releaseTitle = new Date()
+        .toISOString()
+        .replace(/T/, '-')
+        .replace(/\..+/, '')
+        .replace(/:/g, '-');
 
-        await this.createGithubRelease(releaseTitle, releaseBody);
-      } catch (error) {
-        console.error(error);
-        // Don't fail the request if release creation fails
-      }
+      const releaseBody = this.generateReleaseBody({
+        hymnBook,
+        hymnNumber,
+        hymnTitle: title,
+        changes: lyricChanges,
+        message,
+      });
+
+      await this.createGithubRelease(releaseTitle, releaseBody);
+    } catch (error) {
+      console.error(error);
+      // Don't fail the request if release creation fails
     }
   }
 
@@ -121,12 +128,31 @@ class UpdateHymnUsecase {
     return changes;
   }
 
-  private generateReleaseBody(
-    hymnBook: string,
-    hymnNumber: number,
-    hymnTitle: string,
-    changes: LyricChange[]
-  ): string {
+  /**
+   * Template:
+   # Ajustes de conteúdo
+
+   - [HC 123 (Nome do Hino)](http://hinarios.app/...): Mensagem opcional
+
+    **Estrofe 1, linha 2:**
+    ```diff
+    - linha antiga
+    + linha nova
+    ```
+   */
+  private generateReleaseBody({
+    hymnBook,
+    hymnNumber,
+    hymnTitle,
+    changes,
+    message,
+  }: {
+    hymnBook: string;
+    hymnNumber: number;
+    hymnTitle: string;
+    changes: LyricChange[];
+    message?: string;
+  }): string {
     const hymnSlug = `${hymnNumber}-${slugify(hymnTitle)}`;
     const hymnUrl = `http://hinarios.app/${hymnBook}/${hymnSlug}`;
 
@@ -140,7 +166,11 @@ class UpdateHymnUsecase {
     const hymnReference = `[${bookAlias} ${hymnNumber} (${hymnTitle})](${hymnUrl})`;
 
     let body = `# Ajustes de conteúdo\n\n`;
-    body += `- ${hymnReference}:\n\n`;
+    body += `- ${hymnReference}`;
+    if (message) {
+      body += `: ${message}`;
+    }
+    body += `\n\n`;
 
     for (const change of changes) {
       body += `  **${change.stanzaLabel}, linha ${change.lineNumber}:**\n`;

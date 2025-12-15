@@ -63,6 +63,7 @@ type FormValues = {
   title: string;
   subtitle?: string;
   lyrics: LyricFormItem[];
+  message?: string;
 };
 
 type LyricSortableItemProps = {
@@ -197,6 +198,7 @@ export default function Page(props: AppProps & PageProps) {
       title,
       subtitle,
       lyrics: initialListState,
+      message: '',
     },
     validateInputOnChange: true,
     validate: zodResolver(
@@ -210,12 +212,18 @@ export default function Page(props: AppProps & PageProps) {
             number: z.number().optional(),
           })
         ),
+        message: z.string().optional(),
       })
     ),
   });
 
   const { mutateAsync: updateHymnMutation, isPending } = useMutation({
-    mutationFn: async (data: { title: string; subtitle?: string; lyrics: Lyric[] }) => {
+    mutationFn: async (data: {
+      title: string;
+      subtitle?: string;
+      lyrics: Lyric[];
+      message?: string;
+    }) => {
       return await authenticatedAxios(`/api/hymns/${hymnBook?.slug}/${number}`, {
         method: 'PATCH',
         data,
@@ -300,6 +308,7 @@ export default function Page(props: AppProps & PageProps) {
       title: values.title,
       subtitle: values.subtitle,
       lyrics: newLyrics,
+      message: values.message,
     });
   }
 
@@ -308,6 +317,7 @@ export default function Page(props: AppProps & PageProps) {
       title,
       subtitle,
       lyrics: initialListState,
+      message: '',
     });
     listStateHandlers.setState(initialListState);
   }
@@ -423,6 +433,16 @@ export default function Page(props: AppProps & PageProps) {
             </Flex>
           </SortableContext>
         </DndContext>
+
+        <Space h="md" />
+
+        <Textarea
+          label="Mensagem da atualização (opcional)"
+          placeholder="Descreva as mudanças feitas neste hino..."
+          description="Esta mensagem será incluída nas notas de lançamento do GitHub"
+          minRows={3}
+          {...form.getInputProps('message')}
+        />
 
         <Space h="md" />
 
