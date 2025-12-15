@@ -44,15 +44,19 @@ hymnsApp.patch(
   ),
   zValidator(
     'json',
-    hymnSchema.pick({
-      title: true,
-      subtitle: true,
-      lyrics: true,
-    })
+    hymnSchema
+      .pick({
+        title: true,
+        subtitle: true,
+        lyrics: true,
+      })
+      .extend({
+        message: z.string().optional(),
+      })
   ),
   async (c) => {
     const { hymnBook, hymnNumber } = c.req.valid('param');
-    const { title, subtitle, lyrics } = c.req.valid('json');
+    const { title, subtitle, lyrics, message } = c.req.valid('json');
 
     try {
       await updateHymnUsecase.execute({
@@ -61,6 +65,7 @@ hymnsApp.patch(
         title,
         subtitle,
         lyrics,
+        message,
       });
 
       return c.body(null, 202);
