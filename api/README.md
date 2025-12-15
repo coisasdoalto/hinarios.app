@@ -66,7 +66,7 @@ Admin access is granted to the following email addresses:
 
 To add new admins, update the `ADMINS` array in both:
 
-- `api-handlers/middleware/adminAuth.ts` (server-side)
+- `api/middleware/adminAuth.ts` (server-side)
 - `hooks/useAdmin.ts` (client-side)
 
 ## Error Responses

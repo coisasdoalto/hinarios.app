@@ -13,7 +13,7 @@ This project uses [Hono](https://hono.dev/) to create API routes instead of the 
 To create new routes, create a new file in the `api-handlers` folder and export the Hono app as default, following the example below:
 
 ```ts
-// api-handlers/example.ts
+// api/example.ts
 import { Hono } from 'hono';
 
 const exampleApp = new Hono();
@@ -29,7 +29,7 @@ Then, import and use the Hono app in the `pages/api/[[...route]].ts` file:
 
 ```ts
 // pages/api/[[...route]].ts
-import { exampleApp } from 'api-handlers/example';
+import { exampleApp } from 'api/example';
 [...]
 app.route('/example', exampleApp);
 [...]
