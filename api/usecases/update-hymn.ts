@@ -1,5 +1,5 @@
-import axios from 'axios';
 import path from 'node:path';
+import { App } from 'octokit';
 import slugify from 'slugify';
 import { fs } from 'zx';
 
@@ -17,8 +17,9 @@ interface LyricChange {
 }
 
 class UpdateHymnUsecase {
-  private GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN || '';
-  private GITHUB_REPO = 'coisasdoalto/hinarios.app';
+  private GITHUB_APP_ID = process.env.GITHUB_APP_ID;
+  private GITHUB_APP_PRIVATE_KEY = process.env.GITHUB_APP_PRIVATE_KEY;
+  private GITHUB_APP_INSTALLATION_ID = process.env.GITHUB_APP_INSTALLATION_ID;
 
   async execute(params: {
     hymnBook: string;
@@ -186,28 +187,35 @@ class UpdateHymnUsecase {
   }
 
   private async createGithubRelease(title: string, body: string): Promise<void> {
-    if (!this.GITHUB_API_TOKEN) {
-      console.error('GITHUB_API_TOKEN not found in environment variables');
+    if (!this.GITHUB_APP_ID || !this.GITHUB_APP_PRIVATE_KEY || !this.GITHUB_APP_INSTALLATION_ID) {
+      console.error('GitHub App credentials are not set', {
+        GITHUB_APP_ID: Boolean(this.GITHUB_APP_ID),
+        GITHUB_APP_PRIVATE_KEY: Boolean(this.GITHUB_APP_PRIVATE_KEY),
+        GITHUB_APP_INSTALLATION_ID: Boolean(this.GITHUB_APP_INSTALLATION_ID),
+      });
       return;
     }
 
-    await axios.post(
-      `https://api.github.com/repos/${this.GITHUB_REPO}/releases`,
-      {
-        tag_name: title,
-        name: title,
-        body,
-        draft: false,
-        prerelease: false,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.GITHUB_API_TOKEN}`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      }
-    );
+    const app = new App({
+      appId: this.GITHUB_APP_ID,
+      privateKey: this.GITHUB_APP_PRIVATE_KEY,
+    });
+
+    const octokit = await app.getInstallationOctokit(Number(this.GITHUB_APP_INSTALLATION_ID));
+
+    const releaseData = {
+      tag_name: title,
+      name: title,
+      body,
+      draft: false,
+      prerelease: false,
+    };
+
+    await octokit.request('POST /repos/{owner}/{repo}/releases', {
+      owner: 'coisasdoalto',
+      repo: 'hinarios.app',
+      ...releaseData,
+    });
   }
 }
 
