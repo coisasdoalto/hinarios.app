@@ -8,6 +8,7 @@ import getParsedData from 'data/getParsedData';
 import { Hymn, hymnSchema } from 'schemas/hymn';
 import { storage } from '../../firebase';
 import { assertNever } from '../../utils/assertNever';
+import { stringToAcronym } from 'utils/stringToAcronym';
 
 interface StanzaChange {
   stanzaIndex: number;

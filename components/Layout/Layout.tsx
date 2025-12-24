@@ -22,6 +22,7 @@ import LoginMenu from '../LoginMenu';
 import Search from '../Search/Search';
 import VerticalNavigation from '../VerticalNavigation/VerticalNavigation';
 import { NearbySongs } from 'components/NearbySongs';
+import { stringToAcronym } from 'utils/stringToAcronym';
 
 export default function AppShell({ children }: PropsWithChildren) {
   const theme = useMantineTheme();

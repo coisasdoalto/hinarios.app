@@ -1,4 +1,4 @@
-function stringToAcronym(str: string): string {
+export function stringToAcronym(str: string): string {
   return str
     .split(' ')
     .map((item) => item[0])
