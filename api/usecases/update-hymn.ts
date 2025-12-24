@@ -6,6 +6,7 @@ import { fs } from 'zx';
 import getParsedData from 'data/getParsedData';
 import { Hymn, hymnSchema } from 'schemas/hymn';
 import { storage } from '../../firebase';
+import { assertNever } from '../utilities/assertNever';
 
 interface LyricChange {
   stanzaIndex: number;
@@ -99,9 +100,16 @@ class UpdateHymnUsecase {
       const newLines = newStanza.text.split('\n');
 
       const stanzaLabel = (() => {
-        if (oldStanza.type === 'stanza') return `Estrofe ${oldStanza.number}`;
-        if (oldStanza.type === 'chorus') return 'Coro';
-        return 'Estrofe sem número';
+        switch (oldStanza.type) {
+          case 'stanza':
+            return `Estrofe ${oldStanza.number}`;
+          case 'chorus':
+            return 'Coro';
+          case 'unnumbered_stanza':
+            return 'Estrofe sem número';
+          default:
+            return assertNever(oldStanza);
+        }
       })();
 
       const maxLines = Math.max(oldLines.length, newLines.length);
