@@ -6,7 +6,7 @@ import { fs } from 'zx';
 import getParsedData from 'data/getParsedData';
 import { Hymn, hymnSchema } from 'schemas/hymn';
 import { storage } from '../../firebase';
-import { assertNever } from '../utilities/assertNever';
+import { assertNever } from '../../utils/assertNever';
 
 interface LyricChange {
   stanzaIndex: number;
@@ -164,13 +164,7 @@ class UpdateHymnUsecase {
     const hymnSlug = `${hymnNumber}-${slugify(hymnTitle)}`;
     const hymnUrl = `http://hinarios.app/${hymnBook}/${hymnSlug}`;
 
-    const hymnBookAliases: Record<string, string> = {
-      'hinos-e-canticos': 'HC',
-      'hinos-espirituais': 'HE',
-      'corinhos-e-canticos-de-salvacao': 'CCS',
-      'musicas-avulsas': 'MA',
-    };
-    const bookAlias = hymnBookAliases[hymnBook] || hymnBook.toUpperCase();
+    const bookAlias = stringToAcronym(hymnBook);
     const hymnReference = `[${bookAlias} ${hymnNumber} (${hymnTitle})](${hymnUrl})`;
 
     let body = `# Ajustes de conteúdo\n\n`;
