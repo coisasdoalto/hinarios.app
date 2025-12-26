@@ -3,7 +3,7 @@ import type { PageConfig } from 'next';
 import { handle } from '@hono/node-server/vercel';
 import { Hono } from 'hono';
 
-import { hymnsApp } from 'api/hymns';
+import { hymnsApp } from 'api_src/hymns';
 
 export const config: PageConfig = {
   api: {
