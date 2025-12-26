@@ -8,7 +8,7 @@ Agregador de hinários para uso pessoal online ou offline.
 
 This project uses [Hono](https://hono.dev/) to create API routes instead of the default Next.js API routes.
 
-> Remember to add slash at the end of the route when createing a new route, for example: `/api/hymns/`, because `next.config.js` has the `trailingSlash: true` option enabled, all API routes must end with a slash. Including `app.route` calls (`app.route('/hymns/', hymnsApp)`).
+> Remember to add slash at the end of the route when creating a new route, for example: `/api/hymns/`, because `next.config.js` has the `trailingSlash: true` option enabled, all API routes must end with a slash. Including `app.route` calls (`app.route('/hymns/', hymnsApp)`).
 
 To create new routes, create a new file in the `api-handlers` folder and export the Hono app as default, following the example below:
 
