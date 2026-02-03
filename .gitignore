@@ -58,3 +58,6 @@ supabase/.temp/
 
 # internal scripts
 .release_data
+
+# yarn
+.yarn

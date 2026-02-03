@@ -1,4 +1,4 @@
-import { Change, diffLines } from 'diff';
+import { diff, type IChange } from 'json-diff-ts';
 import path from 'node:path';
 import { App } from 'octokit';
 import slugify from 'slugify';
@@ -6,14 +6,16 @@ import { fs } from 'zx';
 
 import getParsedData from 'data/getParsedData';
 import { Hymn, hymnSchema } from 'schemas/hymn';
-import { storage } from '../../firebase';
-import { assertNever } from '../../utils/assertNever';
 import { stringToAcronym } from 'utils/stringToAcronym';
+import { storage } from '../../firebase/';
+import { assertNever } from '../../utils/assertNever';
 
 interface StanzaChange {
   stanzaIndex: number;
   stanzaLabel: string;
-  diff: Change[];
+  oldStanza?: Hymn['lyrics'][number];
+  newStanza?: Hymn['lyrics'][number];
+  changes: IChange[];
 }
 
 class UpdateHymnUsecase {
@@ -93,40 +95,66 @@ class UpdateHymnUsecase {
       const oldStanza = oldHymn.lyrics[i];
       const newStanza = newHymn.lyrics[i];
 
+      // Handle added stanza (exists in new but not in old)
+      if (!oldStanza && newStanza) {
+        const stanzaLabel = this.getStanzaLabel(newStanza);
+        return {
+          stanzaIndex: i + 1,
+          stanzaLabel: `${stanzaLabel} (adicionada)`,
+          newStanza,
+          changes: [{ type: 'ADD', key: 'text', value: newStanza.text }] as IChange[],
+        };
+      }
+
+      // Handle removed stanza (exists in old but not in new)
+      if (oldStanza && !newStanza) {
+        const stanzaLabel = this.getStanzaLabel(oldStanza);
+        return {
+          stanzaIndex: i + 1,
+          stanzaLabel: `${stanzaLabel} (removida)`,
+          oldStanza,
+          changes: [{ type: 'REMOVE', key: 'text', value: oldStanza.text }] as IChange[],
+        };
+      }
+
+      // Both exist, check for changes
       if (!oldStanza || !newStanza) return;
 
-      const oldText = oldStanza.text;
-      const newText = newStanza.text;
+      // Use json-diff-ts to get the diff for this stanza
+      const stanzaDiff = diff(oldStanza, newStanza);
 
-      // Use diffLines to get the diff for this stanza
-      const stanzaDiff = diffLines(oldText, newText);
+      // Only include if there are actual changes
+      if (stanzaDiff.length === 0) return;
 
-      // Only include if there are actual changes (added or removed)
-      const hasChanges = stanzaDiff.some((part) => part.added || part.removed);
+      const typeChanged = oldStanza.type !== newStanza.type;
+      const oldStanzaLabel = this.getStanzaLabel(oldStanza);
+      const newStanzaLabel = this.getStanzaLabel(newStanza);
 
-      if (!hasChanges) return;
-
-      const stanzaLabel = (() => {
-        switch (oldStanza.type) {
-          case 'stanza':
-            return `Estrofe ${oldStanza.number}`;
-          case 'chorus':
-            return 'Coro';
-          case 'unnumbered_stanza':
-            return 'Estrofe sem número';
-          default:
-            return assertNever(oldStanza);
-        }
-      })();
+      const stanzaLabel = typeChanged ? `${oldStanzaLabel} → ${newStanzaLabel}` : newStanzaLabel;
 
       return {
         stanzaIndex: i + 1,
         stanzaLabel,
-        diff: stanzaDiff,
+        oldStanza,
+        newStanza,
+        changes: stanzaDiff,
       };
-    }).filter((c): c is StanzaChange => c !== undefined);
+    }).filter((c) => c !== undefined) as StanzaChange[];
 
     return changes;
+  }
+
+  private getStanzaLabel(stanza: Hymn['lyrics'][number]): string {
+    switch (stanza.type) {
+      case 'stanza':
+        return `Estrofe ${stanza.number}`;
+      case 'chorus':
+        return 'Coro';
+      case 'unnumbered_stanza':
+        return 'Estrofe sem número';
+      default:
+        return assertNever(stanza);
+    }
   }
 
   /**
@@ -172,22 +200,37 @@ class UpdateHymnUsecase {
       body += `  **${change.stanzaLabel}:**\n`;
       body += '  ```diff\n';
 
-      for (const part of change.diff) {
-        // Split by lines and format each line
-        const lines = part.value.split('\n');
+      // Handle added stanza
+      if (!change.oldStanza && change.newStanza) {
+        const lines = change.newStanza.text.split('\n');
+        for (const line of lines) {
+          body += `  + ${line}\n`;
+        }
+      }
+      // Handle removed stanza
 
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
+      if (change.oldStanza && !change.newStanza) {
+        const lines = change.oldStanza.text.split('\n');
+        for (const line of lines) {
+          body += `  - ${line}\n`;
+        }
+      }
+      // Handle updated stanza
 
-          // Skip empty lines at the end
-          if (i === lines.length - 1 && line === '') continue;
+      if (change.oldStanza && change.newStanza) {
+        // Show the changes using json-diff-ts results
+        for (const diffItem of change.changes) {
+          if (diffItem.type === 'UPDATE' && diffItem.key === 'text') {
+            // For text updates, show line-by-line comparison
+            const oldLines = (diffItem.oldValue as string).split('\n');
+            const newLines = (diffItem.value as string).split('\n');
 
-          if (part.added) {
-            body += `  + ${line}\n`;
-          } else if (part.removed) {
-            body += `  - ${line}\n`;
-          } else {
-            body += `    ${line}\n`;
+            for (const line of oldLines) {
+              body += `  - ${line}\n`;
+            }
+            for (const line of newLines) {
+              body += `  + ${line}\n`;
+            }
           }
         }
       }
