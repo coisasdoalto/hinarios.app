@@ -16,9 +16,11 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
+import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
 import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
+import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
 import BackButton from '../../components/BackButton/BackButton';
 import { BookmarkButton } from '../../components/BookmarkButton';
@@ -31,11 +33,20 @@ import { HymnBook } from '../../schemas/hymnBook';
 
 const validateFontSize = (fontSize: string): fontSize is MantineSize => /md|lg|xl/.test(fontSize);
 
-type PageProps = { content: Hymn; hymnBooks: HymnBook[]; hymnBook: string };
+type PageProps = {
+  content: Hymn;
+  hymnBooks: HymnBook[];
+  hymnBook: string;
+  nextHymn: HymnsIndex[number] | null;
+  previousHymn: HymnsIndex[number] | null;
+};
 
 export default function HymnView(props: AppProps & PageProps) {
   const {
     content: { number, title, subtitle, lyrics },
+    hymnBook: hymnBookSlug,
+    nextHymn,
+    previousHymn,
   } = props;
 
   useHymnBooksSave(props.hymnBooks);
@@ -189,6 +200,13 @@ export default function HymnView(props: AppProps & PageProps) {
           />
         </>
       ) : null}
+
+      <HymnBottomNavigation
+        currentHymnNumber={number}
+        hymnBookSlug={hymnBookSlug}
+        previousHymn={previousHymn}
+        nextHymn={nextHymn}
+      />
     </Container>
   );
 }
@@ -218,16 +236,25 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const hymnBook = z.string().parse(context.params?.hymnBook);
+  const hymnSlug = z.string().parse(context.params?.slug);
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
   const content = await getParsedData({
     filePath: `${hymnBook}/${hymnNumber}.json`,
     schema: hymnSchema,
   });
+  const hymnsIndex = await getHymnsIndex(hymnBook);
+  const hymnIndex = hymnsIndex.findIndex(({ slug }) => slug === hymnSlug);
 
   const hymnBooks = await getHymnBooks();
 
   return {
-    props: { content, hymnBooks, hymnBook },
+    props: {
+      content,
+      hymnBooks,
+      hymnBook,
+      previousHymn: hymnIndex > 0 ? hymnsIndex[hymnIndex - 1] : null,
+      nextHymn: hymnIndex >= 0 && hymnIndex < hymnsIndex.length - 1 ? hymnsIndex[hymnIndex + 1] : null,
+    },
   };
 };
