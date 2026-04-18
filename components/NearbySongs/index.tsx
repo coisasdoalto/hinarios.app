@@ -2,17 +2,21 @@ import { Affix, ActionIcon, Drawer, NavLink } from '@mantine/core';
 import { IconGlobeFilled } from '@tabler/icons-react';
 import { useProximityHymns } from 'hooks/useProximityHymns';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useFeatureFlagEnabled, usePostHog } from 'posthog-js/react';
 import { useState } from 'react';
 
 export function NearbySongs() {
   const { data: proximityHymns } = useProximityHymns();
+  const router = useRouter();
 
   const [opened, setOpened] = useState(false);
 
   const isNearbySongsEnabled = useFeatureFlagEnabled('nearby-songs');
+  const isHymnBottomNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
 
   const posthog = usePostHog();
+  const isHymnPage = router.pathname === '/[hymnBook]/[slug]';
 
   if (!isNearbySongsEnabled || !proximityHymns?.length) {
     return null;
@@ -22,7 +26,7 @@ export function NearbySongs() {
     <>
       <Affix
         position={{
-          bottom: '30px',
+          bottom: isHymnPage && isHymnBottomNavigationEnabled ? '106px' : '30px',
           right: '30px',
         }}
         zIndex={2}
