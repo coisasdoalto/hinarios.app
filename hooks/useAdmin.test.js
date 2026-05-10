@@ -8,7 +8,11 @@ jest.mock('./useUser', () => ({
 const { ADMINS } = require('./useAdmin');
 
 describe('ADMINS', () => {
-  test('includes irmaosdiadema@gmail.com', () => {
-    expect(ADMINS).toContain('irmaosdiadema@gmail.com');
+  test('contains the expected admin emails', () => {
+    expect(ADMINS).toEqual([
+      'pablo.dinella@gmail.com',
+      'raphaeldeoliveiracorrea@gmail.com',
+      'irmaosdiadema@gmail.com',
+    ]);
   });
 });
