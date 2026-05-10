@@ -69,6 +69,8 @@ To add new admins, update the `ADMINS` array in:
 
 - `hooks/useAdmin.ts`
 
+The API middleware (`api_src/middleware/adminAuth.ts`) imports this same `ADMINS` array, so this file is the single source of truth for admin authorization.
+
 ## Error Responses
 
 - `401 Unauthorized`: Missing, invalid, or malformed Authorization header
