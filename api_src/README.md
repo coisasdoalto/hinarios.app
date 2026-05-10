@@ -63,11 +63,11 @@ Admin access is granted to the following email addresses:
 
 - `pablo.dinella@gmail.com`
 - `raphaeldeoliveiracorrea@gmail.com`
+- `irmaosdiadema@gmail.com`
 
-To add new admins, update the `ADMINS` array in both:
+To add new admins, update the `ADMINS` array in:
 
-- `api/middleware/adminAuth.ts` (server-side)
-- `hooks/useAdmin.ts` (client-side)
+- `hooks/useAdmin.ts`
 
 ## Error Responses
 
