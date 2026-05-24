@@ -2,6 +2,7 @@ import { GetServerSideProps } from 'next';
 import { useEffect } from 'react';
 
 import { AppProps } from 'next/app';
+import Head from 'next/head';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/router';
@@ -357,118 +358,130 @@ export default function Page(props: AppProps & PageProps) {
   })();
 
   return (
-    <Container size="xs">
-      <BackButton to={`${hymnBook?.slug}/${params?.slug}`} />
+    <>
+      <Head>
+        <title>
+          Editar {number}. {title} | Hinários
+        </title>
+      </Head>
 
-      <Space h="md" />
+      <Container size="xs">
+        <BackButton to={`${hymnBook?.slug}/${params?.slug}`} />
 
-      <Flex align="flex-start" gap="sm">
-        <div style={{ width: '100%' }}>
-          <Group align="center" spacing="xs">
-            <Title order={1} size="h2" style={{ minWidth: 'fit-content' }}>
-              {number}.
-            </Title>
+        <Space h="md" />
+
+        <Flex align="flex-start" gap="sm">
+          <div style={{ width: '100%' }}>
+            <Group align="center" spacing="xs">
+              <Title order={1} size="h2" style={{ minWidth: 'fit-content' }}>
+                {number}.
+              </Title>
+              <TextInput
+                placeholder="Título do hino"
+                variant="unstyled"
+                w="100%"
+                sx={(theme) => ({
+                  flex: 1,
+                  input: {
+                    padding: 0,
+                    fontSize: `calc(${theme.fontSizes.lg}px * 1.5)`,
+                    fontWeight: 'bold',
+                    color: 'var(--mantine-color-dimmed)',
+                  },
+                })}
+                {...form.getInputProps('title')}
+              />
+            </Group>
             <TextInput
-              placeholder="Título do hino"
+              placeholder="Subtítulo (opcional)"
+              size="md"
               variant="unstyled"
-              w="100%"
               sx={(theme) => ({
-                flex: 1,
                 input: {
                   padding: 0,
-                  fontSize: `calc(${theme.fontSizes.lg}px * 1.5)`,
-                  fontWeight: 'bold',
+                  fontSize: theme.fontSizes.md,
+                  fontStyle: 'italic',
                   color: 'var(--mantine-color-dimmed)',
                 },
               })}
-              {...form.getInputProps('title')}
+              {...form.getInputProps('subtitle')}
             />
-          </Group>
-          <TextInput
-            placeholder="Subtítulo (opcional)"
-            size="md"
-            variant="unstyled"
-            sx={(theme) => ({
-              input: {
-                padding: 0,
-                fontSize: theme.fontSizes.md,
-                fontStyle: 'italic',
-                color: 'var(--mantine-color-dimmed)',
-              },
-            })}
-            {...form.getInputProps('subtitle')}
-          />
-        </div>
-      </Flex>
-
-      <Space h="md" />
-
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Group position="apart" mb="sm">
-          <Button
-            leftIcon={<IconPlus size={16} />}
-            variant="light"
-            size="sm"
-            onClick={handleInsertLyric}
-          >
-            Adicionar estrofe
-          </Button>
-        </Group>
-
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext
-            items={listState.map((i) => i.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <Flex direction="column" gap="sm">
-              {listState.map((item, index) => (
-                <LyricSortableItem
-                  key={item.id}
-                  item={item}
-                  index={index}
-                  form={form}
-                  onDelete={handleDeleteLyric}
-                />
-              ))}
-            </Flex>
-          </SortableContext>
-        </DndContext>
+          </div>
+        </Flex>
 
         <Space h="md" />
 
-        <Textarea
-          label="Mensagem da atualização (opcional)"
-          placeholder="Descreva as mudanças feitas neste hino..."
-          description="Esta mensagem será incluída nas notas de lançamento do GitHub"
-          minRows={3}
-          {...form.getInputProps('message')}
-        />
-
-        <Space h="md" />
-
-        <Group position="right">
-          <Link href={`/${hymnBook?.slug}/${params?.slug}`}>
-            <Button color="red" variant="outline">
-              Cancelar
-            </Button>
-          </Link>
-          <Tooltip label="Reverter para a última versão salva">
-            <Button variant="outline" onClick={handleReset} disabled={!isDirty}>
-              Reverter
-            </Button>
-          </Tooltip>
-          <Tooltip label={submitButtonTooltipLabel}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Group position="apart" mb="sm">
             <Button
-              type="submit"
-              disabled={!isDirty || !isValid || isPending || form.values.lyrics.length === 0}
-              loading={isPending}
+              leftIcon={<IconPlus size={16} />}
+              variant="light"
+              size="sm"
+              onClick={handleInsertLyric}
             >
-              Salvar
+              Adicionar estrofe
             </Button>
-          </Tooltip>
-        </Group>
-      </form>
-    </Container>
+          </Group>
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={listState.map((i) => i.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <Flex direction="column" gap="sm">
+                {listState.map((item, index) => (
+                  <LyricSortableItem
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    form={form}
+                    onDelete={handleDeleteLyric}
+                  />
+                ))}
+              </Flex>
+            </SortableContext>
+          </DndContext>
+
+          <Space h="md" />
+
+          <Textarea
+            label="Mensagem da atualização (opcional)"
+            placeholder="Descreva as mudanças feitas neste hino..."
+            description="Esta mensagem será incluída nas notas de lançamento do GitHub"
+            minRows={3}
+            {...form.getInputProps('message')}
+          />
+
+          <Space h="md" />
+
+          <Group position="right">
+            <Link href={`/${hymnBook?.slug}/${params?.slug}`}>
+              <Button color="red" variant="outline">
+                Cancelar
+              </Button>
+            </Link>
+            <Tooltip label="Reverter para a última versão salva">
+              <Button variant="outline" onClick={handleReset} disabled={!isDirty}>
+                Reverter
+              </Button>
+            </Tooltip>
+            <Tooltip label={submitButtonTooltipLabel}>
+              <Button
+                type="submit"
+                disabled={!isDirty || !isValid || isPending || form.values.lyrics.length === 0}
+                loading={isPending}
+              >
+                Salvar
+              </Button>
+            </Tooltip>
+          </Group>
+        </form>
+      </Container>
+    </>
   );
 }
 

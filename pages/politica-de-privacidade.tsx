@@ -1,8 +1,13 @@
 import { CONTACT_EMAIL } from 'contants';
+import Head from 'next/head';
 
 export default function PrivacyPolicyPage() {
   return (
     <>
+      <Head>
+        <title>Política de Privacidade | Hinários</title>
+      </Head>
+
       <h3 id="politica-de-privacidade-do-hinarios-app">Política de Privacidade do hinarios.app</h3>
       <p>
         <strong>Última atualização: 22/06/2024</strong>

@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { AppProps } from 'next/app';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -121,93 +122,101 @@ export default function HymnView(props: AppProps & PageProps) {
   }, [isLoading]);
 
   return (
-    <Container size="xs">
-      {/* <Title order={2} size="h3">
+    <>
+      <Head>
+        <title>
+          {number}. {title} | Hinários
+        </title>
+      </Head>
+
+      <Container size="xs">
+        {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
-      <Flex justify="space-between">
-        <BackButton to={hymnBook?.slug} />
+        <Flex justify="space-between">
+          <BackButton to={hymnBook?.slug} />
 
-        <Group>
-          <BookmarkButton />
-          <UpdateHymnButton />
-        </Group>
-      </Flex>
-      <Space h="md" />
-      <Flex align="flex-start" gap="sm">
-        <div>
-          <Title order={1} size="h2">
-            {number}. {title}
-          </Title>
-          {subtitle && (
-            <Title order={5} color="dimmed" italic>
-              {subtitle}
+          <Group>
+            <BookmarkButton />
+            <UpdateHymnButton />
+          </Group>
+        </Flex>
+        <Space h="md" />
+        <Flex align="flex-start" gap="sm">
+          <div>
+            <Title order={1} size="h2">
+              {number}. {title}
             </Title>
-          )}
-        </div>
-      </Flex>
-      <Space h="md" />
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <SegmentedControl
-          value={fontSize}
-          onChange={(value: MantineSize) => setFontSize(value)}
-          data={[
-            { label: 'Pequeno', value: 'md' },
-            { label: 'Médio', value: 'lg' },
-            { label: 'Grande', value: 'xl' },
-          ]}
-        />
-      </Box>
+            {subtitle && (
+              <Title order={5} color="dimmed" italic>
+                {subtitle}
+              </Title>
+            )}
+          </div>
+        </Flex>
+        <Space h="md" />
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <SegmentedControl
+            value={fontSize}
+            onChange={(value: MantineSize) => setFontSize(value)}
+            data={[
+              { label: 'Pequeno', value: 'md' },
+              { label: 'Médio', value: 'lg' },
+              { label: 'Grande', value: 'xl' },
+            ]}
+          />
+        </Box>
 
-      {lyrics.map((lyric, index) => {
-        if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
+        {lyrics.map((lyric, index) => {
+          if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
 
-        if (lyric.type === 'unnumbered_stanza')
+          if (lyric.type === 'unnumbered_stanza')
+            return (
+              <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+                <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
+              </Text>
+            );
+
           return (
-            <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+            <Text
+              key={`${lyric.number}.${title}`}
+              size={fontSize}
+              mt={16}
+              pl={20}
+              style={{ position: 'relative' }}
+            >
+              <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
               <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
             </Text>
           );
+        })}
 
-        return (
-          <Text
-            key={`${lyric.number}.${title}`}
-            size={fontSize}
-            mt={16}
-            pl={20}
-            style={{ position: 'relative' }}
-          >
-            <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
-            <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-          </Text>
-        );
-      })}
+        {hymnBook?.slug === 'hinos-e-canticos' ? (
+          <>
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <audio
+              style={{ width: '100%', marginTop: 30 }}
+              controls
+              src={`https://pub-2792cfba2bfd44b7bfe9fcfbd02cbfcc.r2.dev/variant1/${number}.mp3`}
+            />
 
-      {hymnBook?.slug === 'hinos-e-canticos' ? (
-        <>
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <audio
-            style={{ width: '100%', marginTop: 30 }}
-            controls
-            src={`https://pub-2792cfba2bfd44b7bfe9fcfbd02cbfcc.r2.dev/variant1/${number}.mp3`}
-          />
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <audio
+              style={{ width: '100%', marginTop: 10 }}
+              controls
+              src={`https://pub-2792cfba2bfd44b7bfe9fcfbd02cbfcc.r2.dev/variant2/${number}.mp3`}
+            />
+          </>
+        ) : null}
 
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <audio
-            style={{ width: '100%', marginTop: 10 }}
-            controls
-            src={`https://pub-2792cfba2bfd44b7bfe9fcfbd02cbfcc.r2.dev/variant2/${number}.mp3`}
-          />
-        </>
-      ) : null}
-
-      <HymnBottomNavigation
-        currentHymnNumber={number}
-        hymnBookSlug={hymnBookSlug}
-        previousHymn={previousHymn}
-        nextHymn={nextHymn}
-      />
-    </Container>
+        <HymnBottomNavigation
+          currentHymnNumber={number}
+          hymnBookSlug={hymnBookSlug}
+          previousHymn={previousHymn}
+          nextHymn={nextHymn}
+        />
+      </Container>
+    </>
   );
 }
 
@@ -254,7 +263,8 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
       hymnBooks,
       hymnBook,
       previousHymn: hymnIndex > 0 ? hymnsIndex[hymnIndex - 1] : null,
-      nextHymn: hymnIndex >= 0 && hymnIndex < hymnsIndex.length - 1 ? hymnsIndex[hymnIndex + 1] : null,
+      nextHymn:
+        hymnIndex >= 0 && hymnIndex < hymnsIndex.length - 1 ? hymnsIndex[hymnIndex + 1] : null,
     },
   };
 };

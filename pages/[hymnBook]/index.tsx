@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import Head from 'next/head';
 import { z } from 'zod';
 import HymnsList from '../../components/HymnsList/HymnsList';
 import { useHymnBooksSave } from '../../context/HymnBooks';
@@ -17,7 +18,15 @@ type PageProps = {
 export default function Home({ hymnsIndex, hymnBook, hymnBooks }: PageProps) {
   useHymnBooksSave(hymnBooks);
 
-  return <HymnsList hymnsIndex={hymnsIndex} hymnBook={hymnBook} />;
+  return (
+    <>
+      <Head>
+        <title>{hymnBook.name} | Hinários</title>
+      </Head>
+
+      <HymnsList hymnsIndex={hymnsIndex} hymnBook={hymnBook} />
+    </>
+  );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {

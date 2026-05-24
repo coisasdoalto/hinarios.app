@@ -1,4 +1,5 @@
 import { Container, Group, Loader, Space, Text, Title } from '@mantine/core';
+import Head from 'next/head';
 import { useGetBookmarks } from '../hooks/bookmarks/get';
 
 import BackButton from '../components/BackButton/BackButton';
@@ -14,26 +15,32 @@ export default function Bookmarks() {
   const hasBookmarks = bookmarks.length > 0;
 
   return (
-    <Container size="xs">
-      <BackButton to="/" />
+    <>
+      <Head>
+        <title>Favoritos | Hinários</title>
+      </Head>
 
-      <Space h="md" />
+      <Container size="xs">
+        <BackButton to="/" />
 
-      <Group>
-        <Title order={1} size="h2">
-          Favoritos
-        </Title>
-      </Group>
+        <Space h="md" />
 
-      <Space h="lg" />
+        <Group>
+          <Title order={1} size="h2">
+            Favoritos
+          </Title>
+        </Group>
 
-      {bookmarks.map((bookmark) => (
-        <BookmarkListItem key={bookmark.number} bookmark={bookmark} />
-      ))}
+        <Space h="lg" />
 
-      {!isLoading && !hasBookmarks && <Text>Você ainda não tem hinos favoritos</Text>}
+        {bookmarks.map((bookmark) => (
+          <BookmarkListItem key={bookmark.number} bookmark={bookmark} />
+        ))}
 
-      {isLoading && <Loader />}
-    </Container>
+        {!isLoading && !hasBookmarks && <Text>Você ainda não tem hinos favoritos</Text>}
+
+        {isLoading && <Loader />}
+      </Container>
+    </>
   );
 }

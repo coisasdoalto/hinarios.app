@@ -1,10 +1,15 @@
 import { Space, TypographyStylesProvider } from '@mantine/core';
+import Head from 'next/head';
 
 import { CONTACT_EMAIL } from 'contants';
 
 export default function Home() {
   return (
     <>
+      <Head>
+        <title>Sobre | Hinários</title>
+      </Head>
+
       <Space h="lg" />
       <TypographyStylesProvider>
         <p>Este projeto é um agregador de hinários para uso pessoal online ou offline.</p>
