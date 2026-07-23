@@ -20,10 +20,11 @@ import { useLocalStorage } from '@mantine/hooks';
 import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
 import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
-import { isHymnBookVisible } from 'contants';
+import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
+import { AccessLoading } from '../../components/AccessLoading';
 import BackButton from '../../components/BackButton/BackButton';
 import { BookmarkButton } from '../../components/BookmarkButton';
 import { HymnBookUnavailable } from '../../components/HymnBookUnavailable';
@@ -54,7 +55,7 @@ export default function HymnView(props: AppProps & PageProps) {
   } = props;
 
   useHymnBooksSave(props.hymnBooks);
-  const { canAccessHc } = useAccess();
+  const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
 
   const [fontSize, setFontSize] = useState<MantineSize>('md');
@@ -125,6 +126,10 @@ export default function HymnView(props: AppProps & PageProps) {
       })();
     };
   }, [canViewHymnBook, isLoading]);
+
+  if (hymnBookSlug === HC_HYMN_BOOK_SLUG && isLoadingAccess) {
+    return <AccessLoading />;
+  }
 
   if (!canViewHymnBook) {
     return <HymnBookUnavailable />;

@@ -1,8 +1,9 @@
-import { Alert, Container, Group, Loader, Space, Text, Title } from '@mantine/core';
+import { Alert, Container, Group, Space, Text, Title } from '@mantine/core';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useGetBookmarks } from '../hooks/bookmarks/get';
 
+import { AccessLoading } from '../components/AccessLoading';
 import BackButton from '../components/BackButton/BackButton';
 import { BookmarkListItem } from '../components/BookmarkListItem';
 import {
@@ -23,15 +24,17 @@ export default function Bookmarks({ hymnBooks }: PageProps) {
 
   const query = useGetBookmarks();
 
-  const { data, isLoading } = query;
+  const { data, isLoading: isLoadingBookmarks } = query;
 
   const bookmarks = data ?? [];
-  const { canAccessHc } = useAccess();
-  const hasUnavailableHymns = bookmarks.some(
-    ({ hymnBook }) => hymnBook === HC_HYMN_BOOK_SLUG && !isHymnBookVisible(hymnBook, canAccessHc)
-  );
-
+  const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
+  const hasHcBookmarks = bookmarks.some(({ hymnBook }) => hymnBook === HC_HYMN_BOOK_SLUG);
+  const hasUnavailableHymns = hasHcBookmarks && !isHymnBookVisible(HC_HYMN_BOOK_SLUG, canAccessHc);
   const hasBookmarks = bookmarks.length > 0;
+
+  if (isLoadingBookmarks || (hasHcBookmarks && isLoadingAccess)) {
+    return <AccessLoading />;
+  }
 
   return (
     <>
@@ -62,9 +65,7 @@ export default function Bookmarks({ hymnBooks }: PageProps) {
           <BookmarkListItem key={bookmark.number} bookmark={bookmark} />
         ))}
 
-        {!isLoading && !hasBookmarks && <Text>Você ainda não tem hinos favoritos</Text>}
-
-        {isLoading && <Loader />}
+        {!hasBookmarks && <Text>Você ainda não tem hinos favoritos</Text>}
       </Container>
     </>
   );

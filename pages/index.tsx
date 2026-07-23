@@ -8,6 +8,7 @@ import {
   HC_UNAVAILABLE_MESSAGE,
   isHymnBookVisible,
 } from '../contants';
+import { AccessLoading } from '../components/AccessLoading';
 import { useHymnBooks, useHymnBooksSave } from '../context/HymnBooks';
 import getHymnBooks from '../data/getHymnBooks';
 import { useAccess } from '../hooks/useAccess';
@@ -19,8 +20,10 @@ export default function Home({ hymnBooks }: PageProps) {
   useHymnBooksSave(hymnBooks);
 
   const [orderedHymnBooks] = useHymnBooks();
-  const { canAccessHc } = useAccess();
+  const { canAccessHc, isLoading } = useAccess();
   const canViewHymnBook = isHymnBookVisible(HC_HYMN_BOOK_SLUG, canAccessHc);
+
+  if (isLoading) return <AccessLoading />;
 
   return (
     <Stack spacing="xl">

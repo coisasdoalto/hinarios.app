@@ -1,7 +1,8 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { z } from 'zod';
-import { isHymnBookVisible } from 'contants';
+import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
+import { AccessLoading } from '../../components/AccessLoading';
 import { HymnBookUnavailable } from '../../components/HymnBookUnavailable';
 import HymnsList from '../../components/HymnsList/HymnsList';
 import { useHymnBooksSave } from '../../context/HymnBooks';
@@ -20,7 +21,11 @@ type PageProps = {
 
 export default function Home({ hymnsIndex, hymnBook, hymnBooks }: PageProps) {
   useHymnBooksSave(hymnBooks);
-  const { canAccessHc } = useAccess();
+  const { canAccessHc, isLoading } = useAccess();
+
+  if (hymnBook.slug === HC_HYMN_BOOK_SLUG && isLoading) {
+    return <AccessLoading />;
+  }
 
   if (!isHymnBookVisible(hymnBook.slug, canAccessHc)) {
     return <HymnBookUnavailable />;
