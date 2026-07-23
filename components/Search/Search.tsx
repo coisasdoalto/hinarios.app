@@ -10,6 +10,7 @@ import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
 import { CustomAction } from './CustomAction';
 import { useHymnBooks } from 'context/HymnBooks';
+import { useAccess } from 'hooks/useAccess';
 import { debug } from 'utils/debug';
 import { performTextualSearch } from './performTextualSearch';
 import { performNumericSearch } from './performNumericSearch';
@@ -74,6 +75,7 @@ function Search() {
   const router = useRouter();
 
   const [hymnBooks] = useHymnBooks();
+  const { canAccessHc } = useAccess();
 
   const [actions, setActions] = useState<SpotlightAction[]>([]);
 
@@ -93,6 +95,7 @@ function Search() {
       searchIndex,
       query,
       router,
+      canAccessHc,
     });
 
     setActions(filteredData || []);

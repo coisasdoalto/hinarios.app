@@ -2,11 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { supabase } from 'supabase';
 import { isHymnBookVisible } from 'contants';
+import { useAccess } from './useAccess';
 
 import { useGeolocationFromIp } from './useGeolocationFromIp';
 
 export function useProximityHymns() {
   const router = useRouter();
+  const { canAccessHc } = useAccess();
   const hasInternet = typeof navigator !== 'undefined' && navigator.onLine;
 
   const { data: geolocation, isLoading } = useGeolocationFromIp();
@@ -15,7 +17,7 @@ export function useProximityHymns() {
   const slug = String(router.query.slug);
 
   return useQuery({
-    queryKey: ['nearby_hymns'],
+    queryKey: ['nearby_hymns', canAccessHc],
     queryFn: async () => {
       const { latitude, longitude } = geolocation!;
       const { data, error } = await supabase.rpc('nearby_hymns', {
@@ -30,7 +32,7 @@ export function useProximityHymns() {
 
       return data.filter(
         ({ hymn_book_slug, hymn_slug }) =>
-          isHymnBookVisible(hymn_book_slug) &&
+          isHymnBookVisible(hymn_book_slug, canAccessHc) &&
           `${hymn_book_slug}/${hymn_slug}` !== `${hymnBook}/${slug}`
       );
     },

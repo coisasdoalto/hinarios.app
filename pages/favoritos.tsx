@@ -1,16 +1,35 @@
-import { Container, Group, Loader, Space, Text, Title } from '@mantine/core';
+import { Alert, Container, Group, Loader, Space, Text, Title } from '@mantine/core';
+import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useGetBookmarks } from '../hooks/bookmarks/get';
 
 import BackButton from '../components/BackButton/BackButton';
 import { BookmarkListItem } from '../components/BookmarkListItem';
+import {
+  HC_HYMN_BOOK_SLUG,
+  HC_UNAVAILABLE_ALERT_TITLE,
+  HC_UNAVAILABLE_MESSAGE,
+  isHymnBookVisible,
+} from '../contants';
+import { useHymnBooksSave } from '../context/HymnBooks';
+import getHymnBooks from '../data/getHymnBooks';
+import { useAccess } from '../hooks/useAccess';
+import { HymnBook } from '../schemas/hymnBook';
 
-export default function Bookmarks() {
+type PageProps = { hymnBooks: HymnBook[] };
+
+export default function Bookmarks({ hymnBooks }: PageProps) {
+  useHymnBooksSave(hymnBooks);
+
   const query = useGetBookmarks();
 
   const { data, isLoading } = query;
 
   const bookmarks = data ?? [];
+  const { canAccessHc } = useAccess();
+  const hasUnavailableHymns = bookmarks.some(
+    ({ hymnBook }) => hymnBook === HC_HYMN_BOOK_SLUG && !isHymnBookVisible(hymnBook, canAccessHc)
+  );
 
   const hasBookmarks = bookmarks.length > 0;
 
@@ -33,6 +52,12 @@ export default function Bookmarks() {
 
         <Space h="lg" />
 
+        {hasUnavailableHymns && (
+          <Alert title={HC_UNAVAILABLE_ALERT_TITLE} color="blue" mb="md">
+            {HC_UNAVAILABLE_MESSAGE}
+          </Alert>
+        )}
+
         {bookmarks.map((bookmark) => (
           <BookmarkListItem key={bookmark.number} bookmark={bookmark} />
         ))}
@@ -44,3 +69,9 @@ export default function Bookmarks() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps<PageProps> = async () => {
+  const hymnBooks = await getHymnBooks();
+
+  return { props: { hymnBooks } };
+};

@@ -16,10 +16,12 @@ export function performTextualSearch({
   searchIndex,
   query,
   router,
+  canAccessHc,
 }: {
   searchIndex: Document;
   query: string;
   router: NextRouter;
+  canAccessHc: boolean;
 }) {
   const searchResultsByIndex = searchIndex.search(query, {
     index: ['body', 'title'],
@@ -46,7 +48,7 @@ export function performTextualSearch({
           return null;
         }
 
-        if (!isHymnBookVisible(String(result.id).split('/')[0])) {
+        if (!isHymnBookVisible(String(result.id).split('/')[0], canAccessHc)) {
           return null;
         }
 

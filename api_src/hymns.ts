@@ -5,10 +5,16 @@ import { z } from 'zod';
 import { isHymnBookVisible } from 'contants';
 import { hymnSchema } from 'schemas/hymn';
 import { adminAuthMiddleware } from './middleware/adminAuth';
+import { authenticatedUserMiddleware } from './middleware/userAuth';
 import { getHymnUsecase } from './usecases/get-hymn';
 import { updateHymnUsecase } from './usecases/update-hymn';
+import { getUserAccess } from './userAccess';
 
 const hymnsApp = new Hono();
+
+hymnsApp.get('/access/', authenticatedUserMiddleware, (c) => {
+  return c.json(getUserAccess(c.get('user').email));
+});
 
 hymnsApp.get(
   '/:hymnBook/:hymnNumber/',
@@ -40,6 +46,7 @@ hymnsApp.get(
 
 hymnsApp.patch(
   '/:hymnBook/:hymnNumber/',
+  authenticatedUserMiddleware,
   adminAuthMiddleware,
   zValidator(
     'param',

@@ -26,10 +26,12 @@ import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
 import BackButton from '../../components/BackButton/BackButton';
 import { BookmarkButton } from '../../components/BookmarkButton';
+import { HymnBookUnavailable } from '../../components/HymnBookUnavailable';
 import { useHymnBooks, useHymnBooksSave } from '../../context/HymnBooks';
 import getHymnBooks from '../../data/getHymnBooks';
 import getHymnsIndex from '../../data/getHymnsIndex';
 import getParsedData from '../../data/getParsedData';
+import { useAccess } from '../../hooks/useAccess';
 import { Hymn, hymnSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
 
@@ -52,6 +54,8 @@ export default function HymnView(props: AppProps & PageProps) {
   } = props;
 
   useHymnBooksSave(props.hymnBooks);
+  const { canAccessHc } = useAccess();
+  const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
 
   const [fontSize, setFontSize] = useState<MantineSize>('md');
 
@@ -88,7 +92,7 @@ export default function HymnView(props: AppProps & PageProps) {
   });
 
   useEffect(() => {
-    if (isLoading || !geolocation) return;
+    if (isLoading || !geolocation || !canViewHymnBook) return;
 
     const hymnBook = String(router.query.hymnBook);
     const slug = String(router.query.slug);
@@ -120,7 +124,11 @@ export default function HymnView(props: AppProps & PageProps) {
         console.log('Deleting visit');
       })();
     };
-  }, [isLoading]);
+  }, [canViewHymnBook, isLoading]);
+
+  if (!canViewHymnBook) {
+    return <HymnBookUnavailable />;
+  }
 
   return (
     <>
@@ -247,10 +255,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const hymnBook = z.string().parse(context.params?.hymnBook);
   const hymnSlug = z.string().parse(context.params?.slug);
-
-  if (!isHymnBookVisible(hymnBook)) {
-    return { notFound: true };
-  }
 
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
