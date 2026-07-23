@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { supabase } from 'supabase';
+import { isHymnBookVisible } from 'contants';
 
 import { useGeolocationFromIp } from './useGeolocationFromIp';
 
@@ -29,6 +30,7 @@ export function useProximityHymns() {
 
       return data.filter(
         ({ hymn_book_slug, hymn_slug }) =>
+          isHymnBookVisible(hymn_book_slug) &&
           `${hymn_book_slug}/${hymn_slug}` !== `${hymnBook}/${slug}`
       );
     },

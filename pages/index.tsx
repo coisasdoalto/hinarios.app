@@ -1,4 +1,4 @@
-import { Card, Group, Text } from '@mantine/core';
+import { Alert, Card, Group, Stack, Text } from '@mantine/core';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
 
@@ -14,15 +14,22 @@ export default function Home({ hymnBooks }: PageProps) {
   const [orderedHymnBooks] = useHymnBooks();
 
   return (
-    <Group position="center">
-      {orderedHymnBooks?.map((hymnBook) => (
-        <Card key={hymnBook.slug} shadow="sm" p="xl" component={Link} href={`/${hymnBook.slug}`}>
-          <Text weight={500} size="lg" m={0}>
-            {hymnBook.name}
-          </Text>
-        </Card>
-      ))}
-    </Group>
+    <Stack spacing="xl">
+      <Alert title="Hinos e Cânticos temporariamente indisponível" color="blue">
+        Estamos trabalhando junto aos detentores dos direitos da editora para viabilizar a
+        publicação do HC no app. Agradecemos a compreensão.
+      </Alert>
+
+      <Group position="center">
+        {orderedHymnBooks?.map((hymnBook) => (
+          <Card key={hymnBook.slug} shadow="sm" p="xl" component={Link} href={`/${hymnBook.slug}`}>
+            <Text weight={500} size="lg" m={0}>
+              {hymnBook.name}
+            </Text>
+          </Card>
+        ))}
+      </Group>
+    </Stack>
   );
 }
 

@@ -2,6 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { isHymnBookVisible } from 'contants';
 import { hymnSchema } from 'schemas/hymn';
 import { adminAuthMiddleware } from './middleware/adminAuth';
 import { getHymnUsecase } from './usecases/get-hymn';
@@ -20,6 +21,11 @@ hymnsApp.get(
   ),
   async (c) => {
     const { hymnBook, hymnNumber } = c.req.valid('param');
+
+    if (!isHymnBookVisible(hymnBook)) {
+      c.status(404);
+      return c.json({ error: 'Hymn not found' });
+    }
 
     const hymn = await getHymnUsecase.execute({ hymnBook, hymnNumber });
 
@@ -57,6 +63,11 @@ hymnsApp.patch(
   async (c) => {
     const { hymnBook, hymnNumber } = c.req.valid('param');
     const { title, subtitle, lyrics, message } = c.req.valid('json');
+
+    if (!isHymnBookVisible(hymnBook)) {
+      c.status(404);
+      return c.json({ error: 'Hymn not found' });
+    }
 
     try {
       await updateHymnUsecase.execute({

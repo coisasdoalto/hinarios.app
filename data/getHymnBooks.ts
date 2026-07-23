@@ -1,4 +1,5 @@
 import { readdir } from 'fs/promises';
+import { isHymnBookVisible } from 'contants';
 import getHymnBookInfo from './getHymnBookInfo';
 import { joinDataPath } from './joinDataPath';
 import getHymnsIndex from './getHymnsIndex';
@@ -6,7 +7,7 @@ import getHymnsIndex from './getHymnsIndex';
 const getHymnBooks = async (options?: { withIndex: boolean }) => {
   const withIndex = options?.withIndex ?? true;
 
-  const hymnBooksSlugs = await readdir(joinDataPath(''));
+  const hymnBooksSlugs = (await readdir(joinDataPath(''))).filter(isHymnBookVisible);
 
   const hymnBooks = await Promise.all(
     hymnBooksSlugs.map(async (slug) => ({

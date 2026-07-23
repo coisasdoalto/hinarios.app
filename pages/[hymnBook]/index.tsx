@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { z } from 'zod';
+import { isHymnBookVisible } from 'contants';
 import HymnsList from '../../components/HymnsList/HymnsList';
 import { useHymnBooksSave } from '../../context/HymnBooks';
 import getHymnBookInfo from '../../data/getHymnBookInfo';
@@ -44,6 +45,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const hymnBookSlug = z.string().parse(context.params?.hymnBook);
+
+  if (!isHymnBookVisible(hymnBookSlug)) {
+    return { notFound: true };
+  }
 
   const hymnsIndex = await getHymnsIndex(hymnBookSlug);
 

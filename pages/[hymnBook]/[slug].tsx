@@ -20,6 +20,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
 import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
+import { isHymnBookVisible } from 'contants';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
@@ -246,6 +247,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const hymnBook = z.string().parse(context.params?.hymnBook);
   const hymnSlug = z.string().parse(context.params?.slug);
+
+  if (!isHymnBookVisible(hymnBook)) {
+    return { notFound: true };
+  }
+
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
   const content = await getParsedData({

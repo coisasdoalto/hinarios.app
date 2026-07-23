@@ -48,6 +48,7 @@ import { z } from 'zod';
 
 import BackButton from 'components/BackButton/BackButton';
 import { useHymnBooks, useHymnBooksSave } from 'context/HymnBooks';
+import { isHymnBookVisible } from 'contants';
 import getHymnBooks from 'data/getHymnBooks';
 import getParsedData from 'data/getParsedData';
 import { useAdmin } from 'hooks/useAdmin';
@@ -487,6 +488,11 @@ export default function Page(props: AppProps & PageProps) {
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
   const hymnBook = z.string().parse(context.params?.hymnBook);
+
+  if (!isHymnBookVisible(hymnBook)) {
+    return { notFound: true };
+  }
+
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
   const content = await getParsedData({
