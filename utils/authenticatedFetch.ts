@@ -1,8 +1,15 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { auth } from '../firebase/web';
 
-export async function authenticatedAxios(url: string, config: AxiosRequestConfig = {}) {
+/**
+ * Makes an Axios request using the current Firebase user's ID token.
+ * @example authenticatedAxios<UserAccess>('/api/hymns/access/');
+ */
+export async function authenticatedAxios<ResponseBody = unknown>(
+  url: string,
+  config: AxiosRequestConfig = {}
+): Promise<AxiosResponse<ResponseBody>> {
   const user = auth.currentUser;
 
   if (!user) {
@@ -11,7 +18,7 @@ export async function authenticatedAxios(url: string, config: AxiosRequestConfig
 
   const idToken = await user.getIdToken();
 
-  return axios({
+  return axios<ResponseBody>({
     url,
     ...config,
     headers: {

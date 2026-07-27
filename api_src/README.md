@@ -8,14 +8,14 @@ The admin authentication system ensures that only authorized administrators can 
 
 ## Components
 
-### Admin Auth Middleware (`adminAuth.ts`)
+### Authentication Middlewares
 
-A Hono middleware that:
+The Hono authentication middlewares:
 
 1. Extracts the Bearer token from the Authorization header
 2. Verifies the Firebase ID token using Firebase Admin SDK
-3. Checks if the user's email is in the admin list
-4. Adds the decoded user information to the context for use in handlers
+3. Adds the decoded user information to the context for use in handlers
+4. Checks server-side permissions when administrator access is required
 
 ### Authenticated Fetch Utility (`utils/authenticatedFetch.ts`)
 
@@ -31,10 +31,12 @@ A client-side utility that:
 
 ```typescript
 import { adminAuthMiddleware } from './middleware/adminAuth';
+import { authenticatedUserMiddleware } from './middleware/userAuth';
 
 hymnsApp.patch(
   '/:hymnBook/:hymnNumber/',
-  adminAuthMiddleware, // Add this middleware before validators
+  authenticatedUserMiddleware,
+  adminAuthMiddleware,
   zValidator(/* ... */),
   async (c) => {
     // Access user info via c.get('user') if needed
@@ -57,17 +59,11 @@ const updateHymn = async (lyrics: Lyric[]) => {
 };
 ```
 
-## Admin Users
+## User Permissions
 
-Admin access is granted to the following email addresses:
-
-- `pablo.dinella@gmail.com`
-- `raphaeldeoliveiracorrea@gmail.com`
-
-To add new admins, update the `ADMINS` array in both:
-
-- `api/middleware/adminAuth.ts` (server-side)
-- `hooks/useAdmin.ts` (client-side)
+Admin and restricted hymn-book permissions are defined only in
+`api_src/userAccess.ts`. The authenticated `/api/hymns/access/` endpoint exposes
+boolean permissions without sending the configured email lists to the browser.
 
 ## Error Responses
 
@@ -79,5 +75,5 @@ To add new admins, update the `ADMINS` array in both:
 
 - ID tokens are verified using Firebase Admin SDK for maximum security
 - Tokens are short-lived and automatically refreshed by Firebase
-- Admin list is hardcoded to prevent unauthorized access
-- All admin actions are authenticated on both client and server sides
+- Permission lists are kept in server-only API modules
+- All protected actions are authenticated and authorized on the server

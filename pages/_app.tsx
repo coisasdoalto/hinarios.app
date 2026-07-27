@@ -31,7 +31,8 @@ if (typeof window !== 'undefined') {
     environment: process.env.NODE_ENV,
   });
 
-  localStorage.getItem('UpdateNewSearchDimissed') === 'true' && posthog.capture('have_dismissed_new_search');
+  localStorage.getItem('UpdateNewSearchDimissed') === 'true' &&
+    posthog.capture('have_dismissed_new_search');
 }
 
 export const queryClient = new QueryClient();
@@ -100,13 +101,13 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
           <NotificationsProvider position="top-right">
-            <HymnBooksProvider hymnBooksCache={hymnBooksCache}>
-              <QueryClientProvider client={queryClient}>
+            <QueryClientProvider client={queryClient}>
+              <HymnBooksProvider hymnBooksCache={hymnBooksCache}>
                 <Layout>
                   <Component {...pageProps} />
                 </Layout>
-              </QueryClientProvider>
-            </HymnBooksProvider>
+              </HymnBooksProvider>
+            </QueryClientProvider>
           </NotificationsProvider>
         </MantineProvider>
       </ColorSchemeProvider>

@@ -1,19 +1,14 @@
-import { useUser } from './useUser';
+import { useAccess } from './useAccess';
 
-export const ADMINS = ['pablo.dinella@gmail.com', 'raphaeldeoliveiracorrea@gmail.com'];
-
+/**
+ * Reports whether the current authenticated user has server-authorized admin access.
+ * @example const { isAdmin } = useAdmin();
+ */
 export function useAdmin() {
-  const { isLoading, user } = useUser();
-
-  if (isLoading) {
-    return {
-      isLoading: true,
-      isAdmin: false,
-    };
-  }
+  const { isAdmin, isLoading } = useAccess();
 
   return {
     isLoading,
-    isAdmin: Boolean(user?.email && ADMINS.includes(user.email)),
+    isAdmin,
   };
 }

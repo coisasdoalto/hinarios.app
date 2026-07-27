@@ -1,6 +1,7 @@
 import { SpotlightAction } from '@mantine/spotlight';
 import { Document } from 'flexsearch';
 import { NextRouter } from 'next/router';
+import { isHymnBookVisible } from 'contants';
 
 function docCheck(
   doc: unknown
@@ -15,10 +16,12 @@ export function performTextualSearch({
   searchIndex,
   query,
   router,
+  canAccessHc,
 }: {
   searchIndex: Document;
   query: string;
   router: NextRouter;
+  canAccessHc: boolean;
 }) {
   const searchResultsByIndex = searchIndex.search(query, {
     index: ['body', 'title'],
@@ -42,6 +45,10 @@ export function performTextualSearch({
 
       return searchResultByIndex.result.map((result) => {
         if (typeof result === 'string' || typeof result === 'number') {
+          return null;
+        }
+
+        if (!isHymnBookVisible(String(result.id).split('/')[0], canAccessHc)) {
           return null;
         }
 
@@ -92,4 +99,3 @@ export function performTextualSearch({
 
   return filteredData;
 }
-
