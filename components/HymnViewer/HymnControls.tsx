@@ -1,7 +1,9 @@
 import { Button, Group, MantineSize, SegmentedControl, Stack, Text } from '@mantine/core';
 import { ReactElement, ReactNode } from 'react';
+import { AutoScrollControls, AutoScrollControlsProps } from './AutoScrollControls';
 
 type HymnControlsProps = {
+  autoScroll: AutoScrollControlsProps;
   currentKey?: string;
   fontSize: MantineSize;
   isMusical: boolean;
@@ -98,6 +100,7 @@ export function HymnControls(props: HymnControlsProps): ReactElement {
     <Stack align="center" spacing="xs">
       <FontSizeControl {...props} />
       {props.isMusical && <ChordControls {...props} />}
+      <AutoScrollControls {...props.autoScroll} />
     </Stack>
   );
 }

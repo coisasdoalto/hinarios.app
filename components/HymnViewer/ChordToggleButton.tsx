@@ -1,5 +1,5 @@
 import { ActionIcon, Tooltip } from '@mantine/core';
-import { IconGuitarPick } from '@tabler/icons-react';
+import { IconMusic } from '@tabler/icons-react';
 import { ReactElement } from 'react';
 
 type ChordToggleButtonProps = {
@@ -25,7 +25,7 @@ export function ChordToggleButton({ checked, onChange }: ChordToggleButtonProps)
         size="lg"
         variant={checked ? 'light' : 'subtle'}
       >
-        <IconGuitarPick stroke={1.5} />
+        <IconMusic stroke={1.5} />
       </ActionIcon>
     </Tooltip>
   );

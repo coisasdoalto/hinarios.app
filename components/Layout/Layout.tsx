@@ -7,26 +7,28 @@ import {
   Group,
   Header,
   AppShell as MantineAppShell,
-  MediaQuery,
   Navbar,
   useMantineTheme,
 } from '@mantine/core';
-import { PropsWithChildren, useState } from 'react';
+import { useMediaQuery } from '@mantine/hooks';
+import { PropsWithChildren, ReactElement } from 'react';
 
 import { Feedback } from 'components/Feedback';
+import { NearbySongs } from 'components/NearbySongs';
 import { PlayStoreButton } from 'components/PlayStoreButton';
+import { useResponsiveNavbar } from 'hooks/useResponsiveNavbar';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { stringToAcronym } from 'utils/stringToAcronym';
 import { useHymnBooks } from '../../context/HymnBooks';
 import LoginMenu from '../LoginMenu';
 import Search from '../Search/Search';
 import VerticalNavigation from '../VerticalNavigation/VerticalNavigation';
-import { NearbySongs } from 'components/NearbySongs';
-import { stringToAcronym } from 'utils/stringToAcronym';
 
-export default function AppShell({ children }: PropsWithChildren) {
+export default function AppShell({ children }: PropsWithChildren): ReactElement {
   const theme = useMantineTheme();
-  const [opened, setOpened] = useState(false);
+  const isWideScreen = useMediaQuery(`(min-width: ${theme.breakpoints.sm}px)`);
+  const { closeAfterNavigation, isNavbarOpen, toggleNavbar } = useResponsiveNavbar(isWideScreen);
 
   const router = useRouter();
 
@@ -44,13 +46,11 @@ export default function AppShell({ children }: PropsWithChildren) {
       navbarOffsetBreakpoint="sm"
       asideOffsetBreakpoint="sm"
       navbar={
-        <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
-          <VerticalNavigation
-            onNavigation={() => {
-              setOpened(false);
-            }}
-          />
-        </Navbar>
+        isNavbarOpen ? (
+          <Navbar p="md" width={{ sm: 200, lg: 300 }}>
+            <VerticalNavigation onNavigation={closeAfterNavigation} />
+          </Navbar>
+        ) : undefined
       }
       // footer={
       //   <Footer height={60} p="md">
@@ -67,15 +67,14 @@ export default function AppShell({ children }: PropsWithChildren) {
               height: '100%',
             }}
           >
-            <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
+            <Burger
+              aria-label={isNavbarOpen ? 'Esconder menu lateral' : 'Mostrar menu lateral'}
+              opened={isNavbarOpen}
+              onClick={toggleNavbar}
+              size="sm"
+              color={theme.colors.gray[6]}
+              mr="xl"
+            />
 
             <Breadcrumbs sx={{ marginRight: 'auto' }}>
               <Button variant="subtle" component={Link} href="/" compact>

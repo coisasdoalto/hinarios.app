@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ChordDiagramRenderer, GuitarChordPosition } from '../../chord-diagrams/chordDiagram.types';
 import { RenderableHymn } from '../../domain/hymn/renderableHymn.types';
+import { AutoScrollViewport } from '../../hooks/useHymnAutoScroll';
 import { HymnViewer } from './HymnViewer';
 
 class FakeChordDiagramRenderer implements ChordDiagramRenderer {
@@ -9,6 +10,22 @@ class FakeChordDiagramRenderer implements ChordDiagramRenderer {
 }
 
 const diagramRenderer = new FakeChordDiagramRenderer();
+
+class FakeAutoScrollViewport implements AutoScrollViewport {
+  cancelFrame(_frameId: number): void {}
+  getMaximumScrollTop(): number {
+    return 100;
+  }
+  getScrollTop(): number {
+    return 0;
+  }
+  requestFrame(_callback: FrameRequestCallback): number {
+    return 1;
+  }
+  scrollTo(_scrollTop: number): void {}
+}
+
+const autoScrollViewport = new FakeAutoScrollViewport();
 
 const chordSheetHymn: RenderableHymn = {
   id: 'ev-1',
@@ -76,6 +93,22 @@ describe('HymnViewer', () => {
 
     expect(screen.queryByText(/Tom original:/u)).toBeNull();
     expect(screen.queryByRole('region', { name: 'Diagramas dos acordes' })).toBeNull();
+    expect(screen.getByRole('checkbox', { name: 'Rolagem automática' })).toBeTruthy();
     expect(screen.getByText('Em espírito, em verdade')).toBeTruthy();
+  });
+
+  it('pauses automatic scrolling when the lyrics are clicked', () => {
+    render(
+      <HymnViewer
+        autoScrollViewport={autoScrollViewport}
+        diagramRenderer={diagramRenderer}
+        hymn={chordSheetHymn}
+        showChords
+      />
+    );
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Rolagem automática' }));
+    fireEvent.click(screen.getByText('Em espírito, em verdade'));
+
+    expect(screen.getByRole('button', { name: 'Retomar' })).toBeTruthy();
   });
 });

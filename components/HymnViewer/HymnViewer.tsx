@@ -3,6 +3,11 @@ import { ReactElement, useEffect, useState } from 'react';
 import { ChordDiagramRenderer } from '../../chord-diagrams/chordDiagram.types';
 import { transposeChordSymbol } from '../../chord-sheets/transposeChordSheet';
 import { RenderableHymn } from '../../domain/hymn/renderableHymn.types';
+import {
+  AutoScrollViewport,
+  HymnAutoScrollState,
+  useHymnAutoScroll,
+} from '../../hooks/useHymnAutoScroll';
 import { ChordDiagramStrip } from './ChordDiagramStrip';
 import { HymnControls } from './HymnControls';
 import { HymnSection } from './HymnSection';
@@ -10,6 +15,7 @@ import { HymnSection } from './HymnSection';
 const DEFAULT_FONT_SIZE: MantineSize = 'md';
 
 type HymnViewerState = {
+  autoScroll: HymnAutoScrollState;
   fontSize: MantineSize;
   setFontSize: (fontSize: MantineSize) => void;
   setTranspose: (transpose: number) => void;
@@ -17,6 +23,7 @@ type HymnViewerState = {
 };
 
 type HymnViewerProps = {
+  autoScrollViewport?: AutoScrollViewport;
   diagramRenderer?: ChordDiagramRenderer;
   hymn: RenderableHymn;
   showChords: boolean;
@@ -44,7 +51,11 @@ function useViewerFontSize(): [MantineSize, (fontSize: MantineSize) => void] {
   return [fontSize, setFontSize];
 }
 
-function useHymnViewerState(hymnId: string): HymnViewerState {
+function useHymnViewerState(
+  hymnId: string,
+  autoScrollViewport?: AutoScrollViewport
+): HymnViewerState {
+  const autoScroll = useHymnAutoScroll(hymnId, autoScrollViewport);
   const [fontSize, setFontSize] = useViewerFontSize();
   const [transpose, setTranspose] = useState(0);
 
@@ -52,7 +63,7 @@ function useHymnViewerState(hymnId: string): HymnViewerState {
     setTranspose(0);
   }, [hymnId]);
 
-  return { fontSize, setFontSize, setTranspose, transpose };
+  return { autoScroll, fontSize, setFontSize, setTranspose, transpose };
 }
 
 function resolveCurrentKey(hymn: RenderableHymn, transpose: number): string | undefined {
@@ -63,6 +74,14 @@ function resolveCurrentKey(hymn: RenderableHymn, transpose: number): string | un
 function ViewerControls({ hymn, showChords, viewerState }: ViewerContentProps): ReactElement {
   return (
     <HymnControls
+      autoScroll={{
+        enabled: viewerState.autoScroll.enabled,
+        onEnabledChange: viewerState.autoScroll.setEnabled,
+        onPausedChange: viewerState.autoScroll.togglePaused,
+        onSpeedChange: viewerState.autoScroll.setSpeed,
+        paused: viewerState.autoScroll.paused,
+        speed: viewerState.autoScroll.speed,
+      }}
       currentKey={resolveCurrentKey(hymn, viewerState.transpose)}
       fontSize={viewerState.fontSize}
       isMusical={Boolean(hymn.musical)}
@@ -77,7 +96,7 @@ function ViewerControls({ hymn, showChords, viewerState }: ViewerContentProps): 
 
 function ViewerSections({ hymn, showChords, viewerState }: ViewerContentProps): ReactElement {
   return (
-    <>
+    <Box onClick={viewerState.autoScroll.pause} onTouchStart={viewerState.autoScroll.pause}>
       {hymn.sections.map((section) => (
         <HymnSection
           key={section.id}
@@ -88,7 +107,7 @@ function ViewerSections({ hymn, showChords, viewerState }: ViewerContentProps): 
           transpose={viewerState.transpose}
         />
       ))}
-    </>
+    </Box>
   );
 }
 
@@ -97,8 +116,13 @@ function ViewerSections({ hymn, showChords, viewerState }: ViewerContentProps): 
  *
  * @example <HymnViewer hymn={normalizedHymn} showChords />
  */
-export function HymnViewer({ diagramRenderer, hymn, showChords }: HymnViewerProps): ReactElement {
-  const viewerState = useHymnViewerState(hymn.id);
+export function HymnViewer({
+  autoScrollViewport,
+  diagramRenderer,
+  hymn,
+  showChords,
+}: HymnViewerProps): ReactElement {
+  const viewerState = useHymnViewerState(hymn.id, autoScrollViewport);
 
   return (
     <Box>
