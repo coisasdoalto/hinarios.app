@@ -83,7 +83,7 @@ export default function AppShell({ children }: PropsWithChildren) {
               </Button>
               {hymnBook && (
                 <Button variant="subtle" component={Link} href={`/${hymnBook.slug}`} compact>
-                  {stringToAcronym(hymnBook.name)}
+                  {hymnBook.acronym ?? stringToAcronym(hymnBook.name)}
                 </Button>
               )}
             </Breadcrumbs>

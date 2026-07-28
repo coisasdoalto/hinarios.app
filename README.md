@@ -39,6 +39,23 @@ app.route('/example', exampleApp);
 
 The hymns CLI is a command-line tool for managing hymns and releases in the hinarios.app.
 
+### Importar o hinário de Piracicaba
+
+O importador copia os arquivos Markdown do vault local para `wip/` e gera documentos
+com `schemaVersion: 2` em `hymnsData/em-espirito-em-verdade/`:
+
+```bash
+yarn data:import:piracicaba
+```
+
+Por padrão, o vault é lido de
+`~/dev/hinario-piracicaba/Hinário Piracicaba/Hinário Piracicaba`. Para usar outro
+caminho:
+
+```bash
+PIRACICABA_HYMN_BOOK_PATH=/caminho/do/vault yarn data:import:piracicaba
+```
+
 ### Installation
 
 The CLI is included in the project as a npm script:

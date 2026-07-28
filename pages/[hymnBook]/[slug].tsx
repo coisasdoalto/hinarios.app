@@ -1,26 +1,18 @@
-import {
-  Box,
-  Container,
-  Flex,
-  Group,
-  MantineSize,
-  SegmentedControl,
-  Space,
-  Text,
-  Title,
-} from '@mantine/core';
+import { Container, Flex, Group, Space, Title } from '@mantine/core';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
 import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
-import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
+import { HymnViewer } from 'components/HymnViewer';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
+import { normalizeHymn } from 'domain/hymn/normalizeHymn';
+import { RenderableHymn } from 'domain/hymn/renderableHymn.types';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
@@ -33,13 +25,11 @@ import getHymnBooks from '../../data/getHymnBooks';
 import getHymnsIndex from '../../data/getHymnsIndex';
 import getParsedData from '../../data/getParsedData';
 import { useAccess } from '../../hooks/useAccess';
-import { Hymn, hymnSchema } from '../../schemas/hymn';
+import { hymnDocumentSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
 
-const validateFontSize = (fontSize: string): fontSize is MantineSize => /md|lg|xl/.test(fontSize);
-
 type PageProps = {
-  content: Hymn;
+  content: RenderableHymn;
   hymnBooks: HymnBook[];
   hymnBook: string;
   nextHymn: HymnsIndex[number] | null;
@@ -48,7 +38,7 @@ type PageProps = {
 
 export default function HymnView(props: AppProps & PageProps) {
   const {
-    content: { number, title, subtitle, lyrics },
+    content: { editable, number, title, subtitle },
     hymnBook: hymnBookSlug,
     nextHymn,
     previousHymn,
@@ -57,26 +47,6 @@ export default function HymnView(props: AppProps & PageProps) {
   useHymnBooksSave(props.hymnBooks);
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
-
-  const [fontSize, setFontSize] = useState<MantineSize>('md');
-
-  useEffect(() => {
-    const localStorageFontSize = localStorage.getItem('fontSize') || '';
-
-    if (validateFontSize(localStorageFontSize)) {
-      setFontSize(localStorageFontSize);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('fontSize', fontSize);
-  }, [fontSize]);
-
-  const Chorus = ({ text }: { text: string }) => (
-    <Text size={fontSize} mt={16} pl={40} italic>
-      <HymnTextWithVariations>{text}</HymnTextWithVariations>
-    </Text>
-  );
 
   const router = useRouter();
 
@@ -152,7 +122,7 @@ export default function HymnView(props: AppProps & PageProps) {
 
           <Group>
             <BookmarkButton />
-            <UpdateHymnButton />
+            {editable && <UpdateHymnButton />}
           </Group>
         </Flex>
         <Space h="md" />
@@ -169,41 +139,7 @@ export default function HymnView(props: AppProps & PageProps) {
           </div>
         </Flex>
         <Space h="md" />
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <SegmentedControl
-            value={fontSize}
-            onChange={(value: MantineSize) => setFontSize(value)}
-            data={[
-              { label: 'Pequeno', value: 'md' },
-              { label: 'Médio', value: 'lg' },
-              { label: 'Grande', value: 'xl' },
-            ]}
-          />
-        </Box>
-
-        {lyrics.map((lyric, index) => {
-          if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
-
-          if (lyric.type === 'unnumbered_stanza')
-            return (
-              <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-                <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-              </Text>
-            );
-
-          return (
-            <Text
-              key={`${lyric.number}.${title}`}
-              size={fontSize}
-              mt={16}
-              pl={20}
-              style={{ position: 'relative' }}
-            >
-              <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
-              <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-            </Text>
-          );
-        })}
+        <HymnViewer hymn={props.content} />
 
         {hymnBook?.slug === 'hinos-e-canticos' ? (
           <>
@@ -263,10 +199,11 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
 
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
-  const content = await getParsedData({
+  const hymnDocument = await getParsedData({
     filePath: `${hymnBook}/${hymnNumber}.json`,
-    schema: hymnSchema,
+    schema: hymnDocumentSchema,
   });
+  const content = normalizeHymn({ hymn: hymnDocument, hymnBookSlug: hymnBook });
   const hymnsIndex = await getHymnsIndex(hymnBook);
   const hymnIndex = hymnsIndex.findIndex(({ slug }) => slug === hymnSlug);
 

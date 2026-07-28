@@ -9,11 +9,15 @@ const getHymnBooks = async (options?: { withIndex: boolean }) => {
   const hymnBooksSlugs = await readdir(joinDataPath(''));
 
   const hymnBooks = await Promise.all(
-    hymnBooksSlugs.map(async (slug) => ({
-      slug,
-      name: (await getHymnBookInfo(slug)).name,
-      index: withIndex ? await getHymnsIndex(slug) : undefined,
-    }))
+    hymnBooksSlugs.map(async (slug) => {
+      const hymnBookInfo = await getHymnBookInfo(slug);
+
+      return {
+        slug,
+        ...hymnBookInfo,
+        index: withIndex ? await getHymnsIndex(slug) : undefined,
+      };
+    })
   );
 
   return hymnBooks;

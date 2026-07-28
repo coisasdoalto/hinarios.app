@@ -52,7 +52,7 @@ import { isHymnBookVisible } from 'contants';
 import getHymnBooks from 'data/getHymnBooks';
 import getParsedData from 'data/getParsedData';
 import { useAdmin } from 'hooks/useAdmin';
-import { Hymn, hymnSchema } from 'schemas/hymn';
+import { Hymn, hymnDocumentSchema } from 'schemas/hymn';
 import { HymnBook } from 'schemas/hymnBook';
 import { authenticatedAxios } from 'utils/authenticatedFetch';
 
@@ -495,14 +495,17 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
 
   const hymnNumber = String(context.params?.slug)?.split('-')[0];
 
-  const content = await getParsedData({
+  const hymnDocument = await getParsedData({
     filePath: `${hymnBook}/${hymnNumber}.json`,
-    schema: hymnSchema,
+    schema: hymnDocumentSchema,
   });
+  if (hymnDocument.schemaVersion === 2) {
+    return { notFound: true };
+  }
 
   const hymnBooks = await getHymnBooks();
 
   return {
-    props: { content, hymnBooks, hymnBook },
+    props: { content: hymnDocument, hymnBooks, hymnBook },
   };
 };

@@ -1,12 +1,15 @@
 import flexsearch from 'flexsearch';
 import { readdir } from 'fs/promises';
+import { writeFileSync } from 'fs';
 import path from 'path';
 import slugify from 'slugify';
+
 import getHymnBooks from '../data/getHymnBooks';
 import getParsedData from '../data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
-import { Hymn, hymnSchema } from '../schemas/hymn';
-import { writeFileSync } from 'fs';
+import { normalizeHymn } from '../domain/hymn/normalizeHymn';
+import { hymnDocumentSchema } from '../schemas/hymn';
+import { composeHymnSearchBody } from './composeHymnSearchBody';
 
 const index = new flexsearch.Document({
   document: {
@@ -16,24 +19,6 @@ const index = new flexsearch.Document({
   },
   tokenize: 'forward',
 });
-
-const composeStanzaText = (stanza?: { number: string | number; text: string }) => {
-  if (!stanza) {
-    return null;
-  }
-
-  return `${stanza.number}. ${stanza.text}`;
-};
-
-const composeLyrics = (hymn: Hymn): string => {
-  return hymn.lyrics
-    .map((lyric) => {
-      if (lyric.type === 'stanza') return composeStanzaText(lyric);
-
-      return lyric.text;
-    })
-    .join('\n\n');
-};
 
 async function generateHymnsIndex() {
   const hymnBooks = await getHymnBooks();
@@ -51,7 +36,7 @@ async function generateHymnsIndex() {
           hymnFilenames.map(async (hymnFilename) =>
             getParsedData({
               filePath: path.join(hymnBook.slug, hymnFilename),
-              schema: hymnSchema,
+              schema: hymnDocumentSchema,
             })
           )
         )
@@ -60,10 +45,11 @@ async function generateHymnsIndex() {
           (current, next) =>
             parseInt(String(current.number), 10) - parseInt(String(next.number), 10)
         )
+        .map((hymnDocument) => normalizeHymn({ hymn: hymnDocument, hymnBookSlug: hymnBook.slug }))
         .map((hymn) => ({
           id: `${hymnBook.slug}/${hymn.number}-${slugify(hymn.title)}`,
           title: `${hymn.number}. ${hymn.title}`,
-          body: composeLyrics(hymn),
+          body: composeHymnSearchBody(hymn),
           hymnBookName: hymnBook.name,
         }))
         .forEach((hymn) => index.add(hymn.id, hymn));
