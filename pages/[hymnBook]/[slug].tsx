@@ -9,11 +9,13 @@ import { z } from 'zod';
 import { useLocalStorage } from '@mantine/hooks';
 import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
 import { HymnViewer } from 'components/HymnViewer';
+import { ChordToggleButton } from 'components/HymnViewer/ChordToggleButton';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
 import { normalizeHymn } from 'domain/hymn/normalizeHymn';
 import { RenderableHymn } from 'domain/hymn/renderableHymn.types';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
+import { useChordVisibility } from 'hooks/useChordVisibility';
 import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
 import { AccessLoading } from '../../components/AccessLoading';
@@ -47,6 +49,7 @@ export default function HymnView(props: AppProps & PageProps) {
   useHymnBooksSave(props.hymnBooks);
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
+  const [showChords, setShowChords] = useChordVisibility();
 
   const router = useRouter();
 
@@ -121,6 +124,9 @@ export default function HymnView(props: AppProps & PageProps) {
           <BackButton to={hymnBook?.slug} />
 
           <Group>
+            {props.content.musical && (
+              <ChordToggleButton checked={showChords} onChange={setShowChords} />
+            )}
             <BookmarkButton />
             {editable && <UpdateHymnButton />}
           </Group>
@@ -139,7 +145,7 @@ export default function HymnView(props: AppProps & PageProps) {
           </div>
         </Flex>
         <Space h="md" />
-        <HymnViewer hymn={props.content} />
+        <HymnViewer hymn={props.content} showChords={showChords} />
 
         {hymnBook?.slug === 'hinos-e-canticos' ? (
           <>

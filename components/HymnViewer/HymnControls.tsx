@@ -1,13 +1,14 @@
-import { Box, Button, Group, MantineSize, SegmentedControl, Switch, Text } from '@mantine/core';
+import { Button, Group, MantineSize, SegmentedControl, Stack, Text } from '@mantine/core';
+import { ReactElement, ReactNode } from 'react';
 
 type HymnControlsProps = {
   currentKey?: string;
   fontSize: MantineSize;
   isMusical: boolean;
+  originalKey?: string;
   showChords: boolean;
   transpose: number;
   onFontSizeChange: (fontSize: MantineSize) => void;
-  onShowChordsChange: (showChords: boolean) => void;
   onTransposeChange: (transpose: number) => void;
 };
 
@@ -19,7 +20,7 @@ const FONT_SIZE_OPTIONS = [
 
 type ChordControlsProps = Pick<
   HymnControlsProps,
-  'currentKey' | 'showChords' | 'transpose' | 'onShowChordsChange' | 'onTransposeChange'
+  'currentKey' | 'originalKey' | 'showChords' | 'transpose' | 'onTransposeChange'
 >;
 
 function TransposeButton({
@@ -28,11 +29,11 @@ function TransposeButton({
   label,
   onClick,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   disabled?: boolean;
   label: string;
   onClick: () => void;
-}) {
+}): ReactElement {
   return (
     <Button aria-label={label} compact disabled={disabled} onClick={onClick} variant="default">
       {children}
@@ -40,11 +41,12 @@ function TransposeButton({
   );
 }
 
-function TransposeControls(props: ChordControlsProps) {
-  const { currentKey, transpose, onTransposeChange } = props;
+function TransposeControls(props: ChordControlsProps): ReactElement {
+  const { currentKey, originalKey, transpose, onTransposeChange } = props;
 
   return (
-    <Group mt="xs" spacing="xs">
+    <Group position="center" spacing="xs">
+      {originalKey && <Text size="sm">Tom original: {originalKey}</Text>}
       {currentKey && <Text size="sm">Tom atual: {currentKey}</Text>}
       <TransposeButton
         disabled={transpose <= -11}
@@ -67,20 +69,16 @@ function TransposeControls(props: ChordControlsProps) {
   );
 }
 
-function ChordControls(props: ChordControlsProps) {
-  return (
-    <Box>
-      <Switch
-        checked={props.showChords}
-        label="Cifras"
-        onChange={(event) => props.onShowChordsChange(event.currentTarget.checked)}
-      />
-      {props.showChords && <TransposeControls {...props} />}
-    </Box>
-  );
+function ChordControls(props: ChordControlsProps): ReactElement | null {
+  if (props.showChords) return <TransposeControls {...props} />;
+  if (!props.originalKey) return null;
+
+  return <Text size="sm">Tom original: {props.originalKey}</Text>;
 }
 
-function FontSizeControl(props: Pick<HymnControlsProps, 'fontSize' | 'onFontSizeChange'>) {
+function FontSizeControl(
+  props: Pick<HymnControlsProps, 'fontSize' | 'onFontSizeChange'>
+): ReactElement {
   return (
     <SegmentedControl
       data={FONT_SIZE_OPTIONS}
@@ -95,11 +93,11 @@ function FontSizeControl(props: Pick<HymnControlsProps, 'fontSize' | 'onFontSize
  *
  * @example <HymnControls {...viewerControlProps} />
  */
-export function HymnControls(props: HymnControlsProps) {
+export function HymnControls(props: HymnControlsProps): ReactElement {
   return (
-    <Group position="center" spacing="lg">
+    <Stack align="center" spacing="xs">
       <FontSizeControl {...props} />
       {props.isMusical && <ChordControls {...props} />}
-    </Group>
+    </Stack>
   );
 }

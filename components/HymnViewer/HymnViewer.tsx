@@ -1,7 +1,9 @@
 import { Box, MantineSize } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
+import { ChordDiagramRenderer } from '../../chord-diagrams/chordDiagram.types';
 import { transposeChordSymbol } from '../../chord-sheets/transposeChordSheet';
 import { RenderableHymn } from '../../domain/hymn/renderableHymn.types';
+import { ChordDiagramStrip } from './ChordDiagramStrip';
 import { HymnControls } from './HymnControls';
 import { HymnSection } from './HymnSection';
 
@@ -10,10 +12,20 @@ const DEFAULT_FONT_SIZE: MantineSize = 'md';
 type HymnViewerState = {
   fontSize: MantineSize;
   setFontSize: (fontSize: MantineSize) => void;
-  setShowChords: (showChords: boolean) => void;
   setTranspose: (transpose: number) => void;
-  showChords: boolean;
   transpose: number;
+};
+
+type HymnViewerProps = {
+  diagramRenderer?: ChordDiagramRenderer;
+  hymn: RenderableHymn;
+  showChords: boolean;
+};
+
+type ViewerContentProps = {
+  hymn: RenderableHymn;
+  showChords: boolean;
+  viewerState: HymnViewerState;
 };
 
 function isViewerFontSize(fontSize: string): fontSize is MantineSize {
@@ -34,15 +46,13 @@ function useViewerFontSize(): [MantineSize, (fontSize: MantineSize) => void] {
 
 function useHymnViewerState(hymnId: string): HymnViewerState {
   const [fontSize, setFontSize] = useViewerFontSize();
-  const [showChords, setShowChords] = useState(true);
   const [transpose, setTranspose] = useState(0);
 
   useEffect(() => {
-    setShowChords(true);
     setTranspose(0);
   }, [hymnId]);
 
-  return { fontSize, setFontSize, setShowChords, setTranspose, showChords, transpose };
+  return { fontSize, setFontSize, setTranspose, transpose };
 }
 
 function resolveCurrentKey(hymn: RenderableHymn, transpose: number): string | undefined {
@@ -50,34 +60,22 @@ function resolveCurrentKey(hymn: RenderableHymn, transpose: number): string | un
   return originalKey ? transposeChordSymbol(originalKey, transpose) : undefined;
 }
 
-function ViewerControls({
-  hymn,
-  viewerState,
-}: {
-  hymn: RenderableHymn;
-  viewerState: HymnViewerState;
-}) {
+function ViewerControls({ hymn, showChords, viewerState }: ViewerContentProps): ReactElement {
   return (
     <HymnControls
       currentKey={resolveCurrentKey(hymn, viewerState.transpose)}
       fontSize={viewerState.fontSize}
       isMusical={Boolean(hymn.musical)}
+      originalKey={hymn.musical?.originalKey}
       onFontSizeChange={viewerState.setFontSize}
-      onShowChordsChange={viewerState.setShowChords}
       onTransposeChange={viewerState.setTranspose}
-      showChords={viewerState.showChords}
+      showChords={showChords}
       transpose={viewerState.transpose}
     />
   );
 }
 
-function ViewerSections({
-  hymn,
-  viewerState,
-}: {
-  hymn: RenderableHymn;
-  viewerState: HymnViewerState;
-}) {
+function ViewerSections({ hymn, showChords, viewerState }: ViewerContentProps): ReactElement {
   return (
     <>
       {hymn.sections.map((section) => (
@@ -86,7 +84,7 @@ function ViewerSections({
           fontSize={viewerState.fontSize}
           isMusical={Boolean(hymn.musical)}
           section={section}
-          showChords={viewerState.showChords}
+          showChords={showChords}
           transpose={viewerState.transpose}
         />
       ))}
@@ -97,15 +95,22 @@ function ViewerSections({
 /**
  * Presents any normalized hymn while keeping musical preferences local to the viewer.
  *
- * @example <HymnViewer hymn={normalizeHymn({ hymn, hymnBookSlug })} />
+ * @example <HymnViewer hymn={normalizedHymn} showChords />
  */
-export function HymnViewer({ hymn }: { hymn: RenderableHymn }) {
+export function HymnViewer({ diagramRenderer, hymn, showChords }: HymnViewerProps): ReactElement {
   const viewerState = useHymnViewerState(hymn.id);
 
   return (
     <Box>
-      <ViewerControls hymn={hymn} viewerState={viewerState} />
-      <ViewerSections hymn={hymn} viewerState={viewerState} />
+      <ViewerControls hymn={hymn} showChords={showChords} viewerState={viewerState} />
+      {hymn.musical && showChords && (
+        <ChordDiagramStrip
+          hymn={hymn}
+          renderer={diagramRenderer}
+          transpose={viewerState.transpose}
+        />
+      )}
+      <ViewerSections hymn={hymn} showChords={showChords} viewerState={viewerState} />
     </Box>
   );
 }
