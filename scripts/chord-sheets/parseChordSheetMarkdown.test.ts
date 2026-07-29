@@ -44,9 +44,15 @@ describe('parseChordSheetFileName', () => {
     });
   });
 
-  it('rejects a filename without the expected numeric prefix', () => {
-    expect(() => parseChordSheetFileName('Meu Prazer.md')).toThrow(
-      'Invalid chord-sheet filename "Meu Prazer.md"; expected "<number>[.<variant>] <title>.md"'
+  it('accepts a filename without a hymn number', () => {
+    expect(parseChordSheetFileName('Meu Prazer 🆗.md')).toEqual({
+      title: 'Meu Prazer',
+    });
+  });
+
+  it('rejects a filename without the Markdown extension', () => {
+    expect(() => parseChordSheetFileName('Meu Prazer.txt')).toThrow(
+      'Invalid chord-sheet filename "Meu Prazer.txt"; expected "[<number>[.<variant>] ]<title>.md"'
     );
   });
 });
@@ -66,6 +72,15 @@ describe('extractObsidianChordContent', () => {
 
     expect(extractObsidianChordContent(sourceMarkdown, '7 Acredito.md')).toBe(
       'TOM %E\n\nA\nAcredito em Jesus Cristo'
+    );
+  });
+
+  it('ignores Markdown metadata before the chords block', () => {
+    const sourceMarkdown =
+      '*Corinhos e Cânticos, Nº 7*\n```chords\nTOM %E\n\nE\nRazão de viver\n```';
+
+    expect(extractObsidianChordContent(sourceMarkdown, 'Razão de Viver.md')).toBe(
+      'TOM %E\n\nE\nRazão de viver'
     );
   });
 

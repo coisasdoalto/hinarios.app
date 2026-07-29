@@ -56,6 +56,53 @@ describe('importChordSheetHymnBook', () => {
     ).rejects.toThrow('Missing fake file');
   });
 
+  it('numbers an unnumbered collection in Portuguese alphabetical order', async () => {
+    const sourceDirectory = path.resolve('/wip');
+    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const fileSystem = new FakeChordSheetFileSystem({
+      [path.join(sourceDirectory, 'Zelo.md')]: '```chords\nTOM %G\n\nG\nZelo',
+      [path.join(sourceDirectory, 'Amor.md')]: '```chords\nTOM %C\n\nC\nAmor',
+      [path.join(sourceDirectory, 'Água Viva.md')]: '```chords\nTOM %D\n\nD\nÁgua Viva',
+    });
+
+    await importChordSheetHymnBook({
+      definition: hymnBookDefinition,
+      destinationDirectory,
+      fileSystem,
+      sourceDirectory,
+    });
+
+    await expect(
+      fileSystem.readTextFile(path.join(destinationDirectory, '1.json'))
+    ).resolves.toContain('"title": "Água Viva"');
+    await expect(
+      fileSystem.readTextFile(path.join(destinationDirectory, '2.json'))
+    ).resolves.toContain('"title": "Amor"');
+    await expect(
+      fileSystem.readTextFile(path.join(destinationDirectory, '3.json'))
+    ).resolves.toContain('"title": "Zelo"');
+  });
+
+  it('rejects a collection that mixes numbered and unnumbered filenames', async () => {
+    const sourceDirectory = path.resolve('/wip');
+    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const fileSystem = new FakeChordSheetFileSystem({
+      [path.join(sourceDirectory, '1 First.md')]: '```chords\nTOM %G',
+      [path.join(sourceDirectory, 'Second.md')]: '```chords\nTOM %C',
+    });
+
+    await expect(
+      importChordSheetHymnBook({
+        definition: hymnBookDefinition,
+        destinationDirectory,
+        fileSystem,
+        sourceDirectory,
+      })
+    ).rejects.toThrow(
+      'Invalid chord-sheet collection: numbered files ["1 First.md"] and unnumbered files ["Second.md"]; expected either every .md filename to include a number or none'
+    );
+  });
+
   it('rejects duplicate hymn identities before writing the destination', async () => {
     const sourceDirectory = path.resolve('/wip');
     const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');

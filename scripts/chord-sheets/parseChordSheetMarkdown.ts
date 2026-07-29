@@ -1,10 +1,10 @@
 const FILE_NAME_EMOJI =
   /[\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\u20E3\uFE0F]/gu;
-const CHORDS_OPENING_FENCE = /^```chords[^\S\r\n]*\r?\n/u;
+const CHORDS_OPENING_FENCE = /(?:^|\r?\n)```chords[^\S\r\n]*\r?\n/u;
 const MARKDOWN_CLOSING_FENCE = /\r?\n```[^\S\r\n]*(?:\r?\n|$)/u;
 
 export type ChordSheetFileIdentity = {
-  number: number;
+  number?: number;
   title: string;
   variant?: string;
 };
@@ -23,25 +23,28 @@ export function selectChordSheetMarkdownFileNames(fileNames: string[]): string[]
 }
 
 /**
- * Reads the hymn number and title from a Piracicaba vault filename.
+ * Reads the optional hymn number, variant and title from a chord-sheet filename.
  *
  * @example parseChordSheetFileName('1 Meu Prazer 🆗.md')
  */
 export function parseChordSheetFileName(fileName: string): ChordSheetFileIdentity {
   const fileNameMatch = /^(\d+)(?:\.([a-z0-9]+))?\s+(.+)\.md$/iu.exec(fileName);
-  if (!fileNameMatch) {
+  const unnumberedFileNameMatch = /^(.+)\.md$/u.exec(fileName);
+  const titleSource = fileNameMatch?.[3] ?? unnumberedFileNameMatch?.[1];
+  if (!titleSource) {
     throw new Error(
-      `Invalid chord-sheet filename "${fileName}"; expected "<number>[.<variant>] <title>.md"`
+      `Invalid chord-sheet filename "${fileName}"; expected "[<number>[.<variant>] ]<title>.md"`
     );
   }
 
-  const title = removeFileNameEmojis(fileNameMatch[3]);
+  const title = removeFileNameEmojis(titleSource);
   if (!title) {
     throw new Error(`Invalid chord-sheet filename "${fileName}"; expected a non-empty hymn title`);
   }
 
-  const variant = fileNameMatch[2]?.toLocaleLowerCase('en-US');
-  return { number: Number(fileNameMatch[1]), title, ...(variant && { variant }) };
+  const number = fileNameMatch ? Number(fileNameMatch[1]) : undefined;
+  const variant = fileNameMatch?.[2]?.toLocaleLowerCase('en-US');
+  return { ...(number !== undefined && { number }), title, ...(variant && { variant }) };
 }
 
 /**
@@ -55,7 +58,8 @@ export function extractObsidianChordContent(sourceMarkdown: string, fileName: st
     throw new Error(`Invalid chord sheet "${fileName}"; expected an opening \`\`\`chords fence`);
   }
 
-  const contentWithOptionalFence = sourceMarkdown.slice(openingFence[0].length);
+  const chordContentStart = openingFence.index + openingFence[0].length;
+  const contentWithOptionalFence = sourceMarkdown.slice(chordContentStart);
   const closingFenceIndex = contentWithOptionalFence.search(MARKDOWN_CLOSING_FENCE);
   const chordContent =
     closingFenceIndex === -1

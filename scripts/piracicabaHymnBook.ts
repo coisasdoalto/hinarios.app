@@ -3,8 +3,7 @@ import path from 'path';
 import { ChordSheetHymnBookDefinition } from './chord-sheets/importChordSheetHymnBook';
 
 export const PIRACICABA_SOURCE_DIRECTORY =
-  process.env.PIRACICABA_HYMN_BOOK_PATH ??
-  path.join(homedir(), 'dev', 'hinario-piracicaba', 'Hinário Piracicaba', 'Hinário Piracicaba');
+  process.env.PIRACICABA_HYMN_BOOK_PATH
 
 export const PIRACICABA_STAGING_DIRECTORY = path.resolve('wip', 'hinario-piracicaba');
 
