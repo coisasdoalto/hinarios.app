@@ -103,4 +103,24 @@ describe('parseChordSheet', () => {
       ],
     });
   });
+
+  it('normalizes multiline Markdown emphasis without shifting its chords', () => {
+    const parsedChordSheet = parseChordSheet(
+      [' C', '*Pra Te adorar,', ' G', 'Onde flui o amor.* (2x)'].join('\n'),
+      'ev-1'
+    );
+
+    expect(parsedChordSheet.sections[0].lines).toMatchObject([
+      {
+        text: 'Pra Te adorar,',
+        chords: [{ symbol: 'C', column: 0 }],
+        segments: [{ text: 'Pra Te adorar,', italic: true }],
+      },
+      {
+        text: 'Onde flui o amor. (2x)',
+        chords: [{ symbol: 'G', column: 1 }],
+        segments: [{ text: 'Onde flui o amor.', italic: true }, { text: ' (2x)' }],
+      },
+    ]);
+  });
 });

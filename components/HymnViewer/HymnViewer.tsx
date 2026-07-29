@@ -74,6 +74,15 @@ function useNotifyAutoScrollEnabled(
   useEffect(() => onEnabledChange?.(enabled), [enabled, onEnabledChange]);
 }
 
+function useDisableAutoScrollWithoutChords(
+  showChords: boolean,
+  setEnabled: (enabled: boolean) => void
+): void {
+  useEffect(() => {
+    if (!showChords) setEnabled(false);
+  }, [setEnabled, showChords]);
+}
+
 function resolveCurrentKey(hymn: RenderableHymn, transpose: number): string | undefined {
   const originalKey = hymn.musical?.originalKey;
   return originalKey ? transposeChordSymbol(originalKey, transpose) : undefined;
@@ -132,6 +141,7 @@ export function HymnViewer({
   showChords,
 }: HymnViewerProps): ReactElement {
   const viewerState = useHymnViewerState(hymn.id, autoScrollViewport);
+  useDisableAutoScrollWithoutChords(showChords, viewerState.autoScroll.setEnabled);
   useNotifyAutoScrollEnabled(viewerState.autoScroll.enabled, onAutoScrollEnabledChange);
 
   return (

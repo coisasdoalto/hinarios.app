@@ -80,6 +80,7 @@ describe('HymnViewer', () => {
     expect(screen.queryByText(/Tom atual:/u)).toBeNull();
     expect(screen.queryByText('Ab')).toBeNull();
     expect(screen.queryByRole('region', { name: 'Diagramas dos acordes' })).toBeNull();
+    expect(screen.queryByRole('checkbox', { name: 'Rolagem automática' })).toBeNull();
 
     viewer.rerender(
       <HymnViewer diagramRenderer={diagramRenderer} hymn={chordSheetHymn} showChords />
@@ -98,7 +99,7 @@ describe('HymnViewer', () => {
 
     expect(screen.queryByText(/Tom original:/u)).toBeNull();
     expect(screen.queryByRole('region', { name: 'Diagramas dos acordes' })).toBeNull();
-    expect(screen.getByRole('checkbox', { name: 'Rolagem automática' })).toBeTruthy();
+    expect(screen.queryByRole('checkbox', { name: 'Rolagem automática' })).toBeNull();
     expect(screen.getByText('Em espírito, em verdade')).toBeTruthy();
   });
 
@@ -118,5 +119,32 @@ describe('HymnViewer', () => {
 
     expect(onAutoScrollEnabledChange).toHaveBeenLastCalledWith(true);
     expect(screen.getByRole('button', { name: 'Pausar' })).toBeTruthy();
+  });
+
+  it('stops autoscroll when chords are hidden', () => {
+    const onAutoScrollEnabledChange = jest.fn();
+    const viewer = render(
+      <HymnViewer
+        autoScrollViewport={autoScrollViewport}
+        diagramRenderer={diagramRenderer}
+        hymn={chordSheetHymn}
+        onAutoScrollEnabledChange={onAutoScrollEnabledChange}
+        showChords
+      />
+    );
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Rolagem automática' }));
+
+    viewer.rerender(
+      <HymnViewer
+        autoScrollViewport={autoScrollViewport}
+        diagramRenderer={diagramRenderer}
+        hymn={chordSheetHymn}
+        onAutoScrollEnabledChange={onAutoScrollEnabledChange}
+        showChords={false}
+      />
+    );
+
+    expect(screen.queryByRole('checkbox', { name: 'Rolagem automática' })).toBeNull();
+    expect(onAutoScrollEnabledChange).toHaveBeenLastCalledWith(false);
   });
 });

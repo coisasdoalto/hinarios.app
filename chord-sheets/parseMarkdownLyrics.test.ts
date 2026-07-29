@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { parseMarkdownLyrics } from './parseMarkdownLyrics';
+import { parseMarkdownLyrics, parseMarkdownLyricsLines } from './parseMarkdownLyrics';
 
 describe('parseMarkdownLyrics', () => {
   it('parses asterisk and underscore emphasis markers', () => {
@@ -33,5 +33,20 @@ describe('parseMarkdownLyrics', () => {
       markerColumns: [],
       text: 'Minh_alma *sem fechamento',
     });
+  });
+
+  it('keeps emphasis active across multiple lyric lines', () => {
+    expect(parseMarkdownLyricsLines(['*Pra Te adorar,', 'Onde flui o amor.* (2x)'])).toEqual([
+      {
+        markerColumns: [0],
+        segments: [{ text: 'Pra Te adorar,', italic: true }],
+        text: 'Pra Te adorar,',
+      },
+      {
+        markerColumns: [17],
+        segments: [{ text: 'Onde flui o amor.', italic: true }, { text: ' (2x)' }],
+        text: 'Onde flui o amor. (2x)',
+      },
+    ]);
   });
 });

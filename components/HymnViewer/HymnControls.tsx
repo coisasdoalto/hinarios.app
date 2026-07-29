@@ -102,7 +102,7 @@ export function HymnControls(props: HymnControlsProps): ReactElement {
     <Stack align="center" spacing="xs">
       <FontSizeControl {...props} />
       {props.isMusical && <ChordControls {...props} />}
-      <AutoScrollControls {...props.autoScroll} />
+      {props.isMusical && props.showChords && <AutoScrollControls {...props.autoScroll} />}
     </Stack>
   );
 }

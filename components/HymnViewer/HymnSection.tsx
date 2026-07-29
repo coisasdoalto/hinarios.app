@@ -50,7 +50,7 @@ function PositionedChords({ chordLine }: { chordLine: string }) {
   if (!chordLine) return null;
 
   return (
-    <Text color="blue" inherit sx={{ whiteSpace: 'pre' }}>
+    <Text color="blue" inherit sx={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
       {chordLine}
     </Text>
   );
@@ -64,7 +64,7 @@ function ChordSheetLine(props: ChordSheetLineProps) {
   return (
     <Box mb={showChords && chordLine ? 6 : 0}>
       {showChords && <PositionedChords chordLine={chordLine} />}
-      <Text inherit sx={{ whiteSpace: showChords ? 'pre' : 'pre-wrap' }}>
+      <Text inherit sx={{ fontFamily: 'inherit', whiteSpace: showChords ? 'pre' : 'pre-wrap' }}>
         <FormattedLyrics line={line} />
         {repeatLabel}
       </Text>
@@ -84,11 +84,7 @@ function MusicalSectionLabel({ label }: { label?: string }) {
 
 function MusicalSectionLines({ fontSize, section, showChords, transpose }: HymnSectionProps) {
   return (
-    <Text
-      component="div"
-      size={fontSize}
-      sx={{ fontFamily: showChords ? 'monospace' : 'inherit', minWidth: 0 }}
-    >
+    <Text component="div" size={fontSize} sx={{ minWidth: 0 }}>
       {section.lines.map((line) => (
         <ChordSheetLine
           key={line.id}

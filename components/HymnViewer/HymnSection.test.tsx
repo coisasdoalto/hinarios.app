@@ -10,6 +10,7 @@ const formattedSection: RenderableSection = {
     {
       id: 'ev-1/section-1/line-1',
       text: 'Cantamos para sempre',
+      chords: [{ symbol: 'C', column: 0 }],
       segments: [
         { text: 'Cantamos ' },
         { text: 'para', italic: true },
@@ -30,5 +31,16 @@ describe('HymnSection', () => {
     expect(screen.getByText('sempre').tagName).toBe('EM');
     expect(screen.getByText('sempre').parentElement?.tagName).toBe('STRONG');
     expect(screen.queryByText(/[*_]/u)).toBeNull();
+  });
+
+  it('limits the monospaced font to the chord line', () => {
+    render(
+      <HymnSection fontSize="md" isMusical section={formattedSection} showChords transpose={0} />
+    );
+
+    expect(screen.getByText('C')).toHaveStyle({ fontFamily: 'monospace' });
+    expect(screen.getByText('para').closest('.mantine-Text-root')).toHaveStyle({
+      fontFamily: 'inherit',
+    });
   });
 });
