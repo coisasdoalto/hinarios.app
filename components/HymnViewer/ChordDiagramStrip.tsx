@@ -1,17 +1,14 @@
 import { Box, Group, useMantineTheme } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
 import { ReactElement, ReactNode, useEffect, useMemo, useRef } from 'react';
 import { ChordDiagramRenderer } from '../../chord-diagrams/chordDiagram.types';
 import { extractUniqueChordSymbols } from '../../chord-sheets/extractChords';
 import { RenderableHymn } from '../../domain/hymn/renderableHymn.types';
 import { ChordDiagram } from './ChordDiagram';
-
-const CHORD_VARIATIONS_STORAGE_KEY = 'chordSheet.selectedVariations';
-
-type SelectedChordVariations = Record<string, number>;
-type SetSelectedChordVariations = (
-  value: SelectedChordVariations | ((current: SelectedChordVariations) => SelectedChordVariations)
-) => void;
+import {
+  SelectedChordVariations,
+  SetSelectedChordVariations,
+  useStoredChordVariations,
+} from './useStoredChordVariations';
 
 type ChordDiagramStripProps = {
   hymn: RenderableHymn;
@@ -28,16 +25,13 @@ function useSelectedChordVariations(
   transpose: number
 ): [SelectedChordVariations, SetSelectedChordVariations] {
   const previousTranspose = useRef(transpose);
-  const [selectedVariations, setSelectedVariations] = useLocalStorage<SelectedChordVariations>({
-    defaultValue: {},
-    key: CHORD_VARIATIONS_STORAGE_KEY,
-  });
+  const [selectedVariations, setSelectedVariations] = useStoredChordVariations();
 
   useEffect(() => {
     if (previousTranspose.current === transpose) return;
     previousTranspose.current = transpose;
-    setSelectedVariations((current) => ({ ...current, ...resetVisibleVariations(symbols) }));
-  }, [setSelectedVariations, symbols, transpose]);
+    setSelectedVariations({ ...selectedVariations, ...resetVisibleVariations(symbols) });
+  }, [selectedVariations, setSelectedVariations, symbols, transpose]);
 
   return [selectedVariations, setSelectedVariations];
 }
@@ -86,7 +80,7 @@ function DiagramList({
         <ChordDiagram
           key={symbol}
           onVariationChange={(variationIndex) =>
-            setSelectedVariations((current) => ({ ...current, [symbol]: variationIndex }))
+            setSelectedVariations({ ...selectedVariations, [symbol]: variationIndex })
           }
           renderer={renderer}
           symbol={symbol}

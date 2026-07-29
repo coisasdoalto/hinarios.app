@@ -31,6 +31,7 @@ type HymnViewerProps = {
 };
 
 type ViewerContentProps = {
+  diagramRenderer?: ChordDiagramRenderer;
   hymn: RenderableHymn;
   showChords: boolean;
   viewerState: HymnViewerState;
@@ -111,12 +112,18 @@ function ViewerControls({ hymn, showChords, viewerState }: ViewerContentProps): 
   );
 }
 
-function ViewerSections({ hymn, showChords, viewerState }: ViewerContentProps): ReactElement {
+function ViewerSections({
+  diagramRenderer,
+  hymn,
+  showChords,
+  viewerState,
+}: ViewerContentProps): ReactElement {
   return (
     <Box>
       {hymn.sections.map((section) => (
         <HymnSection
           key={section.id}
+          diagramRenderer={diagramRenderer}
           fontSize={viewerState.fontSize}
           isMusical={Boolean(hymn.musical)}
           section={section}
@@ -154,7 +161,12 @@ export function HymnViewer({
           transpose={viewerState.transpose}
         />
       )}
-      <ViewerSections hymn={hymn} showChords={showChords} viewerState={viewerState} />
+      <ViewerSections
+        diagramRenderer={diagramRenderer}
+        hymn={hymn}
+        showChords={showChords}
+        viewerState={viewerState}
+      />
     </Box>
   );
 }

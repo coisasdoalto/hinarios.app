@@ -1,4 +1,5 @@
-const REVIEW_STATUS_SUFFIX = /\s+(?:(?:✔\uFE0F?)|🆗|❓)+$/u;
+const FILE_NAME_EMOJI =
+  /[\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\u20E3\uFE0F]/gu;
 const CHORDS_OPENING_FENCE = /^```chords[^\S\r\n]*\r?\n/u;
 const MARKDOWN_CLOSING_FENCE = /\r?\n```[^\S\r\n]*(?:\r?\n|$)/u;
 
@@ -7,6 +8,10 @@ export type ChordSheetFileIdentity = {
   title: string;
   variant?: string;
 };
+
+function removeFileNameEmojis(fileNameTitle: string): string {
+  return fileNameTitle.replace(FILE_NAME_EMOJI, ' ').replace(/\s+/gu, ' ').trim();
+}
 
 /**
  * Selects deterministic Markdown inputs from a vault directory listing.
@@ -30,7 +35,7 @@ export function parseChordSheetFileName(fileName: string): ChordSheetFileIdentit
     );
   }
 
-  const title = fileNameMatch[3].replace(REVIEW_STATUS_SUFFIX, '').trim();
+  const title = removeFileNameEmojis(fileNameMatch[3]);
   if (!title) {
     throw new Error(`Invalid chord-sheet filename "${fileName}"; expected a non-empty hymn title`);
   }

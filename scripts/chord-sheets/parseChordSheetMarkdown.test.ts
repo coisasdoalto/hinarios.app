@@ -29,6 +29,13 @@ describe('parseChordSheetFileName', () => {
     });
   });
 
+  it('ignores emojis anywhere in the imported title', () => {
+    expect(parseChordSheetFileName('55 🎵 Louvor 🙌 da Igreja 🆗.md')).toEqual({
+      number: 55,
+      title: 'Louvor da Igreja',
+    });
+  });
+
   it('extracts and normalizes an optional hymn variant', () => {
     expect(parseChordSheetFileName('72.A Maranata 🆗.md')).toEqual({
       number: 72,

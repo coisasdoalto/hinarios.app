@@ -1,5 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
-import { formatPositionedChords, transposeChordSymbol } from './transposeChordSheet';
+import {
+  formatPositionedChords,
+  formatPositionedChordTokens,
+  transposeChordSymbol,
+} from './transposeChordSheet';
 
 describe('transposeChordSymbol', () => {
   it('transposes complex and inverted chords', () => {
@@ -23,5 +27,22 @@ describe('formatPositionedChords', () => {
         1
       )
     ).toBe('  Db Gb');
+  });
+});
+
+describe('formatPositionedChordTokens', () => {
+  it('preserves spacing while returning interactive chord symbols', () => {
+    expect(
+      formatPositionedChordTokens(
+        [
+          { symbol: 'C', column: 2 },
+          { symbol: 'F', column: 4 },
+        ],
+        1
+      )
+    ).toEqual([
+      { leadingSpaces: '  ', symbol: 'Db' },
+      { leadingSpaces: ' ', symbol: 'Gb' },
+    ]);
   });
 });

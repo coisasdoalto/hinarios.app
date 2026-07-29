@@ -1,14 +1,26 @@
 import { Box, MantineSize, Text } from '@mantine/core';
-import { ReactElement, ReactNode } from 'react';
-import { formatPositionedChords } from '../../chord-sheets/transposeChordSheet';
+import { Fragment, ReactElement, ReactNode } from 'react';
+import { ChordDiagramRenderer } from '../../chord-diagrams/chordDiagram.types';
 import {
+  FormattedChordToken,
+  formatPositionedChordTokens,
+} from '../../chord-sheets/transposeChordSheet';
+import {
+  PositionedChord,
   RenderableLine,
   RenderableSection,
   RenderableTextSegment,
 } from '../../domain/hymn/renderableHymn.types';
 import { HymnTextWithVariations } from '../HymnTextWithVariations';
+import { InlineChordDiagram } from './InlineChordDiagram';
+import {
+  SelectedChordVariations,
+  SetSelectedChordVariations,
+  useStoredChordVariations,
+} from './useStoredChordVariations';
 
 type HymnSectionProps = {
+  diagramRenderer?: ChordDiagramRenderer;
   fontSize: MantineSize;
   isMusical: boolean;
   section: RenderableSection;
@@ -16,11 +28,17 @@ type HymnSectionProps = {
   transpose: number;
 };
 
+type ChordVariationProps = {
+  diagramRenderer?: ChordDiagramRenderer;
+  selectedVariations: SelectedChordVariations;
+  setSelectedVariations: SetSelectedChordVariations;
+};
+
 function findRepeatTimes(section: RenderableSection, lineId: string): number | undefined {
   return section.repeats?.find(({ lineIds }) => lineIds.at(-1) === lineId)?.times;
 }
 
-type ChordSheetLineProps = {
+type ChordSheetLineProps = ChordVariationProps & {
   line: RenderableLine;
   repeatTimes?: number;
   showChords: boolean;
@@ -46,24 +64,50 @@ function FormattedLyrics({ line }: { line: RenderableLine }): ReactElement {
   );
 }
 
-function PositionedChords({ chordLine }: { chordLine: string }) {
-  if (!chordLine) return null;
+type PositionedChordsProps = ChordVariationProps & {
+  chords: PositionedChord[];
+  transpose: number;
+};
 
+type PositionedChordTokenProps = ChordVariationProps & FormattedChordToken;
+
+function PositionedChordToken(props: PositionedChordTokenProps): ReactElement {
+  return (
+    <Fragment>
+      {props.leadingSpaces}
+      <InlineChordDiagram
+        onVariationChange={(variationIndex) =>
+          props.setSelectedVariations({
+            ...props.selectedVariations,
+            [props.symbol]: variationIndex,
+          })
+        }
+        renderer={props.diagramRenderer}
+        symbol={props.symbol}
+        variationIndex={props.selectedVariations[props.symbol] ?? 0}
+      />
+    </Fragment>
+  );
+}
+
+function PositionedChords(props: PositionedChordsProps): ReactElement {
+  const chordTokens = formatPositionedChordTokens(props.chords, props.transpose);
   return (
     <Text color="blue" inherit sx={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
-      {chordLine}
+      {chordTokens.map((token, chordIndex) => (
+        <PositionedChordToken key={`${token.symbol}-${chordIndex}`} {...props} {...token} />
+      ))}
     </Text>
   );
 }
 
-function ChordSheetLine(props: ChordSheetLineProps) {
-  const { line, repeatTimes, showChords, transpose } = props;
-  const chordLine = line.chords ? formatPositionedChords(line.chords, transpose) : '';
+function ChordSheetLine(props: ChordSheetLineProps): ReactElement {
+  const { line, repeatTimes, showChords } = props;
   const repeatLabel = repeatTimes ? ` (${repeatTimes}x)` : '';
 
   return (
-    <Box mb={showChords && chordLine ? 6 : 0}>
-      {showChords && <PositionedChords chordLine={chordLine} />}
+    <Box mb={showChords && line.chords?.length ? 6 : 0}>
+      {showChords && line.chords && <PositionedChords {...props} chords={line.chords} />}
       <Text inherit sx={{ fontFamily: 'inherit', whiteSpace: showChords ? 'pre' : 'pre-wrap' }}>
         <FormattedLyrics line={line} />
         {repeatLabel}
@@ -72,42 +116,49 @@ function ChordSheetLine(props: ChordSheetLineProps) {
   );
 }
 
-function MusicalSectionLabel({ label }: { label?: string }) {
+function MusicalSectionLabel({ label }: { label?: string }): ReactElement | null {
   if (!label) return null;
 
   return (
     <Text color="dimmed" mb={4} size="sm" weight={600}>
-      {label}
+      [{label}]
     </Text>
   );
 }
 
-function MusicalSectionLines({ fontSize, section, showChords, transpose }: HymnSectionProps) {
+type MusicalSectionLinesProps = HymnSectionProps & ChordVariationProps;
+
+function MusicalSectionLines(props: MusicalSectionLinesProps): ReactElement {
   return (
-    <Text component="div" size={fontSize} sx={{ minWidth: 0 }}>
-      {section.lines.map((line) => (
+    <Text component="div" size={props.fontSize} sx={{ minWidth: 0 }}>
+      {props.section.lines.map((line) => (
         <ChordSheetLine
           key={line.id}
           line={line}
-          repeatTimes={findRepeatTimes(section, line.id)}
-          showChords={showChords}
-          transpose={transpose}
+          repeatTimes={findRepeatTimes(props.section, line.id)}
+          {...props}
         />
       ))}
     </Text>
   );
 }
 
-function MusicalSection(props: HymnSectionProps) {
+function MusicalSection(props: HymnSectionProps): ReactElement {
+  const [selectedVariations, setSelectedVariations] = useStoredChordVariations();
+
   return (
     <Box mt={16} sx={{ overflowX: props.showChords ? 'auto' : 'visible' }}>
       <MusicalSectionLabel label={props.section.label} />
-      <MusicalSectionLines {...props} />
+      <MusicalSectionLines
+        {...props}
+        selectedVariations={selectedVariations}
+        setSelectedVariations={setSelectedVariations}
+      />
     </Box>
   );
 }
 
-function LegacyLines({ lines }: Pick<RenderableSection, 'lines'>) {
+function LegacyLines({ lines }: Pick<RenderableSection, 'lines'>): ReactElement {
   return (
     <>
       {lines.map((line, lineIndex) => (
@@ -120,7 +171,7 @@ function LegacyLines({ lines }: Pick<RenderableSection, 'lines'>) {
   );
 }
 
-function LegacySection({ fontSize, section }: HymnSectionProps) {
+function LegacySection({ fontSize, section }: HymnSectionProps): ReactElement {
   const chorusIndent = section.type === 'chorus' ? 40 : 20;
 
   return (
@@ -144,7 +195,7 @@ function LegacySection({ fontSize, section }: HymnSectionProps) {
  *
  * @example <HymnSection section={section} fontSize="md" isMusical={false} />
  */
-export function HymnSection(props: HymnSectionProps) {
+export function HymnSection(props: HymnSectionProps): ReactElement {
   if (props.isMusical) {
     return <MusicalSection {...props} />;
   }
