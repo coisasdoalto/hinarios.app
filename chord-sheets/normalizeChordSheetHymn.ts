@@ -1,4 +1,5 @@
 import { RenderableHymn } from '../domain/hymn/renderableHymn.types';
+import { resolveHymnDisplayNumber } from '../domain/hymn/hymnNumber';
 import { ChordSheetHymn } from '../schemas/hymn';
 import { MusicTheory, tonalMusicTheory } from './musicTheory';
 import { parseChordSheet } from './parseChordSheet';
@@ -20,7 +21,7 @@ export function normalizeChordSheetHymn(
 
   return {
     id: chordSheetHymn.id,
-    number: String(chordSheetHymn.number),
+    number: String(resolveHymnDisplayNumber(chordSheetHymn)),
     title: chordSheetHymn.title,
     ...(chordSheetHymn.subtitle && { subtitle: chordSheetHymn.subtitle }),
     editable: false,

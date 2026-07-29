@@ -5,6 +5,7 @@ import {
   RepeatGroup,
 } from '../domain/hymn/renderableHymn.types';
 import { MusicTheory, tonalMusicTheory } from './musicTheory';
+import { parseMarkdownLyrics } from './parseMarkdownLyrics';
 
 const KEY_DIRECTIVE = /^TOM\s+%(\S+)\s*$/iu;
 const SECTION_LABEL = /^\[([^\]]+)\]\s*$/u;
@@ -236,6 +237,29 @@ function extractRepeatGroups(
   return { lines, ...(repeats.length > 0 && { repeats }) };
 }
 
+function adjustChordColumns(
+  chords: PositionedChord[] | undefined,
+  markerColumns: number[]
+): PositionedChord[] | undefined {
+  return chords?.map((chord) => {
+    const precedingMarkers = markerColumns.filter((column) => column < chord.column).length;
+    return { ...chord, column: Math.max(chord.column - precedingMarkers, 0) };
+  });
+}
+
+function parseRenderableLineMarkdown(line: RenderableLine): RenderableLine {
+  const parsedLyrics = parseMarkdownLyrics(line.text);
+  if (!parsedLyrics.segments) return line;
+  const adjustedChords = adjustChordColumns(line.chords, parsedLyrics.markerColumns);
+
+  return {
+    ...line,
+    text: parsedLyrics.text,
+    segments: parsedLyrics.segments,
+    ...(adjustedChords && { chords: adjustedChords }),
+  };
+}
+
 function createRenderableSection(
   sourceBlock: ChordSheetSourceBlock,
   hymnId: string,
@@ -244,7 +268,8 @@ function createRenderableSection(
 ): RenderableSection {
   const sectionId = `${hymnId}/section-${sectionIndex + 1}`;
   const sourceLines = parseBlockLines(sourceBlock.lines, sectionId, musicTheory);
-  const { lines, repeats } = extractRepeatGroups(sourceLines, sectionId);
+  const { lines: repeatedLines, repeats } = extractRepeatGroups(sourceLines, sectionId);
+  const lines = repeatedLines.map(parseRenderableLineMarkdown);
 
   return {
     id: sectionId,

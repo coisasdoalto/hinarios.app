@@ -7,6 +7,7 @@ import slugify from 'slugify';
 import getHymnBooks from '../data/getHymnBooks';
 import getParsedData from '../data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
+import { compareHymnNumbers } from '../domain/hymn/hymnNumber';
 import { normalizeHymn } from '../domain/hymn/normalizeHymn';
 import { hymnDocumentSchema } from '../schemas/hymn';
 import { composeHymnSearchBody } from './composeHymnSearchBody';
@@ -41,10 +42,7 @@ async function generateHymnsIndex() {
           )
         )
       )
-        .sort(
-          (current, next) =>
-            parseInt(String(current.number), 10) - parseInt(String(next.number), 10)
-        )
+        .sort(compareHymnNumbers)
         .map((hymnDocument) => normalizeHymn({ hymn: hymnDocument, hymnBookSlug: hymnBook.slug }))
         .map((hymn) => ({
           id: `${hymnBook.slug}/${hymn.number}-${slugify(hymn.title)}`,

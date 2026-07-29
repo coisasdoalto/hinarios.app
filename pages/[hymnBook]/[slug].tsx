@@ -3,7 +3,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
@@ -50,6 +50,7 @@ export default function HymnView(props: AppProps & PageProps) {
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
   const [showChords, setShowChords] = useChordVisibility();
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
 
   const router = useRouter();
 
@@ -117,21 +118,25 @@ export default function HymnView(props: AppProps & PageProps) {
       </Head>
 
       <Container size="xs">
-        {/* <Title order={2} size="h3">
-        {hymnBook?.name
-      </Title> */}
-        <Flex justify="space-between">
-          <BackButton to={hymnBook?.slug} />
+        {!autoScrollEnabled && (
+          <>
+            {/* <Title order={2} size="h3">
+            {hymnBook?.name
+          </Title> */}
+            <Flex justify="space-between">
+              <BackButton to={hymnBook?.slug} />
 
-          <Group>
-            {props.content.musical && (
-              <ChordToggleButton checked={showChords} onChange={setShowChords} />
-            )}
-            <BookmarkButton />
-            {editable && <UpdateHymnButton />}
-          </Group>
-        </Flex>
-        <Space h="md" />
+              <Group>
+                {props.content.musical && (
+                  <ChordToggleButton checked={showChords} onChange={setShowChords} />
+                )}
+                <BookmarkButton />
+                {editable && <UpdateHymnButton />}
+              </Group>
+            </Flex>
+            <Space h="md" />
+          </>
+        )}
         <Flex align="flex-start" gap="sm">
           <div>
             <Title order={1} size="h2">
@@ -145,7 +150,11 @@ export default function HymnView(props: AppProps & PageProps) {
           </div>
         </Flex>
         <Space h="md" />
-        <HymnViewer hymn={props.content} showChords={showChords} />
+        <HymnViewer
+          hymn={props.content}
+          onAutoScrollEnabledChange={setAutoScrollEnabled}
+          showChords={showChords}
+        />
 
         {hymnBook?.slug === 'hinos-e-canticos' ? (
           <>
@@ -165,12 +174,14 @@ export default function HymnView(props: AppProps & PageProps) {
           </>
         ) : null}
 
-        <HymnBottomNavigation
-          currentHymnNumber={number}
-          hymnBookSlug={hymnBookSlug}
-          previousHymn={previousHymn}
-          nextHymn={nextHymn}
-        />
+        {!autoScrollEnabled && (
+          <HymnBottomNavigation
+            currentHymnNumber={number}
+            hymnBookSlug={hymnBookSlug}
+            previousHymn={previousHymn}
+            nextHymn={nextHymn}
+          />
+        )}
       </Container>
     </>
   );

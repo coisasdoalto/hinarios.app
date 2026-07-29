@@ -37,4 +37,20 @@ describe('hymn schemas', () => {
     expect(chordSheetHymnSchema.parse(chordSheetHymn)).toEqual(chordSheetHymn);
     expect(hymnDocumentSchema.parse(chordSheetHymn)).toEqual(chordSheetHymn);
   });
+
+  it('validates an optional lowercase chord-sheet variant', () => {
+    const chordSheetVariant = {
+      schemaVersion: 2 as const,
+      id: 'em-espirito-em-verdade-72-a',
+      number: 72,
+      variant: 'a',
+      title: 'Maranata',
+      source: {
+        format: 'obsidian-chords' as const,
+        content: 'TOM %E\n\nE\nMaranata',
+      },
+    };
+
+    expect(chordSheetHymnSchema.parse(chordSheetVariant)).toEqual(chordSheetVariant);
+  });
 });

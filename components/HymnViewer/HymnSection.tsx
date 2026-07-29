@@ -1,6 +1,11 @@
 import { Box, MantineSize, Text } from '@mantine/core';
+import { ReactElement, ReactNode } from 'react';
 import { formatPositionedChords } from '../../chord-sheets/transposeChordSheet';
-import { RenderableLine, RenderableSection } from '../../domain/hymn/renderableHymn.types';
+import {
+  RenderableLine,
+  RenderableSection,
+  RenderableTextSegment,
+} from '../../domain/hymn/renderableHymn.types';
 import { HymnTextWithVariations } from '../HymnTextWithVariations';
 
 type HymnSectionProps = {
@@ -22,6 +27,25 @@ type ChordSheetLineProps = {
   transpose: number;
 };
 
+function FormattedLyricsSegment({ segment }: { segment: RenderableTextSegment }): ReactElement {
+  let formattedText: ReactNode = segment.text;
+  if (segment.italic) formattedText = <em>{formattedText}</em>;
+  if (segment.bold) formattedText = <strong>{formattedText}</strong>;
+  return <>{formattedText}</>;
+}
+
+function FormattedLyrics({ line }: { line: RenderableLine }): ReactElement {
+  if (!line.segments) return <>{line.text}</>;
+
+  return (
+    <>
+      {line.segments.map((segment, segmentIndex) => (
+        <FormattedLyricsSegment key={`${line.id}/segment-${segmentIndex}`} segment={segment} />
+      ))}
+    </>
+  );
+}
+
 function PositionedChords({ chordLine }: { chordLine: string }) {
   if (!chordLine) return null;
 
@@ -41,7 +65,7 @@ function ChordSheetLine(props: ChordSheetLineProps) {
     <Box mb={showChords && chordLine ? 6 : 0}>
       {showChords && <PositionedChords chordLine={chordLine} />}
       <Text inherit sx={{ whiteSpace: showChords ? 'pre' : 'pre-wrap' }}>
-        {line.text}
+        <FormattedLyrics line={line} />
         {repeatLabel}
       </Text>
     </Box>

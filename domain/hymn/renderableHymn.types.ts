@@ -9,10 +9,17 @@ export type RepeatGroup = {
   lineIds: string[];
 };
 
+export type RenderableTextSegment = {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+};
+
 export type RenderableLine = {
   id: string;
   text: string;
   chords?: PositionedChord[];
+  segments?: RenderableTextSegment[];
 };
 
 export type RenderableSection = {

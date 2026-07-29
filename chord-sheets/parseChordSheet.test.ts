@@ -85,4 +85,22 @@ describe('parseChordSheet', () => {
       ],
     });
   });
+
+  it('normalizes Markdown emphasis and keeps chord columns aligned', () => {
+    const parsedChordSheet = parseChordSheet('C        G\nEu **te** *adoro*', 'ev-4');
+
+    expect(parsedChordSheet.sections[0].lines[0]).toMatchObject({
+      text: 'Eu te adoro',
+      chords: [
+        { symbol: 'C', column: 0 },
+        { symbol: 'G', column: 5 },
+      ],
+      segments: [
+        { text: 'Eu ' },
+        { text: 'te', bold: true },
+        { text: ' ' },
+        { text: 'adoro', italic: true },
+      ],
+    });
+  });
 });

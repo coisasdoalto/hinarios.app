@@ -1,10 +1,12 @@
 import slugify from 'slugify';
+import { resolveHymnDisplayNumber } from '../domain/hymn/hymnNumber';
 import { HymnsIndex } from '../schemas/hymnsIndex';
 
 type HymnIndexSource = {
   number: string | number;
   subtitle?: string;
   title: string;
+  variant?: string;
 };
 
 /**
@@ -13,10 +15,13 @@ type HymnIndexSource = {
  * @example createHymnsIndex([{ number: 1, title: 'Meu Prazer' }])
  */
 export function createHymnsIndex(hymns: HymnIndexSource[]): HymnsIndex {
-  return hymns.map((hymn) => ({
-    number: hymn.number,
-    title: hymn.title,
-    subtitle: hymn.subtitle,
-    slug: `${hymn.number}-${slugify(hymn.title)}`,
-  }));
+  return hymns.map((hymn) => {
+    const displayNumber = resolveHymnDisplayNumber(hymn);
+    return {
+      number: displayNumber,
+      title: hymn.title,
+      subtitle: hymn.subtitle,
+      slug: `${displayNumber}-${slugify(hymn.title)}`,
+    };
+  });
 }

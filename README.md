@@ -56,6 +56,10 @@ caminho:
 PIRACICABA_HYMN_BOOK_PATH=/caminho/do/vault yarn data:import:piracicaba
 ```
 
+Os arquivos aceitam uma variante opcional após o número. Por exemplo,
+`72.a Maranata.md` e `72.b Maranata (Versão Acampa).md` são importados como
+entradas independentes `72a` e `72b`.
+
 ### Installation
 
 The CLI is included in the project as a npm script:

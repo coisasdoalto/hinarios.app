@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ChordDiagramRenderer, GuitarChordPosition } from '../../chord-diagrams/chordDiagram.types';
 import { RenderableHymn } from '../../domain/hymn/renderableHymn.types';
@@ -57,9 +57,14 @@ describe('HymnViewer', () => {
     fireEvent.click(screen.getByLabelText('Transpor um semitom acima'));
 
     expect(screen.getByText(/Tom original: G/u)).toBeTruthy();
-    expect(screen.getByText(/Tom atual: Ab/u)).toBeTruthy();
-    expect(screen.getByText('Ab')).toBeTruthy();
+    expect(screen.queryByText(/Tom atual:/u)).toBeNull();
+    expect(screen.getAllByText('Ab')).toHaveLength(2);
     expect(chordSheetHymn.sections[0].lines[0].chords?.[0].symbol).toBe('G');
+
+    const restoreKeyButton = screen.getByRole('button', { name: 'Restaurar tom original' });
+    expect(restoreKeyButton.textContent).toBe('Ab');
+    fireEvent.click(restoreKeyButton);
+    expect(restoreKeyButton.textContent).toBe('G');
   });
 
   it('hides chords and transposition controls without losing transpose state', () => {
@@ -72,14 +77,14 @@ describe('HymnViewer', () => {
     );
 
     expect(screen.getByText(/Tom original: G/u)).toBeTruthy();
-    expect(screen.queryByText(/Tom atual: Ab/u)).toBeNull();
+    expect(screen.queryByText(/Tom atual:/u)).toBeNull();
     expect(screen.queryByText('Ab')).toBeNull();
     expect(screen.queryByRole('region', { name: 'Diagramas dos acordes' })).toBeNull();
 
     viewer.rerender(
       <HymnViewer diagramRenderer={diagramRenderer} hymn={chordSheetHymn} showChords />
     );
-    expect(screen.getByText(/Tom atual: Ab/u)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Restaurar tom original' }).textContent).toBe('Ab');
   });
 
   it('keeps legacy hymns free of musical controls', () => {
@@ -97,18 +102,21 @@ describe('HymnViewer', () => {
     expect(screen.getByText('Em espírito, em verdade')).toBeTruthy();
   });
 
-  it('pauses automatic scrolling when the lyrics are clicked', () => {
+  it('reports enabled state and keeps scrolling when the lyrics are clicked', () => {
+    const onAutoScrollEnabledChange = jest.fn();
     render(
       <HymnViewer
         autoScrollViewport={autoScrollViewport}
         diagramRenderer={diagramRenderer}
         hymn={chordSheetHymn}
+        onAutoScrollEnabledChange={onAutoScrollEnabledChange}
         showChords
       />
     );
     fireEvent.click(screen.getByRole('checkbox', { name: 'Rolagem automática' }));
     fireEvent.click(screen.getByText('Em espírito, em verdade'));
 
-    expect(screen.getByRole('button', { name: 'Retomar' })).toBeTruthy();
+    expect(onAutoScrollEnabledChange).toHaveBeenLastCalledWith(true);
+    expect(screen.getByRole('button', { name: 'Pausar' })).toBeTruthy();
   });
 });

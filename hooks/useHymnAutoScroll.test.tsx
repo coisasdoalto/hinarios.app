@@ -59,11 +59,11 @@ function AutoScrollHarness({
       <button type="button" onClick={() => autoScroll.setEnabled(true)}>
         Iniciar
       </button>
-      <button type="button" onClick={autoScroll.pause}>
-        Pausar
+      <button type="button" onClick={autoScroll.togglePaused}>
+        Alternar pausa
       </button>
-      <button type="button" onClick={() => autoScroll.setSpeed('fast')}>
-        Rápido
+      <button type="button" onClick={() => autoScroll.setSpeed(20)}>
+        Velocidade máxima
       </button>
     </>
   );
@@ -73,27 +73,52 @@ describe('useHymnAutoScroll', () => {
   it('advances the viewport according to the selected speed', () => {
     const viewport = new FakeAutoScrollViewport();
     render(<AutoScrollHarness hymnId="hymn-1" viewport={viewport} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Rápido' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Velocidade máxima' }));
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
 
     act(() => viewport.runNextFrame(0));
     act(() => viewport.runNextFrame(1000));
 
-    expect(viewport.scrollTop).toBeCloseTo(4.8);
+    expect(viewport.scrollTop).toBeCloseTo(8);
+  });
+
+  it('uses a visible pace at the default desktop speed', () => {
+    const viewport = new FakeAutoScrollViewport();
+    render(<AutoScrollHarness hymnId="hymn-1" viewport={viewport} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
+
+    act(() => viewport.runNextFrame(0));
+    act(() => viewport.runNextFrame(100));
+
+    expect(viewport.scrollTop).toBeCloseTo(1.86, 1);
   });
 
   it('pauses when requested and when the end is reached', () => {
     const viewport = new FakeAutoScrollViewport();
-    viewport.maximumScrollTop = 2;
+    viewport.maximumScrollTop = 0.5;
     render(<AutoScrollHarness hymnId="hymn-1" viewport={viewport} />);
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Pausar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Alternar pausa' }));
     expect(screen.getByText('Pausado')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
     act(() => viewport.runNextFrame(0));
     act(() => viewport.runNextFrame(1000));
     expect(screen.getByText('Pausado')).toBeTruthy();
+  });
+
+  it('keeps running after the person scrolls manually', () => {
+    const viewport = new FakeAutoScrollViewport();
+    render(<AutoScrollHarness hymnId="hymn-1" viewport={viewport} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Velocidade máxima' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
+
+    act(() => viewport.runNextFrame(0));
+    viewport.scrollTop = 40;
+    act(() => viewport.runNextFrame(100));
+
+    expect(viewport.scrollTop).toBeCloseTo(48);
+    expect(screen.getByText('Executando')).toBeTruthy();
   });
 
   it('stops and returns to the top when the hymn changes', () => {

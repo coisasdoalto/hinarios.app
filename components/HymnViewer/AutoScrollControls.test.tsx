@@ -13,15 +13,17 @@ describe('AutoScrollControls', () => {
         onPausedChange={() => undefined}
         onSpeedChange={onSpeedChange}
         paused={false}
-        speed="medium"
+        speed={5}
       />
     );
 
     fireEvent.click(screen.getByRole('checkbox', { name: 'Rolagem automática' }));
-    fireEvent.click(screen.getByText('Rápida'));
+    fireEvent.keyDown(screen.getByRole('slider', { name: 'Velocidade da rolagem automática' }), {
+      key: 'ArrowRight',
+    });
 
     expect(onEnabledChange).toHaveBeenCalledWith(true);
-    expect(onSpeedChange).toHaveBeenCalledWith('fast');
+    expect(onSpeedChange).toHaveBeenCalledWith(6);
   });
 
   it('offers pause and resume while enabled', () => {
@@ -33,11 +35,12 @@ describe('AutoScrollControls', () => {
         onPausedChange={onPausedChange}
         onSpeedChange={() => undefined}
         paused={false}
-        speed="medium"
+        speed={5}
       />
     );
     fireEvent.click(screen.getByRole('button', { name: 'Pausar' }));
     expect(onPausedChange).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Pausar rolagem automática' })).toBeTruthy();
 
     controls.rerender(
       <AutoScrollControls
@@ -46,9 +49,10 @@ describe('AutoScrollControls', () => {
         onPausedChange={onPausedChange}
         onSpeedChange={() => undefined}
         paused
-        speed="medium"
+        speed={5}
       />
     );
     expect(screen.getByRole('button', { name: 'Retomar' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Retomar rolagem automática' })).toBeTruthy();
   });
 });

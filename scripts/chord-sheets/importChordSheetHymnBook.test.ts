@@ -56,7 +56,7 @@ describe('importChordSheetHymnBook', () => {
     ).rejects.toThrow('Missing fake file');
   });
 
-  it('rejects duplicate hymn numbers before writing the destination', async () => {
+  it('rejects duplicate hymn identities before writing the destination', async () => {
     const sourceDirectory = path.resolve('/wip');
     const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
     const fileSystem = new FakeChordSheetFileSystem({
@@ -72,7 +72,36 @@ describe('importChordSheetHymnBook', () => {
         sourceDirectory,
       })
     ).rejects.toThrow(
-      'Invalid chord-sheet collection: duplicate hymn number "1"; expected unique numbers'
+      'Invalid chord-sheet collection: duplicate hymn identity "1"; expected unique number and variant pairs'
     );
+  });
+
+  it('writes same-number variants as independent sorted entries', async () => {
+    const sourceDirectory = path.resolve('/wip');
+    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const fileSystem = new FakeChordSheetFileSystem({
+      [path.join(sourceDirectory, '73 Next.md')]: '```chords\nTOM %G\n\nG\nNext',
+      [path.join(sourceDirectory, '72.b Maranata (Versão Acampa) 🆗.md')]:
+        '```chords\nTOM %E\n\nE\nMaranata B',
+      [path.join(sourceDirectory, '72.a Maranata 🆗.md')]: '```chords\nTOM %E\n\nE\nMaranata A',
+      [path.join(sourceDirectory, '71 Previous.md')]: '```chords\nTOM %C\n\nC\nPrevious',
+    });
+
+    await importChordSheetHymnBook({
+      definition: hymnBookDefinition,
+      destinationDirectory,
+      fileSystem,
+      sourceDirectory,
+    });
+
+    await expect(
+      fileSystem.readTextFile(path.join(destinationDirectory, '72a.json'))
+    ).resolves.toContain('"id": "em-espirito-em-verdade-72-a"');
+    await expect(
+      fileSystem.readTextFile(path.join(destinationDirectory, '72b.json'))
+    ).resolves.toContain('"variant": "b"');
+    await expect(
+      fileSystem.readTextFile(path.join(destinationDirectory, 'index.json'))
+    ).resolves.toContain('"slug": "72a-Maranata"');
   });
 });

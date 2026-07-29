@@ -1,4 +1,5 @@
 import { Button, Group, MantineSize, SegmentedControl, Stack, Text } from '@mantine/core';
+import { IconArrowDown, IconArrowUp } from '@tabler/icons-react';
 import { ReactElement, ReactNode } from 'react';
 import { AutoScrollControls, AutoScrollControlsProps } from './AutoScrollControls';
 
@@ -49,24 +50,25 @@ function TransposeControls(props: ChordControlsProps): ReactElement {
   return (
     <Group position="center" spacing="xs">
       {originalKey && <Text size="sm">Tom original: {originalKey}</Text>}
-      {currentKey && <Text size="sm">Tom atual: {currentKey}</Text>}
-      <TransposeButton
-        disabled={transpose <= -11}
-        label="Transpor um semitom abaixo"
-        onClick={() => onTransposeChange(transpose - 1)}
-      >
-        −
-      </TransposeButton>
-      <TransposeButton label="Restaurar tom original" onClick={() => onTransposeChange(0)}>
-        {transpose}
-      </TransposeButton>
-      <TransposeButton
-        disabled={transpose >= 11}
-        label="Transpor um semitom acima"
-        onClick={() => onTransposeChange(transpose + 1)}
-      >
-        +
-      </TransposeButton>
+      <Button.Group>
+        <TransposeButton
+          disabled={transpose <= -11}
+          label="Transpor um semitom abaixo"
+          onClick={() => onTransposeChange(transpose - 1)}
+        >
+          <IconArrowDown size="1rem" />
+        </TransposeButton>
+        <TransposeButton label="Restaurar tom original" onClick={() => onTransposeChange(0)}>
+          {currentKey ?? '—'}
+        </TransposeButton>
+        <TransposeButton
+          disabled={transpose >= 11}
+          label="Transpor um semitom acima"
+          onClick={() => onTransposeChange(transpose + 1)}
+        >
+          <IconArrowUp size="1rem" />
+        </TransposeButton>
+      </Button.Group>
     </Group>
   );
 }

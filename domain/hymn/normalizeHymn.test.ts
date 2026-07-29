@@ -43,4 +43,22 @@ describe('normalizeHymn', () => {
       sections: [{ lines: [{ text: 'Em espírito, em verdade' }] }],
     });
   });
+
+  it('includes the chord-sheet variant in the visible hymn number', () => {
+    const chordSheetVariant = hymnDocumentSchema.parse({
+      schemaVersion: 2,
+      id: 'ev-72-a',
+      number: 72,
+      variant: 'a',
+      title: 'Maranata',
+      source: {
+        format: 'obsidian-chords',
+        content: 'TOM %E\n\nE\nMaranata',
+      },
+    });
+
+    expect(normalizeHymn({ hymn: chordSheetVariant, hymnBookSlug: 'ignored-for-v2' }).number).toBe(
+      '72a'
+    );
+  });
 });

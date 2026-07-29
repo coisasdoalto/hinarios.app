@@ -33,6 +33,10 @@ export const chordSheetHymnSchema = z.object({
   schemaVersion: z.literal(2),
   id: z.string().min(1),
   number: z.number().int().positive(),
+  variant: z
+    .string()
+    .regex(/^[a-z0-9]+$/u)
+    .optional(),
   title: z.string().min(1),
   subtitle: z.string().optional(),
   source: z.object({

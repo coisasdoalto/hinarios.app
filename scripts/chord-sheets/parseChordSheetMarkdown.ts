@@ -5,6 +5,7 @@ const MARKDOWN_CLOSING_FENCE = /\r?\n```[^\S\r\n]*(?:\r?\n|$)/u;
 export type ChordSheetFileIdentity = {
   number: number;
   title: string;
+  variant?: string;
 };
 
 /**
@@ -22,17 +23,20 @@ export function selectChordSheetMarkdownFileNames(fileNames: string[]): string[]
  * @example parseChordSheetFileName('1 Meu Prazer 🆗.md')
  */
 export function parseChordSheetFileName(fileName: string): ChordSheetFileIdentity {
-  const fileNameMatch = /^(\d+)\s+(.+)\.md$/u.exec(fileName);
+  const fileNameMatch = /^(\d+)(?:\.([a-z0-9]+))?\s+(.+)\.md$/iu.exec(fileName);
   if (!fileNameMatch) {
-    throw new Error(`Invalid chord-sheet filename "${fileName}"; expected "<number> <title>.md"`);
+    throw new Error(
+      `Invalid chord-sheet filename "${fileName}"; expected "<number>[.<variant>] <title>.md"`
+    );
   }
 
-  const title = fileNameMatch[2].replace(REVIEW_STATUS_SUFFIX, '').trim();
+  const title = fileNameMatch[3].replace(REVIEW_STATUS_SUFFIX, '').trim();
   if (!title) {
     throw new Error(`Invalid chord-sheet filename "${fileName}"; expected a non-empty hymn title`);
   }
 
-  return { number: Number(fileNameMatch[1]), title };
+  const variant = fileNameMatch[2]?.toLocaleLowerCase('en-US');
+  return { number: Number(fileNameMatch[1]), title, ...(variant && { variant }) };
 }
 
 /**

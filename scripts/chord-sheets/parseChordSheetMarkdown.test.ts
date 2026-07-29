@@ -29,9 +29,17 @@ describe('parseChordSheetFileName', () => {
     });
   });
 
+  it('extracts and normalizes an optional hymn variant', () => {
+    expect(parseChordSheetFileName('72.A Maranata 🆗.md')).toEqual({
+      number: 72,
+      variant: 'a',
+      title: 'Maranata',
+    });
+  });
+
   it('rejects a filename without the expected numeric prefix', () => {
     expect(() => parseChordSheetFileName('Meu Prazer.md')).toThrow(
-      'Invalid chord-sheet filename "Meu Prazer.md"; expected "<number> <title>.md"'
+      'Invalid chord-sheet filename "Meu Prazer.md"; expected "<number>[.<variant>] <title>.md"'
     );
   });
 });

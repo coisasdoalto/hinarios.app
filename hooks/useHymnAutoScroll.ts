@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type AutoScrollSpeed = 'slow' | 'medium' | 'fast';
+export type AutoScrollSpeed = number;
 
 export type HymnAutoScrollState = {
   enabled: boolean;
-  pause: () => void;
   paused: boolean;
   setEnabled: (enabled: boolean) => void;
   setSpeed: (speed: AutoScrollSpeed) => void;
@@ -28,12 +27,14 @@ type AutoScrollAnimation = {
   viewport: AutoScrollViewport;
 };
 
-const PIXELS_PER_SECOND: Record<AutoScrollSpeed, number> = {
-  fast: 48,
-  medium: 28,
-  slow: 14,
-};
+export const AUTO_SCROLL_MINIMUM_SPEED = 1;
+export const AUTO_SCROLL_MAXIMUM_SPEED = 20;
+export const AUTO_SCROLL_DEFAULT_SPEED = 5;
 const MAXIMUM_FRAME_DURATION = 100;
+// A non-zero floor keeps low slider values perceptible on large desktop viewports.
+const MINIMUM_PIXELS_PER_SECOND = 12;
+const MAXIMUM_PIXELS_PER_SECOND = 80;
+const SPEED_CURVE_EXPONENT = 1.5;
 
 export const browserAutoScrollViewport: AutoScrollViewport = {
   cancelFrame(frameId: number): void {
@@ -59,8 +60,24 @@ function calculateNextScrollTop(
   speed: AutoScrollSpeed
 ): number {
   const frameDuration = Math.min(elapsedMilliseconds, MAXIMUM_FRAME_DURATION);
-  const distance = PIXELS_PER_SECOND[speed] * (frameDuration / 1000);
+  const distance = calculatePixelsPerSecond(speed) * (frameDuration / 1000);
   return Math.min(viewport.getScrollTop() + distance, viewport.getMaximumScrollTop());
+}
+
+function constrainAutoScrollSpeed(speed: AutoScrollSpeed): AutoScrollSpeed {
+  return Math.min(
+    Math.max(Math.round(speed), AUTO_SCROLL_MINIMUM_SPEED),
+    AUTO_SCROLL_MAXIMUM_SPEED
+  );
+}
+
+function calculatePixelsPerSecond(speed: AutoScrollSpeed): number {
+  const constrainedSpeed = constrainAutoScrollSpeed(speed);
+  const speedRange = AUTO_SCROLL_MAXIMUM_SPEED - AUTO_SCROLL_MINIMUM_SPEED;
+  const normalizedSpeed = (constrainedSpeed - AUTO_SCROLL_MINIMUM_SPEED) / speedRange;
+  const curvedSpeed = Math.pow(normalizedSpeed, SPEED_CURVE_EXPONENT);
+  const pixelsPerSecondRange = MAXIMUM_PIXELS_PER_SECOND - MINIMUM_PIXELS_PER_SECOND;
+  return MINIMUM_PIXELS_PER_SECOND + curvedSpeed * pixelsPerSecondRange;
 }
 
 function moveViewport(animation: AutoScrollAnimation, elapsedMilliseconds: number): boolean {
@@ -128,10 +145,7 @@ export function useHymnAutoScroll(
 ): HymnAutoScrollState {
   const [enabled, setEnabledState] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [speed, setSpeed] = useState<AutoScrollSpeed>('medium');
-  const pause = useCallback(() => {
-    if (enabled) setPaused(true);
-  }, [enabled]);
+  const [speed, setSpeedState] = useState<AutoScrollSpeed>(AUTO_SCROLL_DEFAULT_SPEED);
   const pauseAtEnd = useCallback(() => setPaused(true), []);
   const reset = useCallback(() => {
     setEnabledState(false);
@@ -141,10 +155,14 @@ export function useHymnAutoScroll(
     setEnabledState(nextEnabled);
     setPaused(false);
   }, []);
+  const setSpeed = useCallback(
+    (nextSpeed: AutoScrollSpeed) => setSpeedState(constrainAutoScrollSpeed(nextSpeed)),
+    []
+  );
   const togglePaused = useCallback(() => setPaused((isPaused) => !isPaused), []);
 
   useAutoScrollAnimation({ enabled, onReachEnd: pauseAtEnd, paused, speed, viewport });
   useResetOnHymnChange(hymnId, reset, viewport);
 
-  return { enabled, pause, paused, setEnabled, setSpeed, speed, togglePaused };
+  return { enabled, paused, setEnabled, setSpeed, speed, togglePaused };
 }

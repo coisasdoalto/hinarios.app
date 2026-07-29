@@ -3,6 +3,7 @@ import path from 'path';
 import getHymnBooks from '../data/getHymnBooks';
 import getParsedData from '../data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
+import { compareHymnNumbers } from '../domain/hymn/hymnNumber';
 import { hymnDocumentSchema } from '../schemas/hymn';
 import { createHymnsIndex } from './createHymnsIndex';
 
@@ -26,9 +27,7 @@ async function generateHymnsIndex() {
             })
           )
         )
-      ).sort(
-        (current, next) => parseInt(String(current.number), 10) - parseInt(String(next.number), 10)
-      );
+      ).sort(compareHymnNumbers);
 
       const index = createHymnsIndex(hymns);
 

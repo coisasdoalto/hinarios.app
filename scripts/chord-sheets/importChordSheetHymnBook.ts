@@ -1,5 +1,6 @@
 import path from 'path';
 import { z } from 'zod';
+import { compareHymnNumbers, resolveHymnDisplayNumber } from '../../domain/hymn/hymnNumber';
 import { ChordSheetHymn, chordSheetHymnSchema } from '../../schemas/hymn';
 import { hymnBookInfoSchema } from '../../schemas/hymnBookInfo';
 import { createHymnsIndex } from '../createHymnsIndex';
@@ -49,12 +50,14 @@ async function readChordSheetHymn(
   fileSystem: ChordSheetFileSystem
 ): Promise<ChordSheetHymn> {
   const sourceMarkdown = await fileSystem.readTextFile(path.join(sourceDirectory, fileName));
-  const { number, title } = parseChordSheetFileName(fileName);
+  const { number, title, variant } = parseChordSheetFileName(fileName);
+  const identitySuffix = variant ? `${number}-${variant}` : String(number);
 
   return chordSheetHymnSchema.parse({
     schemaVersion: 2,
-    id: `${idPrefix}-${number}`,
+    id: `${idPrefix}-${identitySuffix}`,
     number,
+    ...(variant && { variant }),
     title,
     source: {
       format: 'obsidian-chords',
@@ -63,15 +66,18 @@ async function readChordSheetHymn(
   });
 }
 
-function sortAndValidateHymnNumbers(chordSheetHymns: ChordSheetHymn[]): ChordSheetHymn[] {
-  const sortedHymns = [...chordSheetHymns].sort((current, next) => current.number - next.number);
+function sortAndValidateHymnIdentities(chordSheetHymns: ChordSheetHymn[]): ChordSheetHymn[] {
+  const sortedHymns = [...chordSheetHymns].sort(compareHymnNumbers);
   const duplicateHymn = sortedHymns.find(
-    (hymn, index) => hymn.number === sortedHymns[index - 1]?.number
+    (hymn, index) =>
+      hymn.number === sortedHymns[index - 1]?.number &&
+      hymn.variant === sortedHymns[index - 1]?.variant
   );
 
   if (duplicateHymn) {
+    const duplicateIdentity = resolveHymnDisplayNumber(duplicateHymn);
     throw new Error(
-      `Invalid chord-sheet collection: duplicate hymn number "${duplicateHymn.number}"; expected unique numbers`
+      `Invalid chord-sheet collection: duplicate hymn identity "${duplicateIdentity}"; expected unique number and variant pairs`
     );
   }
 
@@ -87,7 +93,7 @@ async function writeChordSheetHymnBook(
   const importedJsonFiles: Array<readonly [string, object]> = [
     ['hymnBookInfo.json', hymnBookInfo],
     ['index.json', createHymnsIndex(chordSheetHymns)],
-    ...chordSheetHymns.map((hymn) => [`${hymn.number}.json`, hymn] as const),
+    ...chordSheetHymns.map((hymn) => [`${resolveHymnDisplayNumber(hymn)}.json`, hymn] as const),
   ];
 
   await fileSystem.resetDirectory(destinationDirectory);
@@ -115,7 +121,7 @@ export async function importChordSheetHymnBook({
   const validatedDefinition = chordSheetHymnBookDefinitionSchema.parse(definition);
   const { idPrefix, ...hymnBookInfo } = validatedDefinition;
   const importedHymns = await readChordSheetHymns(sourceDirectory, idPrefix, fileSystem);
-  const sortedHymns = sortAndValidateHymnNumbers(importedHymns);
+  const sortedHymns = sortAndValidateHymnIdentities(importedHymns);
 
   if (sortedHymns.length === 0) {
     throw new Error(

@@ -1,6 +1,21 @@
-import { Button, Group, SegmentedControl, Switch } from '@mantine/core';
+import {
+  ActionIcon,
+  Affix,
+  Button,
+  Group,
+  MediaQuery,
+  Slider,
+  Switch,
+  Text,
+  Tooltip,
+} from '@mantine/core';
+import { IconPlayerPause, IconPlayerPlay } from '@tabler/icons-react';
 import { ReactElement } from 'react';
-import { AutoScrollSpeed } from '../../hooks/useHymnAutoScroll';
+import {
+  AUTO_SCROLL_MAXIMUM_SPEED,
+  AUTO_SCROLL_MINIMUM_SPEED,
+  AutoScrollSpeed,
+} from '../../hooks/useHymnAutoScroll';
 
 export type AutoScrollControlsProps = {
   enabled: boolean;
@@ -11,14 +26,55 @@ export type AutoScrollControlsProps = {
   speed: AutoScrollSpeed;
 };
 
-const SPEED_OPTIONS = [
-  { label: 'Lenta', value: 'slow' },
-  { label: 'Normal', value: 'medium' },
-  { label: 'Rápida', value: 'fast' },
-];
+function AutoScrollSpeedSlider(props: AutoScrollControlsProps): ReactElement {
+  return (
+    <Group spacing="xs" noWrap>
+      <Text size="sm">Velocidade</Text>
+      <Slider
+        min={AUTO_SCROLL_MINIMUM_SPEED}
+        max={AUTO_SCROLL_MAXIMUM_SPEED}
+        onChange={props.onSpeedChange}
+        step={1}
+        thumbLabel="Velocidade da rolagem automática"
+        value={props.speed}
+        sx={{ width: 180 }}
+      />
+    </Group>
+  );
+}
 
-function isAutoScrollSpeed(speed: string): speed is AutoScrollSpeed {
-  return /^(slow|medium|fast)$/u.test(speed);
+function DesktopPauseButton(props: AutoScrollControlsProps): ReactElement {
+  return (
+    <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+      <Button compact onClick={props.onPausedChange} variant="default">
+        {props.paused ? 'Retomar' : 'Pausar'}
+      </Button>
+    </MediaQuery>
+  );
+}
+
+function MobilePauseButton(props: AutoScrollControlsProps): ReactElement {
+  const label = props.paused ? 'Retomar rolagem automática' : 'Pausar rolagem automática';
+  const icon = props.paused ? <IconPlayerPlay /> : <IconPlayerPause />;
+
+  return (
+    <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+      <Affix position={{ bottom: 24, right: 16 }} zIndex={4}>
+        <Tooltip label={label}>
+          <ActionIcon
+            aria-label={label}
+            color="blue"
+            onClick={props.onPausedChange}
+            radius="xl"
+            size={56}
+            variant="filled"
+          >
+            {icon}
+          </ActionIcon>
+        </Tooltip>
+      </Affix>
+    </MediaQuery>
+  );
 }
 
 /**
@@ -27,29 +83,18 @@ function isAutoScrollSpeed(speed: string): speed is AutoScrollSpeed {
  * @example <AutoScrollControls {...autoScrollControlProps} />
  */
 export function AutoScrollControls(props: AutoScrollControlsProps): ReactElement {
-  function changeSpeed(speed: string): void {
-    if (isAutoScrollSpeed(speed)) props.onSpeedChange(speed);
-  }
-
   return (
-    <Group position="center" spacing="xs">
-      <Switch
-        checked={props.enabled}
-        label="Rolagem automática"
-        onChange={(event) => props.onEnabledChange(event.currentTarget.checked)}
-      />
-      <SegmentedControl
-        aria-label="Velocidade da rolagem automática"
-        data={SPEED_OPTIONS}
-        onChange={changeSpeed}
-        size="xs"
-        value={props.speed}
-      />
-      {props.enabled && (
-        <Button compact onClick={props.onPausedChange} variant="default">
-          {props.paused ? 'Retomar' : 'Pausar'}
-        </Button>
-      )}
-    </Group>
+    <>
+      <Group position="center" spacing="xs">
+        <Switch
+          checked={props.enabled}
+          label="Rolagem automática"
+          onChange={(event) => props.onEnabledChange(event.currentTarget.checked)}
+        />
+        <AutoScrollSpeedSlider {...props} />
+        {props.enabled && <DesktopPauseButton {...props} />}
+      </Group>
+      {props.enabled && <MobilePauseButton {...props} />}
+    </>
   );
 }

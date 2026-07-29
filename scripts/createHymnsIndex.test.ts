@@ -20,4 +20,15 @@ describe('createHymnsIndex', () => {
       },
     ]);
   });
+
+  it('uses the display number for a hymn variant route', () => {
+    expect(createHymnsIndex([{ number: 72, variant: 'b', title: 'Maranata' }])).toEqual([
+      {
+        number: '72b',
+        title: 'Maranata',
+        subtitle: undefined,
+        slug: '72b-Maranata',
+      },
+    ]);
+  });
 });
