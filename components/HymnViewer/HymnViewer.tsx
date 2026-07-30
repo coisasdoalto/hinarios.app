@@ -28,12 +28,16 @@ type HymnViewerProps = {
   hymn: RenderableHymn;
   onAutoScrollEnabledChange?: (enabled: boolean) => void;
   showChords: boolean;
+  showChordDiagrams?: boolean;
+  onShowChordDiagramsChange?: (show: boolean) => void;
 };
 
 type ViewerContentProps = {
   diagramRenderer?: ChordDiagramRenderer;
   hymn: RenderableHymn;
   showChords: boolean;
+  showChordDiagrams?: boolean;
+  onShowChordDiagramsChange?: (show: boolean) => void;
   viewerState: HymnViewerState;
 };
 
@@ -89,7 +93,13 @@ function resolveCurrentKey(hymn: RenderableHymn, transpose: number): string | un
   return originalKey ? transposeChordSymbol(originalKey, transpose) : undefined;
 }
 
-function ViewerControls({ hymn, showChords, viewerState }: ViewerContentProps): ReactElement {
+function ViewerControls({
+  hymn,
+  onShowChordDiagramsChange,
+  showChords,
+  showChordDiagrams,
+  viewerState,
+}: ViewerContentProps): ReactElement {
   return (
     <HymnControls
       autoScroll={{
@@ -105,8 +115,10 @@ function ViewerControls({ hymn, showChords, viewerState }: ViewerContentProps): 
       isMusical={Boolean(hymn.musical)}
       originalKey={hymn.musical?.originalKey}
       onFontSizeChange={viewerState.setFontSize}
+      onShowChordDiagramsChange={onShowChordDiagramsChange ?? (() => undefined)}
       onTransposeChange={viewerState.setTranspose}
       showChords={showChords}
+      showChordDiagrams={showChordDiagrams}
       transpose={viewerState.transpose}
     />
   );
@@ -146,6 +158,8 @@ export function HymnViewer({
   hymn,
   onAutoScrollEnabledChange,
   showChords,
+  showChordDiagrams = true,
+  onShowChordDiagramsChange,
 }: HymnViewerProps): ReactElement {
   const viewerState = useHymnViewerState(hymn.id, autoScrollViewport);
   useDisableAutoScrollWithoutChords(showChords, viewerState.autoScroll.setEnabled);
@@ -153,8 +167,14 @@ export function HymnViewer({
 
   return (
     <Box>
-      <ViewerControls hymn={hymn} showChords={showChords} viewerState={viewerState} />
-      {hymn.musical && showChords && (
+      <ViewerControls
+        hymn={hymn}
+        onShowChordDiagramsChange={onShowChordDiagramsChange}
+        showChords={showChords}
+        showChordDiagrams={showChordDiagrams}
+        viewerState={viewerState}
+      />
+      {hymn.musical && showChords && showChordDiagrams && (
         <ChordDiagramStrip
           hymn={hymn}
           renderer={diagramRenderer}
@@ -165,6 +185,7 @@ export function HymnViewer({
         diagramRenderer={diagramRenderer}
         hymn={hymn}
         showChords={showChords}
+        showChordDiagrams={showChordDiagrams}
         viewerState={viewerState}
       />
     </Box>

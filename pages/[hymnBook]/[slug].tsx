@@ -16,6 +16,7 @@ import { normalizeHymn } from 'domain/hymn/normalizeHymn';
 import { RenderableHymn } from 'domain/hymn/renderableHymn.types';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { useChordVisibility } from 'hooks/useChordVisibility';
+import { useChordDiagramVisibility } from 'hooks/useChordDiagramVisibility';
 import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
 import { AccessLoading } from '../../components/AccessLoading';
@@ -50,6 +51,7 @@ export default function HymnView(props: AppProps & PageProps) {
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
   const [showChords, setShowChords] = useChordVisibility();
+  const [showChordDiagrams, setShowChordDiagrams] = useChordDiagramVisibility();
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
 
   const router = useRouter();
@@ -112,9 +114,7 @@ export default function HymnView(props: AppProps & PageProps) {
   return (
     <>
       <Head>
-        <title>
-          {number}. {title} | Hinários
-        </title>
+        <title>{`${number}. ${title} | Hinários`}</title>
       </Head>
 
       <Container size="xs">
@@ -153,7 +153,9 @@ export default function HymnView(props: AppProps & PageProps) {
         <HymnViewer
           hymn={props.content}
           onAutoScrollEnabledChange={setAutoScrollEnabled}
+          onShowChordDiagramsChange={setShowChordDiagrams}
           showChords={showChords}
+          showChordDiagrams={showChordDiagrams}
         />
 
         {hymnBook?.slug === 'hinos-e-canticos' ? (

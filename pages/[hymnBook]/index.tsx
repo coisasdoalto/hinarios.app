@@ -34,7 +34,7 @@ export default function Home({ hymnsIndex, hymnBook, hymnBooks }: PageProps) {
   return (
     <>
       <Head>
-        <title>{hymnBook.name} | Hinários</title>
+        <title>{`${hymnBook.name} | Hinários`}</title>
       </Head>
 
       <HymnsList hymnsIndex={hymnsIndex} hymnBook={hymnBook} />

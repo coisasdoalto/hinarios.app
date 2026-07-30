@@ -11,7 +11,7 @@ type SetChordVisibility = (value: boolean | ((current: boolean) => boolean)) => 
  */
 export function useChordVisibility(): [boolean, SetChordVisibility] {
   const [showChords, setShowChords] = useLocalStorage<boolean>({
-    defaultValue: true,
+    defaultValue: false,
     key: CHORD_VISIBILITY_STORAGE_KEY,
   });
 

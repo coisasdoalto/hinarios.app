@@ -361,9 +361,7 @@ export default function Page(props: AppProps & PageProps) {
   return (
     <>
       <Head>
-        <title>
-          Editar {number}. {title} | Hinários
-        </title>
+        <title>{`Editar ${number}. ${title} | Hinários`}</title>
       </Head>
 
       <Container size="xs">

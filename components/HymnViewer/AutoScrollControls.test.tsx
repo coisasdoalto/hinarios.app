@@ -18,6 +18,16 @@ describe('AutoScrollControls', () => {
     );
 
     fireEvent.click(screen.getByRole('checkbox', { name: 'Rolagem automática' }));
+    render(
+      <AutoScrollControls
+        enabled
+        onEnabledChange={onEnabledChange}
+        onPausedChange={() => undefined}
+        onSpeedChange={onSpeedChange}
+        paused={false}
+        speed={5}
+      />
+    );
     fireEvent.keyDown(screen.getByRole('slider', { name: 'Velocidade da rolagem automática' }), {
       key: 'ArrowRight',
     });
@@ -38,9 +48,9 @@ describe('AutoScrollControls', () => {
         speed={5}
       />
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Pausar' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Pausar rolagem automática' })[0]);
     expect(onPausedChange).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('button', { name: 'Pausar rolagem automática' })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Pausar rolagem automática' })).toHaveLength(2);
 
     controls.rerender(
       <AutoScrollControls
@@ -52,7 +62,6 @@ describe('AutoScrollControls', () => {
         speed={5}
       />
     );
-    expect(screen.getByRole('button', { name: 'Retomar' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Retomar rolagem automática' })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Retomar rolagem automática' })).toHaveLength(2);
   });
 });

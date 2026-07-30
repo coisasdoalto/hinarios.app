@@ -1,4 +1,4 @@
-import { Button, Group, MantineSize, SegmentedControl, Stack, Text } from '@mantine/core';
+import { Button, Group, MantineSize, SegmentedControl, Stack, Switch, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowUp } from '@tabler/icons-react';
 import { ReactElement, ReactNode } from 'react';
 import { AutoScrollControls, AutoScrollControlsProps } from './AutoScrollControls';
@@ -10,9 +10,11 @@ type HymnControlsProps = {
   isMusical: boolean;
   originalKey?: string;
   showChords: boolean;
+  showChordDiagrams: boolean;
   transpose: number;
   onFontSizeChange: (fontSize: MantineSize) => void;
   onTransposeChange: (transpose: number) => void;
+  onShowChordDiagramsChange: (show: boolean) => void;
 };
 
 const FONT_SIZE_OPTIONS = [
@@ -101,6 +103,13 @@ export function HymnControls(props: HymnControlsProps): ReactElement {
   return (
     <Stack align="center" spacing="xs">
       <FontSizeControl {...props} />
+      {props.isMusical && props.showChords && (
+        <Switch
+          checked={props.showChordDiagrams}
+          label="Mostrar imagens dos acordes"
+          onChange={(event) => props.onShowChordDiagramsChange(event.currentTarget.checked)}
+        />
+      )}
       {props.isMusical && <ChordControls {...props} />}
       {props.isMusical && props.showChords && <AutoScrollControls {...props.autoScroll} />}
     </Stack>

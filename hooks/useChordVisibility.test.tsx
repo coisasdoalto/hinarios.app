@@ -17,11 +17,11 @@ describe('useChordVisibility', () => {
 
   it('persists visibility changes in local storage', () => {
     const firstRender = render(<ChordVisibilityHarness />);
-    fireEvent.click(screen.getByRole('button', { name: 'Cifras visíveis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cifras ocultas' }));
     firstRender.unmount();
 
     render(<ChordVisibilityHarness />);
 
-    expect(screen.getByRole('button', { name: 'Cifras ocultas' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cifras visíveis' })).toBeTruthy();
   });
 });

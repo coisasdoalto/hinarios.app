@@ -1,9 +1,9 @@
 import {
   ActionIcon,
   Affix,
-  Button,
   Group,
   MediaQuery,
+  Paper,
   Slider,
   Switch,
   Text,
@@ -43,13 +43,25 @@ function AutoScrollSpeedSlider(props: AutoScrollControlsProps): ReactElement {
   );
 }
 
-function DesktopPauseButton(props: AutoScrollControlsProps): ReactElement {
+function PauseActionButton(props: AutoScrollControlsProps): ReactElement {
+  const label = props.paused ? 'Retomar rolagem automática' : 'Pausar rolagem automática';
   return (
-    <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-      <Button compact onClick={props.onPausedChange} variant="default">
-        {props.paused ? 'Retomar' : 'Pausar'}
-      </Button>
-    </MediaQuery>
+    <Tooltip label={label}>
+      <ActionIcon aria-label={label} onClick={props.onPausedChange} size="md" variant="default">
+        {props.paused ? <IconPlayerPlay size="1rem" /> : <IconPlayerPause size="1rem" />}
+      </ActionIcon>
+    </Tooltip>
+  );
+}
+
+function AutoScrollSettings(props: AutoScrollControlsProps): ReactElement {
+  return (
+    <Paper p="xs" radius="sm" shadow="sm" withBorder>
+      <Group noWrap spacing="xs">
+        <AutoScrollSpeedSlider {...props} />
+        <PauseActionButton {...props} />
+      </Group>
+    </Paper>
   );
 }
 
@@ -91,8 +103,7 @@ export function AutoScrollControls(props: AutoScrollControlsProps): ReactElement
           label="Rolagem automática"
           onChange={(event) => props.onEnabledChange(event.currentTarget.checked)}
         />
-        <AutoScrollSpeedSlider {...props} />
-        {props.enabled && <DesktopPauseButton {...props} />}
+        {props.enabled && <AutoScrollSettings {...props} />}
       </Group>
       {props.enabled && <MobilePauseButton {...props} />}
     </>

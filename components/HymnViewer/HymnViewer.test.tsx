@@ -118,7 +118,7 @@ describe('HymnViewer', () => {
     fireEvent.click(screen.getByText('Em espírito, em verdade'));
 
     expect(onAutoScrollEnabledChange).toHaveBeenLastCalledWith(true);
-    expect(screen.getByRole('button', { name: 'Pausar' })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Pausar rolagem automática' })).toHaveLength(2);
   });
 
   it('stops autoscroll when chords are hidden', () => {
