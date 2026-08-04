@@ -1,9 +1,19 @@
-import { homedir } from 'os';
 import path from 'path';
 import { ChordSheetHymnBookDefinition } from './chord-sheets/importChordSheetHymnBook';
 
-export const PIRACICABA_SOURCE_DIRECTORY =
-  process.env.PIRACICABA_HYMN_BOOK_PATH
+/**
+ * Requires the Piracicaba vault path used by the local synchronization command.
+ * @example requirePiracicabaSourceDirectory('/vault/piracicaba')
+ */
+export function requirePiracicabaSourceDirectory(configuredPath: string | undefined): string {
+  if (configuredPath) return configuredPath;
+
+  throw new Error(
+    `Invalid PIRACICABA_HYMN_BOOK_PATH "${String(
+      configuredPath
+    )}"; expected a path to the Piracicaba Obsidian vault`
+  );
+}
 
 export const PIRACICABA_STAGING_DIRECTORY = path.resolve('wip', 'hinario-piracicaba');
 

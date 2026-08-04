@@ -36,7 +36,7 @@ type ViewerContentProps = {
   diagramRenderer?: ChordDiagramRenderer;
   hymn: RenderableHymn;
   showChords: boolean;
-  showChordDiagrams?: boolean;
+  showChordDiagrams: boolean;
   onShowChordDiagramsChange?: (show: boolean) => void;
   viewerState: HymnViewerState;
 };

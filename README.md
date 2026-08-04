@@ -44,13 +44,7 @@ The hymns CLI is a command-line tool for managing hymns and releases in the hina
 O importador copia os arquivos Markdown do vault local para `wip/` e gera documentos
 com `schemaVersion: 2` em `hymnsData/em-espirito-em-verdade/`:
 
-```bash
-yarn data:import:piracicaba
-```
-
-Por padrão, o vault é lido de
-`~/dev/hinario-piracicaba/Hinário Piracicaba/Hinário Piracicaba`. Para usar outro
-caminho:
+Informe o caminho local do vault ao executar a importação:
 
 ```bash
 PIRACICABA_HYMN_BOOK_PATH=/caminho/do/vault yarn data:import:piracicaba
