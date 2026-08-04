@@ -27,6 +27,10 @@ type AutoScrollAnimation = {
   viewport: AutoScrollViewport;
 };
 
+type AutoScrollProgress = {
+  accumulatedPixels: number;
+};
+
 export const AUTO_SCROLL_MINIMUM_SPEED = 1;
 export const AUTO_SCROLL_MAXIMUM_SPEED = 20;
 export const AUTO_SCROLL_DEFAULT_SPEED = 5;
@@ -54,14 +58,9 @@ export const browserAutoScrollViewport: AutoScrollViewport = {
   },
 };
 
-function calculateNextScrollTop(
-  viewport: AutoScrollViewport,
-  elapsedMilliseconds: number,
-  speed: AutoScrollSpeed
-): number {
+function calculateScrollDistance(elapsedMilliseconds: number, speed: AutoScrollSpeed): number {
   const frameDuration = Math.min(elapsedMilliseconds, MAXIMUM_FRAME_DURATION);
-  const distance = calculatePixelsPerSecond(speed) * (frameDuration / 1000);
-  return Math.min(viewport.getScrollTop() + distance, viewport.getMaximumScrollTop());
+  return calculatePixelsPerSecond(speed) * (frameDuration / 1000);
 }
 
 function constrainAutoScrollSpeed(speed: AutoScrollSpeed): AutoScrollSpeed {
@@ -80,21 +79,35 @@ function calculatePixelsPerSecond(speed: AutoScrollSpeed): number {
   return MINIMUM_PIXELS_PER_SECOND + curvedSpeed * pixelsPerSecondRange;
 }
 
-function moveViewport(animation: AutoScrollAnimation, elapsedMilliseconds: number): boolean {
-  const nextScrollTop = calculateNextScrollTop(
-    animation.viewport,
-    elapsedMilliseconds,
-    animation.speed
-  );
+function moveViewport(
+  animation: AutoScrollAnimation,
+  progress: AutoScrollProgress,
+  elapsedMilliseconds: number
+): boolean {
+  const currentScrollTop = animation.viewport.getScrollTop();
+  const maximumScrollTop = animation.viewport.getMaximumScrollTop();
+  if (currentScrollTop >= maximumScrollTop) return true;
+
+  progress.accumulatedPixels += calculateScrollDistance(elapsedMilliseconds, animation.speed);
+  const pixelsToScroll = Math.floor(progress.accumulatedPixels);
+  if (pixelsToScroll === 0) return false;
+
+  const nextScrollTop = Math.min(currentScrollTop + pixelsToScroll, maximumScrollTop);
+  // Browser scroll positions may be quantized, so retain unused subpixels across frames.
+  progress.accumulatedPixels -= nextScrollTop - currentScrollTop;
   animation.viewport.scrollTo(nextScrollTop);
-  return nextScrollTop >= animation.viewport.getMaximumScrollTop();
+  return nextScrollTop >= maximumScrollTop;
 }
 
 function startAutoScrollAnimation(animation: AutoScrollAnimation): () => void {
+  const progress: AutoScrollProgress = { accumulatedPixels: 0 };
   let previousTimestamp: number | undefined;
   let frameId = 0;
   function advanceFrame(timestamp: number): void {
-    if (previousTimestamp !== undefined && moveViewport(animation, timestamp - previousTimestamp)) {
+    if (
+      previousTimestamp !== undefined &&
+      moveViewport(animation, progress, timestamp - previousTimestamp)
+    ) {
       animation.onReachEnd();
       return;
     }

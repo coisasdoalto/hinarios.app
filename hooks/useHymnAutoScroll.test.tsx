@@ -5,6 +5,7 @@ import { AutoScrollViewport, useHymnAutoScroll } from './useHymnAutoScroll';
 
 class FakeAutoScrollViewport implements AutoScrollViewport {
   cancelledFrameIds: number[] = [];
+  integerScrollPositions = false;
   maximumScrollTop = 100;
   requestedFrames = new Map<number, FrameRequestCallback>();
   scrollTop = 0;
@@ -40,7 +41,7 @@ class FakeAutoScrollViewport implements AutoScrollViewport {
   }
 
   scrollTo(scrollTop: number): void {
-    this.scrollTop = scrollTop;
+    this.scrollTop = this.integerScrollPositions ? Math.floor(scrollTop) : scrollTop;
   }
 }
 
@@ -64,6 +65,9 @@ function AutoScrollHarness({
       </button>
       <button type="button" onClick={() => autoScroll.setSpeed(20)}>
         Velocidade máxima
+      </button>
+      <button type="button" onClick={() => autoScroll.setSpeed(1)}>
+        Velocidade mínima
       </button>
     </>
   );
@@ -89,8 +93,23 @@ describe('useHymnAutoScroll', () => {
 
     act(() => viewport.runNextFrame(0));
     act(() => viewport.runNextFrame(100));
+    act(() => viewport.runNextFrame(200));
 
-    expect(viewport.scrollTop).toBeCloseTo(1.86, 1);
+    expect(viewport.scrollTop).toBe(3);
+  });
+
+  it('accumulates subpixels when the viewport only accepts integer positions', () => {
+    const viewport = new FakeAutoScrollViewport();
+    viewport.integerScrollPositions = true;
+    render(<AutoScrollHarness hymnId="hymn-1" viewport={viewport} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Velocidade mínima' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
+
+    for (let frame = 0; frame <= 10; frame += 1) {
+      act(() => viewport.runNextFrame(frame * (1000 / 60)));
+    }
+
+    expect(viewport.scrollTop).toBe(2);
   });
 
   it('pauses when requested and when the end is reached', () => {
