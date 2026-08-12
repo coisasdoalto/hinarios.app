@@ -108,7 +108,13 @@ function ChordSheetLine(props: ChordSheetLineProps): ReactElement {
   return (
     <Box mb={showChords && line.chords?.length ? 6 : 0}>
       {showChords && line.chords && <PositionedChords {...props} chords={line.chords} />}
-      <Text inherit sx={{ fontFamily: 'inherit', whiteSpace: showChords ? 'pre' : 'pre-wrap' }}>
+      <Text
+        inherit
+        sx={{
+          fontFamily: showChords ? 'monospace' : 'inherit',
+          whiteSpace: showChords ? 'pre' : 'pre-wrap',
+        }}
+      >
         <FormattedLyrics line={line} />
         {repeatLabel}
       </Text>

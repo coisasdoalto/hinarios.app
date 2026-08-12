@@ -41,7 +41,7 @@ describe('HymnSection', () => {
     expect(screen.queryByText(/[*_]/u)).toBeNull();
   });
 
-  it('limits the monospaced font to the chord line', () => {
+  it('uses the same monospaced font for chords and lyrics when visible', () => {
     render(
       <HymnSection fontSize="md" isMusical section={formattedSection} showChords transpose={0} />
     );
@@ -49,6 +49,22 @@ describe('HymnSection', () => {
     expect(screen.getByText('C').closest('.mantine-Text-root')).toHaveStyle({
       fontFamily: 'monospace',
     });
+    expect(screen.getByText('para').closest('.mantine-Text-root')).toHaveStyle({
+      fontFamily: 'monospace',
+    });
+  });
+
+  it('keeps the inherited lyric font when chords are hidden', () => {
+    render(
+      <HymnSection
+        fontSize="md"
+        isMusical
+        section={formattedSection}
+        showChords={false}
+        transpose={0}
+      />
+    );
+
     expect(screen.getByText('para').closest('.mantine-Text-root')).toHaveStyle({
       fontFamily: 'inherit',
     });
