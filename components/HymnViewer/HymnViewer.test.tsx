@@ -76,7 +76,7 @@ describe('HymnViewer', () => {
       <HymnViewer diagramRenderer={diagramRenderer} hymn={chordSheetHymn} showChords={false} />
     );
 
-    expect(screen.getByText(/Tom original: G/u)).toBeTruthy();
+    expect(screen.queryByText(/Tom original: G/u)).toBeNull();
     expect(screen.queryByText(/Tom atual:/u)).toBeNull();
     expect(screen.queryByText('Ab')).toBeNull();
     expect(screen.queryByRole('region', { name: 'Diagramas dos acordes' })).toBeNull();

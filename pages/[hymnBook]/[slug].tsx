@@ -1,4 +1,4 @@
-import { Container, Flex, Group, Space, Title } from '@mantine/core';
+import { Container, Flex, Group, Space, Text, Title } from '@mantine/core';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -41,7 +41,7 @@ type PageProps = {
 
 export default function HymnView(props: AppProps & PageProps) {
   const {
-    content: { editable, number, title, subtitle },
+    content: { editable, number, title, subtitle, reference },
     hymnBook: hymnBookSlug,
     nextHymn,
     previousHymn,
@@ -146,6 +146,11 @@ export default function HymnView(props: AppProps & PageProps) {
               <Title order={5} color="dimmed" italic>
                 {subtitle}
               </Title>
+            )}
+            {reference && (
+              <Text fw={700} mt="xs">
+                {reference}
+              </Text>
             )}
           </div>
         </Flex>

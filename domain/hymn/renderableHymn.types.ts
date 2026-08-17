@@ -36,6 +36,7 @@ export type RenderableHymn = {
   number: string;
   title: string;
   subtitle?: string;
+  reference?: string;
   editable: boolean;
   sections: RenderableSection[];
   musical?: {

@@ -8,6 +8,7 @@ import { ChordSheetFileSystem } from './chordSheetFileSystem';
 import {
   ChordSheetFileIdentity,
   extractObsidianChordContent,
+  extractReferenceText,
   parseChordSheetFileName,
   selectChordSheetMarkdownFileNames,
 } from './parseChordSheetMarkdown';
@@ -29,6 +30,7 @@ type ChordSheetSource = {
   fileName: string;
   identity: ChordSheetFileIdentity;
   sourceMarkdown: string;
+  reference?: string;
 };
 
 type NumberedChordSheetSource = ChordSheetSource & {
@@ -52,11 +54,15 @@ async function readChordSheetSources(
   const markdownFileNames = selectChordSheetMarkdownFileNames(sourceFileNames);
 
   return Promise.all(
-    markdownFileNames.map(async (fileName) => ({
-      fileName,
-      identity: parseChordSheetFileName(fileName),
-      sourceMarkdown: await fileSystem.readTextFile(path.join(sourceDirectory, fileName)),
-    }))
+    markdownFileNames.map(async (fileName) => {
+      const sourceMarkdown = await fileSystem.readTextFile(path.join(sourceDirectory, fileName));
+      return {
+        fileName,
+        identity: parseChordSheetFileName(fileName),
+        sourceMarkdown,
+        reference: extractReferenceText(sourceMarkdown),
+      };
+    })
   );
 }
 
@@ -107,7 +113,7 @@ function createChordSheetHymn(
   chordSheetSource: NumberedChordSheetSource,
   idPrefix: string
 ): ChordSheetHymn {
-  const { fileName, identity, sourceMarkdown } = chordSheetSource;
+  const { fileName, identity, sourceMarkdown, reference } = chordSheetSource;
   const { number, title, variant } = identity;
   const identitySuffix = variant ? `${number}-${variant}` : String(number);
 
@@ -117,6 +123,7 @@ function createChordSheetHymn(
     number,
     ...(variant && { variant }),
     title,
+    ...(reference && { reference }),
     source: {
       format: 'obsidian-chords',
       content: extractObsidianChordContent(sourceMarkdown, fileName),

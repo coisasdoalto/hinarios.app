@@ -39,6 +39,7 @@ export const chordSheetHymnSchema = z.object({
     .optional(),
   title: z.string().min(1),
   subtitle: z.string().optional(),
+  reference: z.string().optional(),
   source: z.object({
     format: z.literal('obsidian-chords'),
     content: z.string().min(1),

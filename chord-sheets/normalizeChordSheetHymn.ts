@@ -24,6 +24,7 @@ export function normalizeChordSheetHymn(
     number: String(resolveHymnDisplayNumber(chordSheetHymn)),
     title: chordSheetHymn.title,
     ...(chordSheetHymn.subtitle && { subtitle: chordSheetHymn.subtitle }),
+    ...(chordSheetHymn.reference && { reference: chordSheetHymn.reference }),
     editable: false,
     sections: parsedChordSheet.sections,
     musical: {

@@ -2,6 +2,7 @@ const FILE_NAME_EMOJI =
   /[\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\u20E3\uFE0F]/gu;
 const CHORDS_OPENING_FENCE = /(?:^|\r?\n)```chords[^\S\r\n]*\r?\n/u;
 const MARKDOWN_CLOSING_FENCE = /\r?\n```[^\S\r\n]*(?:\r?\n|$)/u;
+const REFERENCE_LINE = /^\*(.+)\*$/;
 
 export type ChordSheetFileIdentity = {
   number?: number;
@@ -71,4 +72,18 @@ export function extractObsidianChordContent(sourceMarkdown: string, fileName: st
   }
 
   return chordContent;
+}
+
+/**
+ * Extracts an optional italic reference line preceding the chords fence.
+ *
+ * @example extractReferenceText('*Corinhos e Cânticos de Salvação, Nº 133*\n```chords\n...')
+ */
+export function extractReferenceText(sourceMarkdown: string): string | undefined {
+  const openingFence = CHORDS_OPENING_FENCE.exec(sourceMarkdown);
+  if (!openingFence) return undefined;
+
+  const preamble = sourceMarkdown.slice(0, openingFence.index).trim();
+  const match = REFERENCE_LINE.exec(preamble);
+  return match?.[1];
 }
