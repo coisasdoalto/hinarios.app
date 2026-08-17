@@ -76,10 +76,9 @@ function TransposeControls(props: ChordControlsProps): ReactElement {
 }
 
 function ChordControls(props: ChordControlsProps): ReactElement | null {
-  if (props.showChords) return <TransposeControls {...props} />;
-  if (!props.originalKey) return null;
+  if (!props.showChords) return null;
 
-  return <Text size="sm">Tom original: {props.originalKey}</Text>;
+  return <TransposeControls {...props} />;
 }
 
 function FontSizeControl(
@@ -110,7 +109,7 @@ export function HymnControls(props: HymnControlsProps): ReactElement {
           onChange={(event) => props.onShowChordDiagramsChange(event.currentTarget.checked)}
         />
       )}
-      {props.isMusical && <ChordControls {...props} />}
+      {props.isMusical && props.showChords && <ChordControls {...props} />}
       {props.isMusical && props.showChords && <AutoScrollControls {...props.autoScroll} />}
     </Stack>
   );

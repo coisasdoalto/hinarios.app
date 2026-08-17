@@ -154,7 +154,7 @@ export default function HymnView(props: AppProps & PageProps) {
           hymn={props.content}
           onAutoScrollEnabledChange={setAutoScrollEnabled}
           onShowChordDiagramsChange={setShowChordDiagrams}
-          showChords={showChords}
+          showChords={hymnBookSlug !== 'ev-beta' && showChords}
           showChordDiagrams={showChordDiagrams}
         />
 
