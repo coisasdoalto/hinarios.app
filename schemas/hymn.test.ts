@@ -25,7 +25,7 @@ describe('hymn schemas', () => {
   it('validates an Obsidian chord-sheet hymn', () => {
     const chordSheetHymn = {
       schemaVersion: 2 as const,
-      id: 'em-espirito-em-verdade-1',
+      id: 'ev-beta-1',
       number: 1,
       title: 'Meu Prazer',
       source: {
@@ -41,7 +41,7 @@ describe('hymn schemas', () => {
   it('validates an optional lowercase chord-sheet variant', () => {
     const chordSheetVariant = {
       schemaVersion: 2 as const,
-      id: 'em-espirito-em-verdade-72-a',
+      id: 'ev-beta-72-a',
       number: 72,
       variant: 'a',
       title: 'Maranata',

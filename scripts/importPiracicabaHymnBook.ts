@@ -13,7 +13,7 @@ importChordSheetHymnBook({
   sourceDirectory: PIRACICABA_STAGING_DIRECTORY,
 })
   .then((importedHymnCount) => {
-    console.log(`Imported ${importedHymnCount} hymns into hymnsData/em-espirito-em-verdade.`);
+    console.log(`Imported ${importedHymnCount} hymns into hymnsData/ev-beta.`);
   })
   .catch((importError: unknown) => {
     console.error(importError);

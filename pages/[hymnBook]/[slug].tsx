@@ -127,7 +127,7 @@ export default function HymnView(props: AppProps & PageProps) {
               <BackButton to={hymnBook?.slug} />
 
               <Group>
-                {props.content.musical && hymnBookSlug !== 'em-espirito-em-verdade' && (
+                {props.content.musical && hymnBookSlug !== 'ev-beta' && (
                   <ChordToggleButton checked={showChords} onChange={setShowChords} />
                 )}
                 <BookmarkButton />

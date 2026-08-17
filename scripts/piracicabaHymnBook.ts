@@ -17,10 +17,10 @@ export function requirePiracicabaSourceDirectory(configuredPath: string | undefi
 
 export const PIRACICABA_STAGING_DIRECTORY = path.resolve('wip', 'hinario-piracicaba');
 
-export const PIRACICABA_DESTINATION_DIRECTORY = path.resolve('hymnsData', 'em-espirito-em-verdade');
+export const PIRACICABA_DESTINATION_DIRECTORY = path.resolve('hymnsData', 'ev-beta');
 
 export const PIRACICABA_HYMN_BOOK_DEFINITION: ChordSheetHymnBookDefinition = {
-  idPrefix: 'em-espirito-em-verdade',
+  idPrefix: 'ev-beta',
   name: 'Em Espírito, Em Verdade',
   displayName: 'EV (beta)',
   acronym: 'EV',

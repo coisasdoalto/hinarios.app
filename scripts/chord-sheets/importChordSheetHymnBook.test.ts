@@ -4,7 +4,7 @@ import { FakeChordSheetFileSystem } from './FakeChordSheetFileSystem';
 import { importChordSheetHymnBook } from './importChordSheetHymnBook';
 
 const hymnBookDefinition = {
-  idPrefix: 'em-espirito-em-verdade',
+  idPrefix: 'ev-beta',
   name: 'Em Espírito, Em Verdade',
   displayName: 'Em Espírito, Em Verdade (beta)',
   acronym: 'EV',
@@ -13,7 +13,7 @@ const hymnBookDefinition = {
 describe('importChordSheetHymnBook', () => {
   it('writes sorted schema-version 2 hymns and display metadata', async () => {
     const sourceDirectory = path.resolve('/wip');
-    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const destinationDirectory = path.resolve('/hymnsData/ev-beta');
     const fileSystem = new FakeChordSheetFileSystem({
       [path.join(sourceDirectory, '2 Adoramos ❓.md')]: '```chords\nTOM %G\n\nG\nAdoramos',
       [path.join(sourceDirectory, '1 Meu Prazer 🆗.md')]:
@@ -44,7 +44,7 @@ describe('importChordSheetHymnBook', () => {
     );
     await expect(
       fileSystem.readTextFile(path.join(destinationDirectory, '1.json'))
-    ).resolves.toContain('"id": "em-espirito-em-verdade-1"');
+    ).resolves.toContain('"id": "ev-beta-1"');
     await expect(
       fileSystem.readTextFile(path.join(destinationDirectory, '1.json'))
     ).resolves.toContain('"content": "TOM %G\\n\\nG\\nMeu prazer"');
@@ -58,7 +58,7 @@ describe('importChordSheetHymnBook', () => {
 
   it('numbers an unnumbered collection in Portuguese alphabetical order', async () => {
     const sourceDirectory = path.resolve('/wip');
-    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const destinationDirectory = path.resolve('/hymnsData/ev-beta');
     const fileSystem = new FakeChordSheetFileSystem({
       [path.join(sourceDirectory, 'Zelo.md')]: '```chords\nTOM %G\n\nG\nZelo',
       [path.join(sourceDirectory, 'Amor.md')]: '```chords\nTOM %C\n\nC\nAmor',
@@ -85,7 +85,7 @@ describe('importChordSheetHymnBook', () => {
 
   it('rejects a collection that mixes numbered and unnumbered filenames', async () => {
     const sourceDirectory = path.resolve('/wip');
-    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const destinationDirectory = path.resolve('/hymnsData/ev-beta');
     const fileSystem = new FakeChordSheetFileSystem({
       [path.join(sourceDirectory, '1 First.md')]: '```chords\nTOM %G',
       [path.join(sourceDirectory, 'Second.md')]: '```chords\nTOM %C',
@@ -105,7 +105,7 @@ describe('importChordSheetHymnBook', () => {
 
   it('rejects duplicate hymn identities before writing the destination', async () => {
     const sourceDirectory = path.resolve('/wip');
-    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const destinationDirectory = path.resolve('/hymnsData/ev-beta');
     const fileSystem = new FakeChordSheetFileSystem({
       [path.join(sourceDirectory, '1 First.md')]: '```chords\nTOM %G',
       [path.join(sourceDirectory, '1 Second.md')]: '```chords\nTOM %C',
@@ -125,7 +125,7 @@ describe('importChordSheetHymnBook', () => {
 
   it('writes same-number variants as independent sorted entries', async () => {
     const sourceDirectory = path.resolve('/wip');
-    const destinationDirectory = path.resolve('/hymnsData/em-espirito-em-verdade');
+    const destinationDirectory = path.resolve('/hymnsData/ev-beta');
     const fileSystem = new FakeChordSheetFileSystem({
       [path.join(sourceDirectory, '73 Next.md')]: '```chords\nTOM %G\n\nG\nNext',
       [path.join(sourceDirectory, '72.b Maranata (Versão Acampa) 🆗.md')]:
@@ -143,7 +143,7 @@ describe('importChordSheetHymnBook', () => {
 
     await expect(
       fileSystem.readTextFile(path.join(destinationDirectory, '72a.json'))
-    ).resolves.toContain('"id": "em-espirito-em-verdade-72-a"');
+    ).resolves.toContain('"id": "ev-beta-72-a"');
     await expect(
       fileSystem.readTextFile(path.join(destinationDirectory, '72b.json'))
     ).resolves.toContain('"variant": "b"');
