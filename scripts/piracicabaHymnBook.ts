@@ -22,6 +22,6 @@ export const PIRACICABA_DESTINATION_DIRECTORY = path.resolve('hymnsData', 'em-es
 export const PIRACICABA_HYMN_BOOK_DEFINITION: ChordSheetHymnBookDefinition = {
   idPrefix: 'em-espirito-em-verdade',
   name: 'Em Espírito, Em Verdade',
-  displayName: 'Em Espírito, Em Verdade (beta)',
+  displayName: 'EV (beta)',
   acronym: 'EV',
 };
