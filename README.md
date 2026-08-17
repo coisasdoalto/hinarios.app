@@ -42,7 +42,7 @@ The hymns CLI is a command-line tool for managing hymns and releases in the hina
 ### Importar o hinário de Piracicaba
 
 O importador copia os arquivos Markdown do vault local para `wip/` e gera documentos
-com `schemaVersion: 2` em `hymnsData/em-espirito-em-verdade/`:
+com `schemaVersion: 2` em `hymnsData/ev-beta/`:
 
 Informe o caminho local do vault ao executar a importação:
 
