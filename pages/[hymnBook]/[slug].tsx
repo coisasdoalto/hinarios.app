@@ -143,7 +143,7 @@ export default function HymnView(props: AppProps & PageProps) {
         </title>
       </Head>
 
-      <Container size="xs">
+      <Container size="lg">
         {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
@@ -181,29 +181,40 @@ export default function HymnView(props: AppProps & PageProps) {
           />
         </Box>
 
-        {lyrics.map((lyric, index) => {
-          if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
+        <Box
+          sx={(theme) => ({
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            columnGap: theme.spacing.xl * 2,
+            [theme.fn.largerThan('md')]: {
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            },
+          })}
+        >
+          {lyrics.map((lyric, index) => {
+            if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
 
-          if (lyric.type === 'unnumbered_stanza')
+            if (lyric.type === 'unnumbered_stanza')
+              return (
+                <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+                  <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
+                </Text>
+              );
+
             return (
-              <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+              <Text
+                key={`${lyric.number}.${title}`}
+                size={fontSize}
+                mt={16}
+                pl={20}
+                style={{ position: 'relative' }}
+              >
+                <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
                 <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
               </Text>
             );
-
-          return (
-            <Text
-              key={`${lyric.number}.${title}`}
-              size={fontSize}
-              mt={16}
-              pl={20}
-              style={{ position: 'relative' }}
-            >
-              <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
-              <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-            </Text>
-          );
-        })}
+          })}
+        </Box>
 
         {hymnBook?.slug === 'hinos-e-canticos' ? (
           <>
