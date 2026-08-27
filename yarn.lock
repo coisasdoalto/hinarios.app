@@ -3950,10 +3950,25 @@
   resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-1.107.0.tgz#ad1ecd20a3a478a9f2e8f9c5000a54662a854ec3"
   integrity sha512-HlNN5uXPr9NUD2IqTNv5HfL2P3P8RT8VzYip3CBSiB4t9n7ZNFj/9gJRKgy9ONn9AN+hqACRaisu7M+koLAZzA==
 
+"@tanstack/hotkeys@0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/hotkeys/-/hotkeys-0.8.0.tgz#68a0a4bce4be339594765da65a0eb7c2feb2c8d1"
+  integrity sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==
+  dependencies:
+    "@tanstack/store" "^0.11.0"
+
 "@tanstack/query-core@5.28.6":
   version "5.28.6"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.28.6.tgz#a3bdb108f9f8d4e2ba3163068dbe6ff55b905a81"
   integrity sha512-hnhotV+DnQtvtR3jPvbQMPNMW4KEK0J4k7c609zJ8muiNknm+yoDyMHmxTWM5ZnlZpsz0zOxYFr+mzRJNHWJsA==
+
+"@tanstack/react-hotkeys@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-hotkeys/-/react-hotkeys-0.10.0.tgz#6e542914ed550649934f2b6fce56c4de635388b8"
+  integrity sha512-GwOSndI5j3qBVYTmgP1mYyRTnlxb2MS17cwGlsavSxMQPSnmDf+m3LzMIpRMs+3zzQMjg3cYhHsFYizYlFI2tw==
+  dependencies:
+    "@tanstack/hotkeys" "0.8.0"
+    "@tanstack/react-store" "^0.11.0"
 
 "@tanstack/react-query@^5.28.6":
   version "5.28.6"
@@ -3961,6 +3976,19 @@
   integrity sha512-/DdYuDBSsA21Qbcder1R8Cr/3Nx0ZnA2lgtqKsLMvov8wL4+g0HBz/gWYZPlIsof7iyfQafyhg4wUVUsS3vWZw==
   dependencies:
     "@tanstack/query-core" "5.28.6"
+
+"@tanstack/react-store@^0.11.0":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-store/-/react-store-0.11.1.tgz#e1e58036ffffa58f5b5d8826c2389f97502fac2c"
+  integrity sha512-HaIGKI3YLmjBYIvy5DFDY23oNaYZIsTZfngey07Uh5iLVJgM3bIGCnZeOFOqzjFld9JHWcaHJnasD/bKoGKwJQ==
+  dependencies:
+    "@tanstack/store" "0.11.1"
+    use-sync-external-store "^1.6.0"
+
+"@tanstack/store@0.11.1", "@tanstack/store@^0.11.0":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/store/-/store-0.11.1.tgz#063f634fe3cc925ad83704581a7be75301bec612"
+  integrity sha512-mzTOBhypOuDJAy/D8n2MfUZ1HFkXnmSETviRyhqEC8LUE7/IZQExOTxMANj3KjTofYTkFNpBY67qaVrT41YccA==
 
 "@testing-library/dom@^8.12.0", "@testing-library/dom@^8.5.0":
   version "8.12.0"
@@ -15471,6 +15499,11 @@ use-latest@^1.2.1:
   integrity sha512-xA+AVm/Wlg3e2P/JiItTziwS7FK92LWrDB0p+hgXloIMuVCeJJ8v6f0eeHyPZaJrM+usM1FkFfbNCrJGs8A/zw==
   dependencies:
     use-isomorphic-layout-effect "^1.1.1"
+
+use-sync-external-store@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz#b174bfa65cb2b526732d9f2ac0a408027876f32d"
+  integrity sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==
 
 use@^3.1.0:
   version "3.1.1"
