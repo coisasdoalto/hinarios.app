@@ -73,8 +73,8 @@ function VerticalNavigation({ onNavigation }: VerticalNavigationProps): JSX.Elem
 
       <Divider my="md" label="Configurações" labelPosition="center" />
 
-      <SidebarToggle />
       <DarkModeToggle />
+      <SidebarToggle />
       <SlidePopupToggle />
     </Box>
   );
