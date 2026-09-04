@@ -1,14 +1,18 @@
 import { NavLink, Switch } from '@mantine/core';
 import { IconWindow } from '@tabler/icons-react';
 
+import { useIsDesktopDevice } from '../../hooks/useIsDesktopDevice';
 import { useSlidePopupPreference } from '../../hooks/useSlidePopupPreference';
 
-export function SlidePopupToggle(): JSX.Element {
+export function SlidePopupToggle(): JSX.Element | null {
+  const isDesktopDevice = useIsDesktopDevice();
   const [isPopupEnabled, setIsPopupEnabled] = useSlidePopupPreference();
 
   function togglePreference(): void {
     setIsPopupEnabled((enabled) => !enabled);
   }
+
+  if (!isDesktopDevice) return null;
 
   return (
     <NavLink
