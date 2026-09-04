@@ -7,6 +7,8 @@ const piracicabaLocation: IpLocation = {
   city: 'Piracicaba',
   region_code: 'SP',
   country_code: 'BR',
+  latitude: -22.7253,
+  longitude: -47.6492,
 };
 
 describe('getUserAccess', () => {
