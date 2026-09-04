@@ -4,6 +4,7 @@ import { IconPresentation, IconX } from '@tabler/icons-react';
 import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useIsDesktopDevice } from '../../hooks/useIsDesktopDevice';
 import { useSlidePopupPreference } from '../../hooks/useSlidePopupPreference';
 import { useWindowFocus } from '../../hooks/useWindowFocus';
 import { Hymn } from '../../schemas/hymn';
@@ -227,6 +228,7 @@ function SlideText({
  */
 export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Element {
   const screens = composeSlideScreens(lyrics);
+  const isDesktopDevice = useIsDesktopDevice();
   const [isPopupEnabled] = useSlidePopupPreference();
   const [isOpen, setIsOpen] = useState(false);
   const [popupWindow, setPopupWindow] = useState<Window | null>(null);
@@ -373,7 +375,7 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Elemen
 
   function openCurrentSlide(): void {
     setCurrentIndex(0);
-    const popup = isPopupEnabled ? openSlidePopup() : null;
+    const popup = isDesktopDevice && isPopupEnabled ? openSlidePopup() : null;
     popupWindowRef.current = popup;
     setPopupWindow(popup);
     setIsOpen(true);
