@@ -63,7 +63,13 @@ describe('IpLocationResolver', () => {
   it('resolves the client IP through the geolocation provider', async () => {
     const fetcher = new FakeIpLocationFetcher(
       new FakeIpLocationResponse(
-        { city: 'Piracicaba', region_code: 'SP', country_code: 'BR' },
+        {
+          city: 'Piracicaba',
+          region_code: 'SP',
+          country_code: 'BR',
+          latitude: -22.7253,
+          longitude: -47.6492,
+        },
         true
       )
     );
@@ -73,6 +79,8 @@ describe('IpLocationResolver', () => {
       city: 'Piracicaba',
       region_code: 'SP',
       country_code: 'BR',
+      latitude: -22.7253,
+      longitude: -47.6492,
     });
     expect(fetcher.requestedUrls).toEqual(['https://ipapi.co/203.0.113.10/json/']);
   });

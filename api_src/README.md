@@ -63,8 +63,11 @@ const updateHymn = async (lyrics: Lyric[]) => {
 
 Admin and restricted hymn-book permissions are defined only in
 `api_src/userAccess.ts`. The `/api/hymns/access/` endpoint checks the requesting
-IP location first, then a valid Firebase email, and exposes only boolean
-permissions without sending the configured lists to the browser.
+location first, then a valid Firebase email, and exposes only boolean
+permissions without sending the configured lists to the browser. When the IP
+location is inconclusive, the browser may provide precise coordinates after the
+user grants permission; if permission is unavailable, the server applies the
+expanded IP fallback radius.
 
 ## Error Responses
 
