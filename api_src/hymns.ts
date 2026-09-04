@@ -2,18 +2,18 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { isHymnBookVisible } from 'contants';
+import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
 import { hymnSchema } from 'schemas/hymn';
 import { adminAuthMiddleware } from './middleware/adminAuth';
 import { authenticatedUserMiddleware } from './middleware/userAuth';
+import { getRequestUserAccess } from './requestAccess';
 import { getHymnUsecase } from './usecases/get-hymn';
 import { updateHymnUsecase } from './usecases/update-hymn';
-import { getUserAccess } from './userAccess';
 
 const hymnsApp = new Hono();
 
-hymnsApp.get('/access/', authenticatedUserMiddleware, (c) => {
-  return c.json(getUserAccess(c.get('user').email));
+hymnsApp.get('/access/', async (c) => {
+  return c.json(await getRequestUserAccess(c));
 });
 
 hymnsApp.get(
@@ -28,7 +28,9 @@ hymnsApp.get(
   async (c) => {
     const { hymnBook, hymnNumber } = c.req.valid('param');
 
-    if (!isHymnBookVisible(hymnBook)) {
+    const access = hymnBook === HC_HYMN_BOOK_SLUG ? await getRequestUserAccess(c) : undefined;
+
+    if (!isHymnBookVisible(hymnBook, access?.canAccessHc)) {
       c.status(404);
       return c.json({ error: 'Hymn not found' });
     }
@@ -71,7 +73,9 @@ hymnsApp.patch(
     const { hymnBook, hymnNumber } = c.req.valid('param');
     const { title, subtitle, lyrics, message } = c.req.valid('json');
 
-    if (!isHymnBookVisible(hymnBook)) {
+    const access = hymnBook === HC_HYMN_BOOK_SLUG ? await getRequestUserAccess(c) : undefined;
+
+    if (!isHymnBookVisible(hymnBook, access?.canAccessHc)) {
       c.status(404);
       return c.json({ error: 'Hymn not found' });
     }

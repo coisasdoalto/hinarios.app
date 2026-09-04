@@ -62,13 +62,15 @@ const updateHymn = async (lyrics: Lyric[]) => {
 ## User Permissions
 
 Admin and restricted hymn-book permissions are defined only in
-`api_src/userAccess.ts`. The authenticated `/api/hymns/access/` endpoint exposes
-boolean permissions without sending the configured email lists to the browser.
+`api_src/userAccess.ts`. The `/api/hymns/access/` endpoint checks the requesting
+IP location first, then a valid Firebase email, and exposes only boolean
+permissions without sending the configured lists to the browser.
 
 ## Error Responses
 
-- `401 Unauthorized`: Missing, invalid, or malformed Authorization header
-- `401 Unauthorized`: Invalid or expired Firebase ID token
+- `401 Unauthorized`: Missing, invalid, or malformed Authorization header on a protected endpoint
+- `401 Unauthorized`: Invalid or expired Firebase ID token on a protected endpoint
+- `/api/hymns/access/` treats missing or invalid optional authentication as an unavailable email fallback
 - `403 Forbidden`: Valid user but not in admin list
 
 ## Security Notes
