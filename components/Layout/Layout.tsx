@@ -8,6 +8,7 @@ import {
   Header,
   AppShell as MantineAppShell,
   Navbar,
+  Tooltip,
   useMantineTheme,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
@@ -19,6 +20,7 @@ import { getFocusIndicatorColor, getFocusIndicatorShadow } from 'utils/focusIndi
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useHymnBooks } from '../../context/HymnBooks';
+import { useIsDesktopDevice } from '../../hooks/useIsDesktopDevice';
 import { useSidebarPreference } from '../../hooks/useSidebarPreference';
 import { useWindowFocus } from '../../hooks/useWindowFocus';
 import LoginMenu from '../LoginMenu';
@@ -32,6 +34,7 @@ export default function AppShell({ children }: PropsWithChildren) {
   const [sidebarPreference, setSidebarPreference] = useSidebarPreference();
   const isMobileViewport = useMediaQuery('(max-width: 767px)');
   const isSidebarOpen = sidebarPreference ?? !isMobileViewport;
+  const isDesktopDevice = useIsDesktopDevice();
   const isWindowFocused = useWindowFocus();
   const focusColor = getFocusIndicatorColor(theme.colorScheme);
 
@@ -48,6 +51,17 @@ export default function AppShell({ children }: PropsWithChildren) {
   function closeSidebarAfterNavigation(): void {
     if (isMobileViewport) setSidebarPreference(false);
   }
+
+  const navigationToggle = (
+    <Burger
+      opened={isSidebarOpen}
+      onClick={toggleSidebar}
+      aria-label="Abrir ou fechar sidebar"
+      size="sm"
+      color={theme.colors.gray[6]}
+      mr="xl"
+    />
+  );
 
   return (
     <MantineAppShell
@@ -91,14 +105,13 @@ export default function AppShell({ children }: PropsWithChildren) {
               height: '100%',
             }}
           >
-            <Burger
-              opened={isSidebarOpen}
-              onClick={toggleSidebar}
-              aria-label="Abrir ou fechar sidebar"
-              size="sm"
-              color={theme.colors.gray[6]}
-              mr="xl"
-            />
+            {isDesktopDevice ? (
+              <Tooltip label="Mostrar barra lateral para navegação e configurações">
+                {navigationToggle}
+              </Tooltip>
+            ) : (
+              navigationToggle
+            )}
 
             <Breadcrumbs sx={{ marginRight: 'auto' }}>
               <Button variant="subtle" component={Link} href="/" compact>
