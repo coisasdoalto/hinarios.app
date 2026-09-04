@@ -73,10 +73,7 @@ export default function AppShell({ children }: PropsWithChildren) {
           })}
           width={{ sm: 200, lg: 300 }}
         >
-          <VerticalNavigation
-            onNavigation={closeSidebarAfterNavigation}
-            onClose={() => setSidebarPreference(false)}
-          />
+          <VerticalNavigation onNavigation={closeSidebarAfterNavigation} />
         </Navbar>
       }
       // footer={
