@@ -1,13 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 import type { UserAccess } from 'types/UserAccess';
-import { authenticatedAxios } from 'utils/authenticatedFetch';
+import { auth } from '../firebase/web';
 import { useUser } from './useUser';
 
 const NO_ACCESS: UserAccess = {
   isAdmin: false,
   canAccessHc: false,
 };
+
+async function requestUserAccess(): Promise<UserAccess> {
+  const user = auth.currentUser;
+  const idToken = user ? await user.getIdToken() : undefined;
+  const response = await axios.get<UserAccess>('/api/hymns/access/', {
+    headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
+  });
+
+  return response.data;
+}
 
 /**
  * Loads the current user's server-side application permissions.
@@ -16,18 +27,15 @@ const NO_ACCESS: UserAccess = {
 export function useAccess() {
   const { isLoading: isLoadingUser, user } = useUser();
   const accessQuery = useQuery({
-    queryKey: ['user_access', user?.uid],
-    queryFn: async () => {
-      const response = await authenticatedAxios<UserAccess>('/api/hymns/access/');
-      return response.data;
-    },
-    enabled: Boolean(user),
+    queryKey: ['user_access', user?.uid ?? 'anonymous'],
+    queryFn: requestUserAccess,
+    enabled: !isLoadingUser,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
 
   return {
     ...(accessQuery.data ?? NO_ACCESS),
-    isLoading: isLoadingUser || (Boolean(user) && accessQuery.isLoading),
+    isLoading: isLoadingUser || accessQuery.isLoading,
   };
 }

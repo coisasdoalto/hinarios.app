@@ -1,4 +1,6 @@
 import type { UserAccess } from 'types/UserAccess';
+import { isPiracicabaLocation } from './locationAccess';
+import type { IpLocation } from './locationAccess';
 
 const ADMIN_EMAILS = new Set(['pablo.dinella@gmail.com', 'raphaeldeoliveiracorrea@gmail.com']);
 
@@ -11,11 +13,18 @@ const HC_ALLOWED_EMAILS = new Set([
 ]);
 
 /**
- * Resolves private application permissions from an authenticated email.
- * @example getUserAccess('person@example.com'); // { isAdmin: false, canAccessHc: false }
+ * Resolves access by checking Piracicaba first and the email list second.
+ * @example getUserAccess(undefined, { city: 'Piracicaba', region_code: 'SP', country_code: 'BR' });
  */
-export function getUserAccess(email?: string | null): UserAccess {
+export function getUserAccess(email?: string | null, location?: IpLocation): UserAccess {
   const normalizedEmail = email?.trim().toLowerCase();
+
+  if (isPiracicabaLocation(location)) {
+    return {
+      isAdmin: ADMIN_EMAILS.has(normalizedEmail ?? ''),
+      canAccessHc: true,
+    };
+  }
 
   if (!normalizedEmail) {
     return { isAdmin: false, canAccessHc: false };
