@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { useLocalStorage } from '@mantine/hooks';
 import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
 import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
+import { SlideMode } from 'components/SlideMode';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
@@ -152,6 +153,7 @@ export default function HymnView(props: AppProps & PageProps) {
 
           <Group>
             <BookmarkButton />
+            <SlideMode number={number} title={title} lyrics={lyrics} />
             <UpdateHymnButton />
           </Group>
         </Flex>
