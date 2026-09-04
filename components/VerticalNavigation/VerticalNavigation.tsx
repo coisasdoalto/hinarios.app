@@ -1,5 +1,6 @@
-import { Box, Divider, NavLink } from '@mantine/core';
+import { ActionIcon, Box, Divider, Group, NavLink, Tooltip } from '@mantine/core';
 import { IconBookmarks, IconBooks, IconChecklist, IconHome, IconInfoSquare } from '@tabler/icons';
+import { IconX } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useHymnBooks } from '../../context/HymnBooks';
@@ -7,7 +8,12 @@ import { useUser } from '../../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
 import { SlidePopupToggle } from './SlidePopupToggle';
 
-function VerticalNavigation({ onNavigation }: { onNavigation: () => void }) {
+type VerticalNavigationProps = {
+  onClose: () => void;
+  onNavigation: () => void;
+};
+
+function VerticalNavigation({ onClose, onNavigation }: VerticalNavigationProps): JSX.Element {
   const [hymnBooks] = useHymnBooks();
 
   const { user } = useUser();
@@ -17,6 +23,14 @@ function VerticalNavigation({ onNavigation }: { onNavigation: () => void }) {
 
   return (
     <Box>
+      <Group position="right" mb="xs">
+        <Tooltip label="Fechar sidebar">
+          <ActionIcon aria-label="Fechar sidebar" onClick={onClose} variant="subtle">
+            <IconX size={18} stroke={1.5} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+
       <NavLink
         label="Início"
         icon={<IconHome size={16} stroke={1.5} />}

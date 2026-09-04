@@ -5,7 +5,9 @@ import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSlidePopupPreference } from '../../hooks/useSlidePopupPreference';
+import { useWindowFocus } from '../../hooks/useWindowFocus';
 import { Hymn } from '../../schemas/hymn';
+import { getFocusIndicatorColor, getFocusIndicatorShadow } from '../../utils/focusIndicator';
 import {
   composeSlideScreens,
   getSlideLabel,
@@ -237,6 +239,9 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Elemen
   const textRef = useRef<HTMLDivElement>(null);
   const popupWindowRef = useRef<Window | null>(null);
   const theme = useMantineTheme();
+  const isWindowFocused = useWindowFocus();
+  const [isPopupFocused, setIsPopupFocused] = useState(false);
+  const focusColor = getFocusIndicatorColor(theme.colorScheme);
 
   const closePopup = useCallback(() => {
     const popup = popupWindowRef.current;
@@ -286,14 +291,27 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Elemen
   useEffect(() => {
     if (!popupWindow) return;
 
+    const handleFocus = () => setIsPopupFocused(true);
+    const handleBlur = () => setIsPopupFocused(false);
+
+    popupWindow.addEventListener('focus', handleFocus);
+    popupWindow.addEventListener('blur', handleBlur);
+
     const handleBeforeUnload = () => {
       popupWindowRef.current = null;
       setPopupWindow(null);
+      setIsPopupFocused(false);
       setIsOpen(false);
     };
     popupWindow.addEventListener('beforeunload', handleBeforeUnload);
 
-    return () => popupWindow.removeEventListener('beforeunload', handleBeforeUnload);
+    handleFocus();
+
+    return () => {
+      popupWindow.removeEventListener('focus', handleFocus);
+      popupWindow.removeEventListener('blur', handleBlur);
+      popupWindow.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [popupWindow]);
 
   useEffect(
@@ -378,6 +396,9 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Elemen
         backgroundColor,
         color: foregroundColor,
         outline: 'none',
+        boxShadow: popupWindow
+          ? getFocusIndicatorShadow(isPopupFocused, focusColor)
+          : getFocusIndicatorShadow(isWindowFocused, focusColor),
       }}
     >
       <div
