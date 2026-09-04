@@ -1,8 +1,10 @@
 import { ActionIcon, Tooltip, useMantineTheme } from '@mantine/core';
 import { getHotkeyManager, useHotkey } from '@tanstack/react-hotkeys';
 import { IconPresentation, IconX } from '@tabler/icons-react';
+import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useSlidePopupPreference } from '../../hooks/useSlidePopupPreference';
 import { Hymn } from '../../schemas/hymn';
 import {
   composeSlideScreens,
@@ -122,13 +124,53 @@ function requestFullscreen(element: HTMLDivElement): void {
 }
 
 function exitFullscreen(element: HTMLDivElement | null): void {
-  if (!element || document.fullscreenElement !== element || !document.exitFullscreen) return;
+  const ownerDocument = element?.ownerDocument;
+  if (
+    !ownerDocument ||
+    ownerDocument.fullscreenElement !== element ||
+    !ownerDocument.exitFullscreen
+  )
+    return;
 
   try {
-    void Promise.resolve(document.exitFullscreen()).catch(() => undefined);
+    void Promise.resolve(ownerDocument.exitFullscreen()).catch(() => undefined);
   } catch {
     // The overlay is already closing, even if the browser refuses the exit request.
   }
+}
+
+function copyPopupStyles(popupDocument: Document): void {
+  document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((style) => {
+    popupDocument.head.appendChild(style.cloneNode(true));
+  });
+}
+
+function openSlidePopup(): Window | null {
+  const popup = window.open('', 'hinarios-slide-mode', 'popup=yes,width=1280,height=720');
+  if (!popup) return null;
+
+  popup.document.title = 'Modo Slide';
+  popup.document.body.innerHTML = '';
+  popup.document.body.style.margin = '0';
+  copyPopupStyles(popup.document);
+  popup.focus();
+
+  return popup;
+}
+
+type PopupKeyHandlers = {
+  close: () => void;
+  decreaseFontSize: () => void;
+  increaseFontSize: () => void;
+  move: (direction: -1 | 1) => void;
+};
+
+function handlePopupKeyDown(event: KeyboardEvent, handlers: PopupKeyHandlers): void {
+  if (event.key === 'Escape') handlers.close();
+  if (event.key === 'ArrowLeft') handlers.move(-1);
+  if (event.key === 'ArrowRight') handlers.move(1);
+  if (event.key === '-') handlers.decreaseFontSize();
+  if (event.key === '+' || (event.key === '=' && event.shiftKey)) handlers.increaseFontSize();
 }
 
 function usePlusShortcut(enabled: boolean, callback: () => void): void {
@@ -181,9 +223,11 @@ function SlideText({
  *
  * @example <SlideMode number={1} title="Hino" lyrics={lyrics} />
  */
-export function SlideMode({ number, title, lyrics }: SlideModeProps) {
+export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Element {
   const screens = composeSlideScreens(lyrics);
+  const [isPopupEnabled] = useSlidePopupPreference();
   const [isOpen, setIsOpen] = useState(false);
+  const [popupWindow, setPopupWindow] = useState<Window | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [requestedFontSize, setRequestedFontSize] = useState(SLIDE_MODE_DEFAULT_FONT_SIZE);
   const [fittingFontSize, setFittingFontSize] = useState(SLIDE_MODE_DEFAULT_FONT_SIZE);
@@ -191,13 +235,22 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const popupWindowRef = useRef<Window | null>(null);
   const theme = useMantineTheme();
+
+  const closePopup = useCallback(() => {
+    const popup = popupWindowRef.current;
+    popupWindowRef.current = null;
+    setPopupWindow(null);
+    if (popup && !popup.closed) popup.close();
+  }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
     triggerRef.current?.focus();
     exitFullscreen(overlayRef.current);
-  }, []);
+    closePopup();
+  }, [closePopup]);
 
   const move = useCallback(
     (direction: -1 | 1) => {
@@ -221,20 +274,52 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps) {
   usePlusShortcut(isOpen, increaseFontSize);
 
   useEffect(() => {
+    if (!isOpen || !popupWindow) return;
+
+    const handleKeyDown = (event: KeyboardEvent) =>
+      handlePopupKeyDown(event, { close, decreaseFontSize, increaseFontSize, move });
+    popupWindow.document.addEventListener('keydown', handleKeyDown);
+
+    return () => popupWindow.document.removeEventListener('keydown', handleKeyDown);
+  }, [close, decreaseFontSize, increaseFontSize, isOpen, move, popupWindow]);
+
+  useEffect(() => {
+    if (!popupWindow) return;
+
+    const handleBeforeUnload = () => {
+      popupWindowRef.current = null;
+      setPopupWindow(null);
+      setIsOpen(false);
+    };
+    popupWindow.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => popupWindow.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [popupWindow]);
+
+  useEffect(
+    () => () => {
+      const popup = popupWindowRef.current;
+      if (popup && !popup.closed) popup.close();
+    },
+    []
+  );
+
+  useEffect(() => {
     if (!isOpen) return;
 
     const overlay = overlayRef.current;
     if (!overlay) return;
 
+    const ownerDocument = overlay.ownerDocument;
     const handleFullscreenChange = () => {
-      if (document.fullscreenElement !== overlay) close();
+      if (ownerDocument.fullscreenElement !== overlay) close();
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    ownerDocument.addEventListener('fullscreenchange', handleFullscreenChange);
     overlay.focus();
     requestFullscreen(overlay);
 
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    return () => ownerDocument.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [close, isOpen]);
 
   useEffect(() => {
@@ -268,16 +353,87 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps) {
   const backgroundColor = theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white;
   const foregroundColor = theme.colorScheme === 'dark' ? theme.white : theme.black;
 
+  function openCurrentSlide(): void {
+    setCurrentIndex(0);
+    const popup = isPopupEnabled ? openSlidePopup() : null;
+    popupWindowRef.current = popup;
+    setPopupWindow(popup);
+    setIsOpen(true);
+  }
+
+  const slideContent = isOpen && screen && (
+    <div
+      ref={overlayRef}
+      aria-label="Modo Slide"
+      aria-modal="true"
+      role="dialog"
+      tabIndex={-1}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        backgroundColor,
+        color: foregroundColor,
+        outline: 'none',
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          flex: '0 0 auto',
+          padding: '16px 64px 8px',
+          textAlign: 'center',
+        }}
+      >
+        <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 3vw, 2rem)' }}>
+          {number}. {title}
+        </h1>
+        <p
+          style={{
+            margin: '4px 0 0',
+            color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[6],
+            fontSize: '0.9rem',
+          }}
+        >
+          {getSlideLabel(screen)}
+        </p>
+        <ActionIcon
+          aria-label="Fechar Modo Slide"
+          onClick={close}
+          style={{ position: 'absolute', top: 12, right: 16 }}
+          variant="subtle"
+        >
+          <IconX stroke={1.5} />
+        </ActionIcon>
+      </div>
+
+      <div
+        ref={viewportRef}
+        style={{
+          flex: '1 1 auto',
+          minHeight: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          padding: '24px',
+        }}
+      >
+        <SlideText screen={screen} fontSize={fittingFontSize} textRef={textRef} />
+      </div>
+    </div>
+  );
+
   return (
     <>
       <Tooltip label="Modo Slide">
         <ActionIcon
           ref={triggerRef}
           aria-label="Abrir Modo Slide"
-          onClick={() => {
-            setCurrentIndex(0);
-            setIsOpen(true);
-          }}
+          onClick={openCurrentSlide}
           disabled={screens.length === 0}
           size="lg"
           variant="subtle"
@@ -286,71 +442,9 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps) {
         </ActionIcon>
       </Tooltip>
 
-      {isOpen && screen && (
-        <div
-          ref={overlayRef}
-          aria-label="Modo Slide"
-          aria-modal="true"
-          role="dialog"
-          tabIndex={-1}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            backgroundColor,
-            color: foregroundColor,
-            outline: 'none',
-          }}
-        >
-          <div
-            style={{
-              position: 'relative',
-              flex: '0 0 auto',
-              padding: '16px 64px 8px',
-              textAlign: 'center',
-            }}
-          >
-            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 3vw, 2rem)' }}>
-              {number}. {title}
-            </h1>
-            <p
-              style={{
-                margin: '4px 0 0',
-                color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[6],
-                fontSize: '0.9rem',
-              }}
-            >
-              {getSlideLabel(screen)}
-            </p>
-            <ActionIcon
-              aria-label="Fechar Modo Slide"
-              onClick={close}
-              style={{ position: 'absolute', top: 12, right: 16 }}
-              variant="subtle"
-            >
-              <IconX stroke={1.5} />
-            </ActionIcon>
-          </div>
-
-          <div
-            ref={viewportRef}
-            style={{
-              flex: '1 1 auto',
-              minHeight: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              padding: '24px',
-            }}
-          >
-            <SlideText screen={screen} fontSize={fittingFontSize} textRef={textRef} />
-          </div>
-        </div>
-      )}
+      {popupWindow?.document.body && slideContent
+        ? createPortal(slideContent, popupWindow.document.body)
+        : slideContent}
     </>
   );
 }

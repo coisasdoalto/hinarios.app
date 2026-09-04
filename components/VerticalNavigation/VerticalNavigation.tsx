@@ -5,11 +5,12 @@ import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useHymnBooks } from '../../context/HymnBooks';
 import { useUser } from '../../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
+import { SlidePopupToggle } from './SlidePopupToggle';
 
 function VerticalNavigation({ onNavigation }: { onNavigation: () => void }) {
   const [hymnBooks] = useHymnBooks();
 
-  const {user} = useUser();
+  const { user } = useUser();
   const isBookmarksEnabled = useFeatureFlagEnabled('bookmarks');
 
   const shouldShowBookmarksLink = user && isBookmarksEnabled;
@@ -70,6 +71,7 @@ function VerticalNavigation({ onNavigation }: { onNavigation: () => void }) {
       <Divider my="md" label="Configurações" labelPosition="center" />
 
       <DarkModeToggle />
+      <SlidePopupToggle />
     </Box>
   );
 }
