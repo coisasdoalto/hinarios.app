@@ -284,6 +284,20 @@ export function SlideMode({
     closePopup();
   }, [closePopup]);
 
+  const previousPageRef = useRef({ hymnId, triggerContainer });
+
+  useEffect(() => {
+    const previousPage = previousPageRef.current;
+    previousPageRef.current = { hymnId, triggerContainer };
+
+    if (
+      (previousPage.hymnId !== hymnId || previousPage.triggerContainer !== triggerContainer) &&
+      !popupWindowRef.current
+    ) {
+      close();
+    }
+  }, [close, hymnId, triggerContainer]);
+
   const move = useCallback(
     (direction: -1 | 1) => {
       setCurrentIndex((index) => getNextIndex(index, direction, screens.length));
