@@ -1,8 +1,9 @@
 import { Button, Group, Popover, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconHandClick } from '@tabler/icons';
-import { AddBreakLine } from 'components/AddBreakLine';
 import { useState } from 'react';
+
+import { AddBreakLine } from '../AddBreakLine';
 
 function splitTextParts(text: string) {
   /**

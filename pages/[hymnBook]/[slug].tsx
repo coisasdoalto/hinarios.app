@@ -6,7 +6,6 @@ import {
   MantineSize,
   SegmentedControl,
   Space,
-  Text,
   Title,
 } from '@mantine/core';
 import { GetStaticPaths, GetStaticProps } from 'next';
@@ -17,7 +16,7 @@ import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
 import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
-import { HymnTextWithVariations } from 'components/HymnTextWithVariations';
+import { HymnLyrics, LyricsLayout } from 'components/HymnLyrics';
 import { SlideMode } from 'components/SlideMode';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
@@ -70,6 +69,10 @@ export default function HymnView(props: HymnViewPageProps) {
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
 
   const [fontSize, setFontSize] = useState<MantineSize>('md');
+  const [lyricsLayout, setLyricsLayout] = useLocalStorage<LyricsLayout>({
+    key: 'lyricsLayout',
+    defaultValue: 'grid',
+  });
 
   useEffect(() => {
     const localStorageFontSize = localStorage.getItem('fontSize') || '';
@@ -82,12 +85,6 @@ export default function HymnView(props: HymnViewPageProps) {
   useEffect(() => {
     localStorage.setItem('fontSize', fontSize);
   }, [fontSize]);
-
-  const Chorus = ({ text }: { text: string }) => (
-    <Text size={fontSize} mt={16} pl={40} italic>
-      <HymnTextWithVariations>{text}</HymnTextWithVariations>
-    </Text>
-  );
 
   const router = useRouter();
 
@@ -183,8 +180,9 @@ export default function HymnView(props: HymnViewPageProps) {
           </div>
         </Flex>
         <Space h="md" />
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Group position="center" spacing="sm">
           <SegmentedControl
+            aria-label="Tamanho da letra"
             value={fontSize}
             onChange={(value: MantineSize) => setFontSize(value)}
             data={[
@@ -193,42 +191,25 @@ export default function HymnView(props: HymnViewPageProps) {
               { label: 'Grande', value: 'xl' },
             ]}
           />
-        </Box>
+          <Box
+            sx={(theme) => ({
+              display: 'none',
+              [theme.fn.largerThan('md')]: { display: 'block' },
+            })}
+          >
+            <SegmentedControl
+              aria-label="Layout da letra"
+              value={lyricsLayout}
+              onChange={(value: LyricsLayout) => setLyricsLayout(value)}
+              data={[
+                { label: 'Normal', value: 'normal' },
+                { label: 'Grade', value: 'grid' },
+              ]}
+            />
+          </Box>
+        </Group>
 
-        <Box
-          sx={(theme) => ({
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            columnGap: theme.spacing.xl * 2,
-            [theme.fn.largerThan('md')]: {
-              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            },
-          })}
-        >
-          {lyrics.map((lyric, index) => {
-            if (lyric.type === 'chorus') return <Chorus key={index} text={lyric.text} />;
-
-            if (lyric.type === 'unnumbered_stanza')
-              return (
-                <Text key={index} size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-                  <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-                </Text>
-              );
-
-            return (
-              <Text
-                key={`${lyric.number}.${title}`}
-                size={fontSize}
-                mt={16}
-                pl={20}
-                style={{ position: 'relative' }}
-              >
-                <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
-                <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
-              </Text>
-            );
-          })}
-        </Box>
+        <HymnLyrics fontSize={fontSize} layout={lyricsLayout} lyrics={lyrics} />
 
         {hymnBook?.slug === 'hinos-e-canticos' ? (
           <>

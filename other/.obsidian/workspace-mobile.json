@@ -1,0 +1,186 @@
+{
+  "main": {
+    "id": "d9013a5408cf3f16",
+    "type": "split",
+    "children": [
+      {
+        "id": "eff81a3eff468f58",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e9cbf8b52e7c24c5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Hinos e Canticos/01 A divinal mensagem - 1, 3 e 4 ✔️.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01 A divinal mensagem - 1, 3 e 4 ✔️"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "861ba4a4f85b9fe2",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "d9f9ccae2b0f1c8f",
+        "type": "leaf",
+        "state": {
+          "type": "file-explorer",
+          "state": {
+            "sortOrder": "alphabetical",
+            "autoReveal": false
+          },
+          "icon": "lucide-folder-closed",
+          "title": "Explorador de arquivos"
+        }
+      },
+      {
+        "id": "bae939b8b4d72367",
+        "type": "leaf",
+        "state": {
+          "type": "search",
+          "state": {
+            "query": "",
+            "matchingCase": false,
+            "explainSearch": false,
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical"
+          },
+          "icon": "lucide-search",
+          "title": "Procurar"
+        }
+      },
+      {
+        "id": "ca1acf425c7c3d3c",
+        "type": "leaf",
+        "state": {
+          "type": "tag",
+          "state": {
+            "sortOrder": "frequency",
+            "useHierarchy": true,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-tags",
+          "title": "Tags"
+        }
+      },
+      {
+        "id": "77cf737248bf5b04",
+        "type": "leaf",
+        "state": {
+          "type": "bookmarks",
+          "state": {},
+          "icon": "lucide-bookmark",
+          "title": "Marcadores"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "right": {
+    "id": "eddba8976bf602d3",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "9663fa3aa90b7632",
+        "type": "leaf",
+        "state": {
+          "type": "backlink",
+          "state": {
+            "file": "Hinário Piracicaba/Ao Único ✔️🆗.md",
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical",
+            "showSearch": false,
+            "searchQuery": "",
+            "backlinkCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-coming-in",
+          "title": "Links inversos"
+        }
+      },
+      {
+        "id": "6c646ba3ad912441",
+        "type": "leaf",
+        "state": {
+          "type": "outgoing-link",
+          "state": {
+            "file": "Deus maravilhoso.md",
+            "linksCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-going-out",
+          "title": "Links de saída"
+        }
+      },
+      {
+        "id": "938699e16fdf4f10",
+        "type": "leaf",
+        "state": {
+          "type": "outline",
+          "state": {
+            "file": "Deus maravilhoso.md",
+            "followCursor": false,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-list",
+          "title": "Sumário"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir a troca rápida": false,
+      "graph:Abrir visualização em gráfico": false,
+      "canvas:Criar novo canvas": false,
+      "daily-notes:Abrir a nota de hoje": false,
+      "templates:Inserir modelo": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Criar nova base": false
+    }
+  },
+  "active": "e9cbf8b52e7c24c5",
+  "lastOpenFiles": [
+    "Hinos e Canticos/257 Teu Nome - 1 e 6.md",
+    "Hinário Piracicaba/Ao Único ✔️🆗.md",
+    "Hinário Piracicaba/Eu Te Louvarei Meu Bom Jesus 🆗.md",
+    "Hinos e Canticos/01 A divinal mensagem - 1 e 4.md",
+    "Hinário Piracicaba/Jesus é o Rei da Glória ✔️.md",
+    "Hinário Piracicaba/Jesus em Tua Presença ✔️.md",
+    "Hinário Piracicaba/Maranata 🆗.md",
+    "Hinário Piracicaba/Nunca Foi Sobre Nós 🆗.md",
+    "Hinário Piracicaba/Só Em Jesus ✔️🆗.md",
+    "Hinário Piracicaba/Digno Jesus ✔️🆗.md",
+    "Hinário Piracicaba/Que Amor É Esse 🆗.md",
+    "Hinário Piracicaba/Teus Altares ✔️🆗.md",
+    "Hinário Piracicaba/Hineh ma tov 🆗.md",
+    "Hinário Piracicaba/Povo Livre ✔️🆗.md",
+    "Hinário Piracicaba/Tributo a Yehovah ✔️🆗.md",
+    "Hinário Piracicaba/Ó Vem Emanuel 🆗.md",
+    "Hinário Piracicaba/Agnus Dei ✔️🆗.md",
+    "Hinário Piracicaba/Rei dos Reis 🆗.md",
+    "Hinário Piracicaba/Dez Mil Razões 🆗.md",
+    "Hinário Piracicaba/Jesus, a Rocha Eterna 🆗.md",
+    "Hinário Piracicaba/Adoramos 🆗.md",
+    "Hinário Piracicaba/Alto Preço ✔️.md",
+    "Hinário Piracicaba/Teus Altares ✔️.md",
+    "Hinário Piracicaba/Ainda Senhor que a Figueira não Floresça ✔️.md",
+    "Hinário Piracicaba/Calmo, Sereno e Tranquilo  ✔️.md",
+    "Hinário Piracicaba/Superabundante Graça ✔️.md"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "showChordOverview": "always",
+  "showChordDiagramsOnHover": "preview",
+  "showTransposeControl": true,
+  "showEnharmonicToggleControl": false,
+  "showInstrumentControl": false,
+  "debug": false,
+  "defaultInstrument": "guitar",
+  "diagramWidth": 100,
+  "autoscrollDefaultSpeed": 10,
+  "showAutoscrollButton": "chord-blocks",
+  "blockLanguageSpecifier": "chords",
+  "alwaysSaveAutoscrollSpeedToFrontmatter": false,
+  "chordLineMarker": "%c",
+  "textLineMarker": "%t",
+  "highlightChords": true,
+  "highlightSectionHeaders": true,
+  "highlightRhythmMarkers": true,
+  "displayInlineChordsOverLyrics": false,
+  "showLineMarkersInReadingMode": false
+}

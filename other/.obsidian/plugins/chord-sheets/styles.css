@@ -1,0 +1,916 @@
+/* @settings
+
+name: Chord Sheets
+id: chord-sheets
+settings:
+	## CHORDS
+    -
+        id: chords
+        title: Chords
+        type: heading
+        level: 3
+    -
+        id: chord-highlight-color
+        title: Chord symbol color
+        description: Highlight color for chord symbols. Defaults to the current theme's accent color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: chord-highlight-font-weight
+        title: Chord symbol font weight
+        description: Font weight used for chord symbols.
+        type: variable-select
+        default: bolder
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+    -
+        id: chord-background-color
+        title: Chord background color
+        description: Highlight color for chord symbols. Defaults to transparent.
+        type: variable-themed-color
+        format: hex
+        default-light: '#FFFFFF00'
+        default-dark: '#00000000'
+        opacity: true;
+
+
+    ### INLINE CHORDS
+    -
+        id: inline-chords
+        title: Inline chords
+        description: '[D]Chords in [Bm]brackets'
+        type: heading
+        level: 4
+    -
+        id: chord-sheet-uniform-inline-style
+        title: Uniform inline chord style
+        description: |
+        	Use the styling for chord symbols for the whole inline chord. Disables independent styling of brackets and
+        	auxiliary text.
+        type: class-toggle
+
+    -
+        id: inline-chords-advanced
+        title: Advanced inline chord styling
+        type: heading
+        level: 5
+    -
+        id: inline-chords-style-info
+        // title: Advanced inline chord styling
+        description: |
+        	**Note**: The following settings only take effect when the *Uniform inline chord style* option is
+        	**disabled**.
+        type: info-text
+        markdown: true
+    -
+        id: inline-chord-bracket-color
+        title: Inline chord bracket color
+        description: |
+        	Highlight color for the brackets of inline chords, such as [Dm]. Defaults to the current theme's faint text
+        	color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: inline-chord-bracket-font-weight
+        title: Inline chord bracket font weight
+        description: Font weight for the brackets of inline chords, such as [Dm].
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+    -
+        id: inline-chord-aux-text-color
+        title: Inline chord auxiliary text color
+        description: |
+        	Highlight color for auxiliary text in inline chords, such as [Dm special]. Defaults to the current theme's
+        	normal code color`.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: inline-chord-aux-text-font-weight
+        title: Inline chord auxiliary text font weight
+        description: Font weight for auxiliary text in inline chords, such as [Dm special].
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+
+	### CUSTOM CHORD SHAPES
+    -
+        id: user-defined-chords
+        title: 'Chords with custom chord shape'
+        description: ' e. g.: Dm6[4|x2x132]'
+        markdown: true
+        type: heading
+        level: 4
+    -
+        id: chord-sheet-uniform-user-defined-style
+        title: Uniform custom chord style
+        description: |
+        	Use the styling for chord symbols for the whole custom chord. Disables independent styling of brackets,
+        	barre position, and frets.
+        type: class-toggle
+
+    -
+        id: user-defined-chords-advanced
+        title: Advanced custom chord styling
+        type: heading
+        level: 5
+    -
+        id: user-defined-chords-style-info
+        description: |
+        	**Note**: The following settings only take effect when the *Uniform custom chord style* option is
+        	**disabled**.
+        type: info-text
+        markdown: true
+    -
+        id: user-defined-chord-bracket-color
+        title: Custom chord bracket color
+        description: |
+        	Highlight color for the brackets of custom chords. Defaults to the current theme's faint text
+        	color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: user-defined-chord-bracket-font-weight
+        title: Custom chord bracket font weight
+        description: Font weight for the brackets of user defined chords.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+    -
+        id: user-defined-chord-position-color
+        title: Custom chord barre position color
+        description: |
+        	Highlight color for the optional barree position number in custom chords. Defaults to the current theme's
+        	normal code color`.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: user-defined-chord-position-font-weight
+        title: Custom chord barre position font weight
+        description: Font weight for the optional barree position number in custom chords.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+
+    -
+        id: user-defined-chord-position-separator-color
+        title: Custom chord barre position separator color
+        description: |
+        	Highlight color for the barre position separator ("|") of custom chords. Defaults to the
+        	current theme's faint text color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+
+    -
+        id: user-defined-chord-position-separator-font-weight
+        title: Custom chord barre position separator font weight
+        description: Font weight for the barre position separator ("|") of user defined chords.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+
+    -   id: user-defined-chord-frets-color
+        title: Custom chord fret string color
+        description: |
+        	Highlight color for the bracketed fret string in custom chords. Defaults to the current theme's
+        	normal code color`.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+
+    -
+        id: user-defined-chord-frets-font-weight
+        title: Custom chord fret string font weight
+        description: Font weight for the bracketed fret string in custom chords.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+
+	## RYHTM MARKERS
+    -
+        id: rhythm-markers
+        title: Rhythm markers
+        type: heading
+        level: 3
+    -
+        id: rhythm-marker-color
+        title: Color
+        description: |
+        	Highlight color for rhythm markers in chord lines such as in "Dm / / / | % | Em / / /".
+        	Defaults to the current theme's faint text color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: rhythm-marker-font-weight
+        title: Inline chord auxiliary text font weight
+        description: Font weight for rhythm markers.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+
+    ## HEADERS
+    -
+        id: section-headers
+        title: Section headers
+        type: heading
+        level: 3
+    -
+        id: section-header-title-color
+        title: Section title color
+        description: |
+        	Highlight color for the section title in section headers. Defaults to the current theme's highlight color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: section-header-background-color
+        title: Background color
+        description: Background color for section headers. Defaults to transparent.
+        type: variable-themed-color
+        format: hex
+        default-light: '#FFFFFF00'
+        default-dark: '#00000000'
+        opacity: true;
+    -
+        id: section-header-title-font-weight
+        title: Section title font weight
+        description: Font weight for the section title in section headers.
+        type: variable-select
+        default: bolder
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+    -
+        id: section-header-font-size
+        title: Font size
+        description: |
+        	The font size of the section header. Defaults to the current theme's code block font size.
+        	NOTE: you must use a full CSS font size value including units such as: 1em, 16px, 12pt etc. You can also
+        	reference a CSS variable provided by Obsidian or a theme. For example, to use the font size for 3rd level
+        	headers, use: var(--h3-size)
+        type: variable-text
+        default: ""
+
+    -
+        id: chord-sheet-uniform-header-style
+        title: Uniform section header style
+        description: |
+        	Use the styling for section header names for the whole header. Disables independent styling of header tags.
+        type: class-toggle
+    -
+        id: header-style-info
+        title: Advanced section header styling
+        description: |
+        	**Note**: The following settings only take effect when the *Uniform section header style* option is
+        	**disabled**.
+        type: info-text
+        markdown: true
+    -
+        id: section-header-bracket-color
+        title: Section header bracket color
+        description: |
+        	Highlight color for the opening and closing tags of section headers. Defaults to the current theme's faint
+        	text color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: section-header-bracket-font-weight
+        title: Section header bracket font weight
+        description: Font weight for the opening and closing tags of section headers.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+
+
+   ## LINE MARKERS
+
+    -
+        id: line-markers
+        title: Line markers
+        type: heading
+        level: 3
+    -
+        id: line-marker-color
+        title: Line marker color
+        description: |
+        	Highlight color for line markers such as %c and %t (see the plugin's settings for an explanation). Defaults
+        	to the current theme's faint text color.
+        type: variable-themed-color
+        format: hex
+        opacity: true
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: line-marker-font-weight
+        title: Section title font weight
+        description: Font weight for the section title in section headers.
+        type: variable-select
+        default: inherit
+        options:
+            - '100'
+            - '200'
+            - '300'
+            - normal
+            - '500'
+            - '600'
+            - bold
+            - '800'
+            - '900'
+            - lighter
+            - bolder
+            - inherit
+*/
+
+.chord-sheet-chord-line .chord-sheet-chord {
+	background-color: var(--chord-background-color, transparent);
+}
+
+.chord-sheet-chord-name {
+	text-align: center;
+	font-family: var(--font-monospace);
+}
+
+.chord-sheet-chord-name.chord-sheet-chord-highlight {
+	color: var(--chord-highlight-color, var(--text-accent));
+	font-weight: var(--chord-highlight-font-weight, bolder);
+}
+
+.chord-sheet-chord-line .chord-sheet-chord-name {
+	cursor: default;
+	position: relative;
+	z-index: 100;
+
+	/* increase touch target on mobile */
+	padding: 5px;
+	margin: -5px;
+}
+
+.chord-sheet-rhythm-marker {
+	color: var(--rhythm-marker-color, var(--text-faint));
+	font-weight: var(--rhythm-marker-font-weight, inherit);
+}
+
+.chord-sheet-line-marker {
+	color: var(--line-marker-color, var(--text-faint));
+	font-weight: var(--line-marker-font-weight, inherit);
+}
+
+code.chord-sheet-chord-block-preview {
+	font-size: unset;
+
+	> * {
+		font-size: var(--code-size);
+	}
+}
+
+.chord-sheet-section-header {
+	color: var(--section-header-title-color, var(--text-accent));
+}
+
+code.chord-sheet-chord-block-preview > .chord-sheet-section-header,
+.cm-s-obsidian .HyperMD-codeblock.chord-sheet-section-header {
+	font-size: var(--section-header-font-size, var(--code-size));
+}
+
+.chord-sheet-section-header-content {
+	background-color: var(--section-header-background-color, var(--code-background));
+}
+
+.chord-sheet-section-header-name {
+	color: var(--section-header-title-color, var(--bold-color));
+	font-weight: var(--section-header-title-font-weight, bolder);
+}
+
+.chord-sheet-section-header-bracket {
+	color: var(--section-header-bracket-color, var(--text-faint));
+	font-weight: var(--section-header-tag-font-weight, inherit);
+}
+
+.chord-sheet-uniform-header-style .chord-sheet-section-header-bracket{
+	color: var(--section-header-title-color, var(--bold-color));
+	font-weight: var(--section-header-title-font-weight, bolder);
+}
+
+/* Inline chords */
+
+.chord-sheet-inline-chord-bracket {
+	color: var(--inline-chord-bracket-color, var(--text-faint));
+	font-weight: var(--inline-chord-bracket-font-weight, inherit);
+}
+
+.chord-sheet-inline-chord-aux-text {
+	font-weight: var(--inline-chord-aux-text-font-weight, inherit);
+	color: var(--inline-chord-aux-text-color, var(--code-normal));
+}
+
+.chord-sheet-uniform-inline-style .chord-sheet-inline-chord-bracket,
+.chord-sheet-uniform-inline-style .chord-sheet-inline-chord-aux-text {
+	color: var(--chord-symbol-color, var(--text-accent));
+	font-weight: var(--chord-highlight-font-weight, bolder);
+}
+
+/* User defined chords */
+
+.chord-sheet-user-defined-chord-bracket {
+	color: var(--user-defined-chord-bracket-color, var(--text-faint));
+	font-weight: var(--user-defined-chord-bracket-font-weight, inherit);
+}
+
+.chord-sheet-user-defined-chord-position {
+	font-weight: var(--user-defined-chord-position-font-weight, inherit);
+	color: var(--user-defined-chord-position-color, var(--code-normal));
+}
+
+.chord-sheet-user-defined-chord-position-separator {
+	color: var(--user-defined-chord-position-separator-color, var(--text-faint));
+	font-weight: var(--user-defined-chord-position-separator-font-weight, inherit);
+}
+
+.chord-sheet-user-defined-chord-frets {
+	font-weight: var(--user-defined-chord-frets-font-weight, inherit);
+	color: var(--user-defined-chord-frets-color, var(--code-normal));
+}
+
+.chord-sheet-uniform-user-defined-style .chord-sheet-user-defined-chord-bracket,
+.chord-sheet-uniform-user-defined-style .chord-sheet-user-defined-chord-position,
+.chord-sheet-uniform-user-defined-style .chord-sheet-user-defined-chord-position-separator,
+.chord-sheet-uniform-user-defined-style .chord-sheet-user-defined-chord-frets {
+	color: var(--chord-symbol-color, var(--text-accent));
+	font-weight: var(--chord-highlight-font-weight, bolder);
+}
+
+
+/* Chord Boxes */
+.chord-sheet-chord-box svg {
+	margin-top: -10%;
+	margin-bottom: -5%;
+}
+
+.chord-sheet-position-chooser {
+	display: flex;
+	justify-content: center;
+	font-size: var(--font-ui-smaller);
+	margin-top: -10px;
+	padding-left: 5%;
+}
+
+.print .chord-sheet-position-chooser {
+	display: none;
+}
+
+.chord-sheet-position-label {
+	margin: 0 0.2rem;
+}
+
+[class^=chord-sheet-btn] {
+	color: var(--text-faint);
+	cursor: default;
+}
+
+.chord-sheet-pos-btn-enabled {
+	color: var(--link-color);
+	text-decoration: var(--link-decoration);
+	cursor: pointer;
+}
+
+.chord-sheet-no-diagram {
+	width: fit-content;
+	margin-inline: auto;
+}
+
+/* dim the empty grid but not the "?" mark */
+.chord-sheet-no-diagram svg > :not(.chord-sheet-no-diagram-mark) {
+	opacity: 0.5;
+}
+
+.chord-sheet-no-diagram-mark {
+	/* centered on the grid point given by the text element's x/y */
+	text-anchor: middle;
+	dominant-baseline: central;
+	fill: var(--text-faint);
+	stroke: none;
+	font-family: var(--font-interface);
+	font-size: 2em;
+	font-weight: 400;
+}
+
+
+/* Chord Popup */
+
+.chord-sheet-chord-popup {
+	background: var(--background-primary);
+	border: var(--border-border-style);
+}
+
+.chord-sheet-chord-popup .chord-sheet-chord-name {
+	text-align: center;
+	margin-bottom: -10px;
+	font-size: var(--font-ui-small);
+}
+
+
+
+/* Chord Blocks */
+.markdown-source-view.mod-cm6 .chord-sheet-block-start ~ .code-block-flair,
+.markdown-source-view.mod-cm6 .chord-sheet-block-start .code-block-flair {
+	display: none;
+}
+
+.cm-s-obsidian .chord-sheet-chord-overview-container + .chord-sheet-block-start {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.chord-sheet-chord-overview-container {
+	white-space: normal;
+	font-family: var(--font-monospace);
+
+	.chord-sheet-chord-overview {
+		display: flex;
+		flex-wrap: wrap;
+
+		white-space: normal;
+
+		background-color: var(--code-background);
+		border-top-left-radius: var(--code-radius);
+		border-top-right-radius: var(--code-radius);
+
+		margin-inline-start: calc(-1 * var(--size-4-4));
+
+		&.chord-sheet-preview-mode {
+			padding-block-start: var(--size-4-3);
+			margin-inline-start: 0;
+		}
+	}
+
+	.chord-sheet-chord-name {
+		font-size: var(--code-size);
+	}
+
+	.chord-sheet-chord-diagram {
+		margin-bottom: 1rem;
+	}
+
+	.chord-sheet-chord-overview svg {
+		margin-top: -15%;
+	}
+}
+
+.chord-sheet-chord-overview-container:has(+ .chord-sheet-chord-block-preview) {
+	margin-inline-end: calc(-1 * var(--size-4-4));
+}
+
+.chord-sheet-chord-block-preview {
+	.chord-sheet-chord-overview {
+		margin-inline-end: calc(-1 * var(--size-4-4));
+		margin-inline-start: calc(-1 * var(--size-4-4));
+	}
+}
+
+.chord-sheet-chord-block-preview .chord-sheet-chord-line {
+	min-height: calc(var(--line-height-normal) * 1em);
+}
+
+/* Tools */
+
+.chord-sheet-tools-container,
+.chord {
+	display: flex;
+	position: relative;
+	z-index: 10;
+	user-select: none;
+	container-type: inline-size;
+}
+
+.chord-sheet-tools {
+	display: inline-flex;
+	right: var(--size-2-1);
+	top: var(--size-2-1);
+	white-space: normal;
+	font-size: var(--font-ui-small);
+
+	& select, & button {
+		height: calc(var(--input-height) * 0.75);
+		font-size: var(--font-ui-small);
+	}
+
+	& select {
+		color: var(--icon-color);
+		opacity: var(--icon-opacity);
+		min-width: 9em;
+		field-sizing: content;
+	}
+
+	& svg {
+		color: var(--icon-color);
+		opacity: var(--icon-opacity);
+		stroke-width: var(--icon-stroke);
+		width: var(--icon-size);
+		pointer-events: none;
+	}
+}
+
+.chord-sheet-tools-container.with-chord-overview .chord-sheet-tools {
+	right: var(--size-4-4);
+	top: -4px;
+}
+
+@container (min-width: 400px) {
+	.chord-sheet-tools {
+		position: absolute;
+	}
+}
+
+.chord-sheet-transpose-control {
+	position: relative;
+	display: flex;
+	white-space: nowrap;
+	align-items: center;
+	margin-right: var(--size-2-3);
+
+	> button {
+		box-shadow: none;
+		border-radius: 0;
+		padding-inline: var(--size-4-2);
+
+		position: relative;
+
+		--icon-size: 12px;
+		--icon-stroke: 2.4px;
+	}
+
+	&:after,
+	> button:hover:after {
+		box-shadow: var(--input-shadow);
+		border-radius: var(--button-radius);
+		position: absolute;
+		content: '';
+		inset: 0;
+		pointer-events: none;
+	}
+
+	> button:hover:after {
+		border-radius: inherit;
+	}
+
+	> button:not(:hover):after {
+		position: absolute;
+		top: 1px;
+		bottom: 1px;
+		left: 0;
+		right: 0;
+		content: '';
+	}
+
+	> .chord-sheet-transpose-down {
+		border-start-start-radius: var(--button-radius);
+		border-end-start-radius: var(--button-radius);
+		border-inline-end: var(--border-border-style);
+
+		&:not(:hover):after {
+			border-right: var(--border-width) solid var(--background-modifier-border);
+		}
+	}
+
+	> .chord-sheet-transpose-up {
+		border-start-end-radius: var(--button-radius);
+		border-end-end-radius: var(--button-radius);
+		border-inline-start: var(--border-border-style);
+
+		&:not(:hover):after {
+			border-left: var(--border-width) solid var(--background-modifier-border);
+		}
+	}
+}
+
+.chord-sheet-transpose-label {
+	color: var(--icon-color);
+	opacity: var(--icon-opacity);
+	display: flex;
+	align-items: center;
+	padding: 0 var(--size-4-3);
+	padding-bottom: 1px;
+	--icon-size: var(--icon-s);
+}
+
+.chord-sheet-enharmonic-toggle {
+	border-radius: var(--button-radius);
+	box-shadow: none;
+	margin-right: 6px;
+	padding-inline: var(--size-4-2);
+	--icon-size: var(--icon-s);
+}
+
+svg.enharmonic-toggle {
+	fill: none;
+	stroke: currentColor;
+	stroke-linejoin: round;
+	stroke-linecap: round;
+	stroke-width: 1.5px;
+}
+
+/* Autoscroll controls */
+.chord-sheet-autoscroll-control {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding-right: var(--size-4-5);
+	border-bottom: 1px solid var(--divider-color);
+    border-top: 1px solid var(--divider-color);
+	height: 1.6rem;
+
+	color: var(--text-muted);
+	font-size: var(--file-header-font-size);
+
+	.slider {
+		margin-inline-start: 0.4rem;
+	}
+}
+
+
+/* DEBUG */
+
+.chord-sheet-block-start.debug {
+	border-top: 2px solid darkred;
+}
+
+.chord-sheet-block-end.debug {
+	border-right: 2px solid palevioletred;
+}
+
+.cm-mygutter {
+	width: 20px;
+	.S {color: darkred}
+	.E {color: palevioletred}
+}
+
+/* Display inline chords over lyrics */
+
+.markdown-preview-view div.chord-sheet-inline-over-lyrics {
+	display: flex;
+	align-items: flex-end;
+	flex-wrap: wrap;
+
+	.chord-sheet-chord {
+		margin-inline-end: 1ch;
+	}
+}
+
+.markdown-preview-view div.chord-sheet-inline-over-lyrics .chord-sheet-chord-text-pair {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: end;
+
+	/* prevent wrapping of inline chord at the end of a line without trailing spaces */
+	.chord-sheet-inline-chord-trailing-text:empty:after {
+		content: " ";
+	}
+}
+
+/* collapse empty lyric line for lines with only inline chords */
+.markdown-preview-view div.chord-sheet-inline-over-lyrics:not(:has(.chord-sheet-word)) .chord-sheet-inline-chord-trailing-text {
+	height: 0;
+	:after {
+		content: none;
+	}
+}
+
+.markdown-preview-view div.chord-sheet-inline-over-lyrics .chord-sheet-inline-chord-bracket {
+	display: none;
+}
