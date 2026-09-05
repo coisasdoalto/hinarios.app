@@ -90,13 +90,17 @@ describe('persistent slide popup', () => {
     expect(window.open).not.toHaveBeenCalled();
   });
 
-  it('keeps main-window search shortcuts from controlling the popup', () => {
+  it('controls slides from the main window without focusing the popup', () => {
     render(<App hymn={firstHymn} />);
     fireEvent.click(screen.getByRole('button', { name: 'Abrir Modo Slide' }));
     fireEvent.keyDown(document, { key: 'ArrowRight' });
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(closePopup).not.toHaveBeenCalled();
+    expect(within(popupDocument.body).getByText('Segunda estrofe')).toBeInTheDocument();
+    fireEvent.keyUp(document, { key: 'ArrowRight' });
+    fireEvent.keyDown(document, { key: 'ArrowLeft' });
     expect(within(popupDocument.body).getByText('Primeira estrofe')).toBeInTheDocument();
+    fireEvent.keyUp(document, { key: 'ArrowLeft' });
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(closePopup).toHaveBeenCalledTimes(1);
   });
 
   it('closes the popup when the application unmounts', () => {
