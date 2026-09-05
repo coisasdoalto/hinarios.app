@@ -432,7 +432,24 @@ export function SlideMode({
         <ActionIcon
           aria-label="Fechar Modo Slide"
           onClick={close}
-          style={{ position: 'absolute', top: 12, right: 16 }}
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 16,
+          }}
+          sx={(buttonTheme) => {
+            const buttonColor =
+              buttonTheme.colorScheme === 'dark' ? buttonTheme.white : buttonTheme.colors.blue[9];
+
+            return {
+              color: buttonColor,
+              border: `1px solid ${buttonTheme.fn.rgba(buttonColor, 0.35)}`,
+              backgroundColor: buttonTheme.fn.rgba(buttonColor, 0.06),
+              '&:hover': {
+                backgroundColor: buttonTheme.fn.rgba(buttonColor, 0.14),
+              },
+            };
+          }}
           variant="subtle"
         >
           <IconX stroke={1.5} />

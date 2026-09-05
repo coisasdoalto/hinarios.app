@@ -12,6 +12,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { getDefaultZIndex } from '@mantine/styles';
 import { PropsWithChildren } from 'react';
 
 import { Feedback } from 'components/Feedback';
@@ -108,7 +109,11 @@ export default function AppShell({ children }: PropsWithChildren) {
             }}
           >
             {isDesktopDevice ? (
-              <Tooltip label="Mostrar barra lateral para navegação e configurações">
+              <Tooltip
+                label="Mostrar barra lateral para navegação e configurações"
+                withinPortal
+                zIndex={getDefaultZIndex('max')}
+              >
                 {navigationToggle}
               </Tooltip>
             ) : (

@@ -1,9 +1,9 @@
 export type FocusColorScheme = 'dark' | 'light';
 
 export function getFocusIndicatorColor(colorScheme: FocusColorScheme): string {
-  return colorScheme === 'dark' ? '#7dd3fc' : '#1e3a8a';
+  return colorScheme === 'dark' ? '#7dd3fc' : '#172554';
 }
 
 export function getFocusIndicatorShadow(isFocused: boolean, color: string): string {
-  return isFocused ? `0 0 0 1px ${color}, 0 0 8px ${color}` : 'none';
+  return isFocused ? `inset 0 0 0 2px ${color}, inset 0 0 12px ${color}` : 'none';
 }
