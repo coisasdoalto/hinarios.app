@@ -16,6 +16,10 @@ export default async (phase, { defaultConfig }) => {
   const withSerwist = serwist({
     swSrc: './sw.ts',
     swDest: 'public/sw.js',
+    // The app owns registration so updates bypass the HTTP cache and never
+    // reload an ongoing presentation automatically when connectivity returns.
+    register: false,
+    reloadOnOnline: false,
     maximumFileSizeToCacheInBytes: 7355608,
     disable: phase !== PHASE_PRODUCTION_BUILD,
     additionalPrecacheEntries: [
@@ -30,6 +34,19 @@ export default async (phase, { defaultConfig }) => {
    * @type {import('next').NextConfig}
    */
   const nextConfig = {
+    env: { NEXT_PUBLIC_APP_BUILD_ID: buildId },
+    async headers() {
+      return [
+        {
+          source: '/sw.js',
+          headers: [
+            { key: 'Cache-Control', value: 'no-cache, max-age=0, must-revalidate' },
+            { key: 'CDN-Cache-Control', value: 'no-store' },
+            { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
+          ],
+        },
+      ];
+    },
     eslint: {
       ignoreDuringBuilds: true,
     },

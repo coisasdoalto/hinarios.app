@@ -6,6 +6,7 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import posthog from 'posthog-js';
 import Layout from '../components/Layout/Layout';
+import { PwaUpdateNotification } from '../components/PwaUpdateNotification/PwaUpdateNotification';
 import { SlideModeProvider } from '../components/SlideMode/SlideModeProvider';
 import { HymnBooksProvider, useCreateHymnBooksCache } from '../context/HymnBooks';
 import useColorScheme from '../hooks/useColorScheme';
@@ -103,6 +104,7 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
           <NotificationsProvider position="top-right">
+            <PwaUpdateNotification />
             <QueryClientProvider client={queryClient}>
               <HymnBooksProvider hymnBooksCache={hymnBooksCache}>
                 <SlideModeProvider>

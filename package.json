@@ -19,7 +19,7 @@
     "jest:watch": "jest --watch",
     "prettier:check": "prettier --check \"**/*.{ts,tsx}\"",
     "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
-    "test": "npm run prettier:check && npm run lint && npm run typecheck && npm run jest",
+    "test": "npm run test:pwa && npm run prettier:check && npm run lint && npm run typecheck && npm run jest",
     "storybook": "start-storybook -p 7001",
     "storybook:build": "build-storybook",
     "scripts:run": "tsx",
@@ -28,7 +28,8 @@
     "generate:searchIndex": "rm ./search/*.json || true && yarn scripts:run scripts/generateSearchIndex.ts",
     "generate:pathsForPrecache": "yarn scripts:run scripts/generatePathsForPrecache.ts",
     "generate:supabaseTypes": "yarn scripts:run scripts/generateSupabaseTypes.ts",
-    "hymns": "tsx cli/hymns/index.ts"
+    "hymns": "tsx cli/hymns/index.ts",
+    "test:pwa": "node --experimental-strip-types --test tests/pwa-updates.test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
