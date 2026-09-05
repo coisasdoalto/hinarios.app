@@ -1,0 +1,15 @@
+{
+	"id": "chord-sheets",
+	"name": "Chord Sheets",
+	"minAppVersion": "0.15.0",
+	"description": "Work with chord sheets (chords over lyrics) in your Vault: Chord diagrams, transpose, autoscroll and more. Works in live preview and reading mode.",
+	"author": "Marcel Schaeben",
+	"authorUrl": "https://github.com/olvidalo",
+	"fundingUrl": {
+		"GitHub Sponsors": "https://github.com/sponsors/olvidalo",
+		"PayPal": "https://paypal.me/MSchaeben",
+		"Ko-fi": "https://ko-fi.com/olvidalo"
+	},
+	"isDesktopOnly": false,
+	"version": "1.8.0"
+}

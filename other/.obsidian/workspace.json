@@ -1,0 +1,210 @@
+{
+  "main": {
+    "id": "cd2a04e54ff214f3",
+    "type": "split",
+    "children": [
+      {
+        "id": "40acbbdfda4c657e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e06526bfa1a12fd8",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Nova aba"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "db1053cb753cc14c",
+    "type": "split",
+    "children": [
+      {
+        "id": "19686cddf61ea27a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c620d47b750a1065",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de arquivos"
+            }
+          },
+          {
+            "id": "b46cf01d56852002",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": true,
+                "explainSearch": false,
+                "collapseAll": true,
+                "extraContext": true,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Procurar"
+            }
+          },
+          {
+            "id": "8b4c15545d93f10c",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 437.36328125
+  },
+  "right": {
+    "id": "5e5edff2928918a9",
+    "type": "split",
+    "children": [
+      {
+        "id": "740da279244cf157",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b5e1dc37939c86b4",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Corpo e Família.md",
+                "collapseAll": true,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": true,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Links inversos para Corpo e Família"
+            }
+          },
+          {
+            "id": "f8899e72c6e19521",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Meu Prazer.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Links de saída para Meu Prazer"
+            }
+          },
+          {
+            "id": "1d756be7e59f8823",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "96afb6133e773963",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Aclame ao Senhor.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Sumário de Aclame ao Senhor"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "bases:Criar nova base": false,
+      "switcher:Abrir a troca rápida": false,
+      "graph:Abrir visualização em gráfico": false,
+      "canvas:Criar novo canvas": false,
+      "daily-notes:Abrir a nota de hoje": false,
+      "templates:Inserir modelo": false,
+      "command-palette:Abrir paleta de comandos": false
+    }
+  },
+  "active": "e06526bfa1a12fd8",
+  "lastOpenFiles": [
+    "Em Espírito, Em Verdade/Andam Procurando a Razão de Viver.md",
+    "Em Espírito, Em Verdade/Amigo Verdadeiro.md",
+    "Hinos e Canticos/Mais perto de Ti ✔️.md",
+    "Hinos e Canticos/O adorno desta vida ✔️.md",
+    "Hinos e Canticos/Redentor ✔️.md",
+    "Hinos e Canticos/Sempre com Jesus ✔️.md",
+    "Hinos e Canticos/Tudo Entregarei ✔️.md",
+    "Hinos e Canticos/Tu És Fiel, Senhor ✔️.md",
+    "Hinos e Canticos/Substituição ✔️.md",
+    "Hinos e Canticos/Sublime Graça ✔️.md",
+    "Hinos e Canticos/Sossegai ✔️.md",
+    "Hinos e Canticos/Rica Verdade ✔️.md",
+    "Hinos e Canticos/132 Um Amigo verdadeiro.md",
+    "Hinos e Canticos/Fala à Minha Alma ✔️.md",
+    "Hinos e Canticos/Meu Jesus ✔️.md",
+    "Em Espírito, Em Verdade/Satisfação É Ter a Cristo!.md",
+    "Em Espírito, Em Verdade/Santo Para Sempre.md",
+    "Em Espírito, Em Verdade/Salmo dos Salmos.md",
+    "Em Espírito, Em Verdade/Reina o Senhor.md",
+    "Em Espírito, Em Verdade/Rei dos Reis.md",
+    "Em Espírito, Em Verdade/Quero Louvar-Te.md",
+    "Em Espírito, Em Verdade/Quero Cantar.md",
+    "Em Espírito, Em Verdade/Quem Nos Condenará.md",
+    "Em Espírito, Em Verdade/Que Feridas São Estas.md",
+    "Em Espírito, Em Verdade/Que Amor É Esse.md",
+    "Em Espírito, Em Verdade/Povo Livre.md",
+    "Sem título 2",
+    "Sem título 1",
+    "REMOVIDOS",
+    "NATAL",
+    "Hinos e Canticos",
+    "Corinhos e Cânticos de Salvação",
+    "Em Espírito, Em Verdade",
+    "Sem título 1.base",
+    "Sem título.base",
+    "_Índice_.base"
+  ]
+}
