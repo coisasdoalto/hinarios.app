@@ -5,6 +5,37 @@ import getHymnBooks from '../data/getHymnBooks';
 import getParsedData from '../data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
 import { hymnSchema } from '../schemas/hymn';
+import { OTHER_SONGS_SLUG } from '../contants';
+import { otherSongSchema } from '../schemas/otherSong';
+
+async function generateOtherSongsIndex() {
+  const filenames = (await readdir(joinDataPath(OTHER_SONGS_SLUG))).filter(
+    (filename) => filename !== 'index.json' && filename.endsWith('.json')
+  );
+
+  const songs = await Promise.all(
+    filenames.map(async (filename) => ({
+      ...(await getParsedData({
+        filePath: path.join(OTHER_SONGS_SLUG, filename),
+        schema: otherSongSchema,
+      })),
+      slug: path.basename(filename, '.json'),
+    }))
+  );
+
+  const index = songs
+    .sort((current, next) => current.title.localeCompare(next.title, 'pt-BR'))
+    .map(({ title, subtitle, slug }) => ({
+      title,
+      ...(subtitle ? { subtitle } : {}),
+      slug,
+    }));
+
+  await writeFile(
+    joinDataPath(path.join(OTHER_SONGS_SLUG, 'index.json')),
+    JSON.stringify(index, null, 2)
+  );
+}
 
 async function generateHymnsIndex() {
   const hymnBooks = await getHymnBooks({ withIndex: false });
@@ -43,6 +74,8 @@ async function generateHymnsIndex() {
       );
     })
   );
+
+  await generateOtherSongsIndex();
 }
 
 generateHymnsIndex();

@@ -2,18 +2,31 @@ import { Box, Group, NavLink, Space, Text, Title } from '@mantine/core';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import LazyLoad from 'react-lazyload';
-import { HymnBook } from '../../schemas/hymnBook';
-import { HymnsIndex } from '../../schemas/hymnsIndex';
 import BackButton from '../BackButton/BackButton';
 
-function HymnsList({ hymnsIndex, hymnBook }: { hymnsIndex: HymnsIndex; hymnBook: HymnBook }) {
+type SongListItem = {
+  number?: number | string;
+  title: string;
+  subtitle?: string;
+  slug: string;
+};
+
+function HymnsList({
+  hymnsIndex,
+  hymnBook,
+  showNumbers = true,
+}: {
+  hymnsIndex: SongListItem[];
+  hymnBook: { name: string; slug: string };
+  showNumbers?: boolean;
+}) {
   const [active, setActive] = useState(0);
 
   const items = hymnsIndex.map((item, index) => (
-    <Fragment key={item.number}>
+    <Fragment key={item.slug}>
       <LazyLoad height={59.39} offset={200} once>
         <NavLink
-          key={item.number}
+          key={item.slug}
           active={index === active}
           label={item.title}
           description={item.subtitle}
@@ -24,13 +37,15 @@ function HymnsList({ hymnsIndex, hymnBook }: { hymnsIndex: HymnsIndex; hymnBook:
           //   </Group>
           // }
           icon={
-            <Text sx={{ minWidth: 29, textAlign: 'right' }} size="sm">
-              {item.number}
-            </Text>
+            showNumbers ? (
+              <Text sx={{ minWidth: 29, textAlign: 'right' }} size="sm">
+                {item.number}
+              </Text>
+            ) : undefined
           }
           onClick={() => setActive(index)}
           component={Link}
-          href={`${hymnBook.slug}/${item.slug}`}
+          href={`/${hymnBook.slug}/${item.slug}`}
         />
       </LazyLoad>
     </Fragment>

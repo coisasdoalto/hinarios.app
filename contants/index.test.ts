@@ -13,4 +13,8 @@ describe('isHymnBookVisible', () => {
   it('keeps other hymn books visible', () => {
     expect(isHymnBookVisible('hinos-espirituais')).toBe(true);
   });
+
+  it('keeps the standalone songs area visible', () => {
+    expect(isHymnBookVisible('outras-musicas')).toBe(true);
+  });
 });

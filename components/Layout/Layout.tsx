@@ -28,6 +28,7 @@ import Search from '../Search/Search';
 import VerticalNavigation from '../VerticalNavigation/VerticalNavigation';
 import { NearbySongs } from 'components/NearbySongs';
 import { stringToAcronym } from 'utils/stringToAcronym';
+import { OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from 'contants';
 
 export default function AppShell({ children }: PropsWithChildren) {
   const theme = useMantineTheme();
@@ -43,6 +44,7 @@ export default function AppShell({ children }: PropsWithChildren) {
   const [hymnBooks] = useHymnBooks();
 
   const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
+  const isOtherSongsPage = router.pathname.startsWith(`/${OTHER_SONGS_SLUG}`);
 
   function toggleSidebar(): void {
     setSidebarPreference(!isSidebarOpen);
@@ -120,6 +122,11 @@ export default function AppShell({ children }: PropsWithChildren) {
               {hymnBook && (
                 <Button variant="subtle" component={Link} href={`/${hymnBook.slug}`} compact>
                   {stringToAcronym(hymnBook.name)}
+                </Button>
+              )}
+              {isOtherSongsPage && (
+                <Button variant="subtle" component={Link} href={`/${OTHER_SONGS_SLUG}`} compact>
+                  {OTHER_SONGS_NAME}
                 </Button>
               )}
             </Breadcrumbs>

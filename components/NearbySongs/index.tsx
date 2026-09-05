@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useFeatureFlagEnabled, usePostHog } from 'posthog-js/react';
 import { useState } from 'react';
+import { OTHER_SONGS_FEATURE_FLAG, OTHER_SONGS_SLUG } from 'contants';
 
 export function NearbySongs() {
   const { data: proximityHymns } = useProximityHymns();
@@ -14,11 +15,15 @@ export function NearbySongs() {
 
   const isNearbySongsEnabled = useFeatureFlagEnabled('nearby-songs');
   const isHymnBottomNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
+  const isOtherSongsEnabled = useFeatureFlagEnabled(OTHER_SONGS_FEATURE_FLAG);
+  const visibleProximityHymns = proximityHymns?.filter(
+    (item) => item.hymn_book_slug !== OTHER_SONGS_SLUG || isOtherSongsEnabled
+  );
 
   const posthog = usePostHog();
   const isHymnPage = router.pathname === '/[hymnBook]/[slug]';
 
-  if (!isNearbySongsEnabled || !proximityHymns?.length) {
+  if (!isNearbySongsEnabled || !visibleProximityHymns?.length) {
     return null;
   }
 
@@ -52,10 +57,14 @@ export function NearbySongs() {
         position="bottom"
         padding="md"
       >
-        {proximityHymns?.map((item) => (
+        {visibleProximityHymns.map((item) => (
           <NavLink
             key={item.hymn_slug}
-            label={`${item.hymn_number} - ${item.hymn_title}`}
+            label={
+              item.hymn_book_slug === OTHER_SONGS_SLUG
+                ? item.hymn_title
+                : `${item.hymn_number} - ${item.hymn_title}`
+            }
             component={Link}
             href={`/${item.hymn_book_slug}/${item.hymn_slug}`}
             onClick={() => setOpened(false)}

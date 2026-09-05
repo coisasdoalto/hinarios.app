@@ -10,7 +10,6 @@ import {
   Title,
 } from '@mantine/core';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -23,7 +22,6 @@ import { SlideMode } from 'components/SlideMode';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
-import { HymnsIndex } from 'schemas/hymnsIndex';
 import { supabase } from 'supabase';
 import { AccessLoading } from '../../components/AccessLoading';
 import BackButton from '../../components/BackButton/BackButton';
@@ -36,24 +34,36 @@ import getParsedData from '../../data/getParsedData';
 import { useAccess } from '../../hooks/useAccess';
 import { Hymn, hymnSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
+import { OtherSong } from '../../schemas/otherSong';
+import { HymnNavigationItem } from '../../components/HymnBottomNavigation';
 
 const validateFontSize = (fontSize: string): fontSize is MantineSize => /md|lg|xl/.test(fontSize);
 
-type PageProps = {
-  content: Hymn;
+export type HymnViewPageProps = {
+  content: Hymn | OtherSong;
   hymnBooks: HymnBook[];
   hymnBook: string;
-  nextHymn: HymnsIndex[number] | null;
-  previousHymn: HymnsIndex[number] | null;
+  nextHymn: HymnNavigationItem | null;
+  previousHymn: HymnNavigationItem | null;
+  backPath?: string;
+  routeBase?: string;
+  showSongNumber?: boolean;
+  allowEditing?: boolean;
 };
 
-export default function HymnView(props: AppProps & PageProps) {
+export default function HymnView(props: HymnViewPageProps) {
   const {
-    content: { number, title, subtitle, lyrics },
+    content,
     hymnBook: hymnBookSlug,
     nextHymn,
     previousHymn,
+    backPath,
+    routeBase = hymnBookSlug,
+    showSongNumber = true,
+    allowEditing = true,
   } = props;
+  const { title, subtitle, lyrics } = content;
+  const number = 'number' in content ? content.number : undefined;
 
   useHymnBooksSave(props.hymnBooks);
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
@@ -83,7 +93,7 @@ export default function HymnView(props: AppProps & PageProps) {
 
   const [hymnBooks] = useHymnBooks();
 
-  const hymnBook = hymnBooks?.find((item) => item.slug === router.query.hymnBook);
+  const hymnBook = hymnBooks?.find((item) => item.slug === hymnBookSlug);
 
   const { data: geolocation, isLoading } = useGeolocationFromIp();
 
@@ -108,7 +118,7 @@ export default function HymnView(props: AppProps & PageProps) {
           latitude: geolocation.latitude,
           longitude: geolocation.longitude,
           hymn_title: title,
-          hymn_number: String(number),
+          hymn_number: number === undefined ? '' : String(number),
         })
         .select()
         .single();
@@ -139,9 +149,7 @@ export default function HymnView(props: AppProps & PageProps) {
   return (
     <>
       <Head>
-        <title>
-          {number}. {title} | Hinários
-        </title>
+        <title>{`${showSongNumber ? `${number}. ` : ''}${title} | Hinários`}</title>
       </Head>
 
       <Container size="lg">
@@ -149,19 +157,23 @@ export default function HymnView(props: AppProps & PageProps) {
         {hymnBook?.name
       </Title> */}
         <Flex justify="space-between">
-          <BackButton to={hymnBook?.slug} />
+          <BackButton to={backPath ?? hymnBook?.slug} />
 
           <Group>
-            <BookmarkButton />
-            <SlideMode number={number} title={title} lyrics={lyrics} />
-            <UpdateHymnButton />
+            <BookmarkButton
+              hymnBook={hymnBookSlug}
+              hymnNumber={number}
+              hymnSlug={String(router.query.slug)}
+            />
+            <SlideMode number={number} title={title} lyrics={lyrics} showNumber={showSongNumber} />
+            {allowEditing && <UpdateHymnButton />}
           </Group>
         </Flex>
         <Space h="md" />
         <Flex align="flex-start" gap="sm">
           <div>
             <Title order={1} size="h2">
-              {number}. {title}
+              {showSongNumber ? `${number}. ${title}` : title}
             </Title>
             {subtitle && (
               <Title order={5} color="dimmed" italic>
@@ -238,9 +250,10 @@ export default function HymnView(props: AppProps & PageProps) {
 
         <HymnBottomNavigation
           currentHymnNumber={number}
-          hymnBookSlug={hymnBookSlug}
+          hymnBookSlug={routeBase}
           previousHymn={previousHymn}
           nextHymn={nextHymn}
+          showNumbers={showSongNumber}
         />
       </Container>
     </>
@@ -270,7 +283,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
+export const getStaticProps: GetStaticProps<HymnViewPageProps> = async (context) => {
   const hymnBook = z.string().parse(context.params?.hymnBook);
   const hymnSlug = z.string().parse(context.params?.slug);
 

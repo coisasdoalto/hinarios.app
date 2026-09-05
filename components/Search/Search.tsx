@@ -5,6 +5,7 @@ import { SpotlightProvider, openSpotlight } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import flexsearch from 'flexsearch';
 import { useRouter } from 'next/router';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useEffect, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
@@ -14,6 +15,7 @@ import { useAccess } from 'hooks/useAccess';
 import { debug } from 'utils/debug';
 import { performTextualSearch } from './performTextualSearch';
 import { performNumericSearch } from './performNumericSearch';
+import { OTHER_SONGS_FEATURE_FLAG } from 'contants';
 
 const searchIndex = new flexsearch.Document({
   document: {
@@ -76,6 +78,7 @@ function Search() {
 
   const [hymnBooks] = useHymnBooks();
   const { canAccessHc } = useAccess();
+  const isOtherSongsEnabled = useFeatureFlagEnabled(OTHER_SONGS_FEATURE_FLAG);
 
   const [actions, setActions] = useState<SpotlightAction[]>([]);
 
@@ -96,6 +99,7 @@ function Search() {
       query,
       router,
       canAccessHc,
+      canAccessOtherSongs: Boolean(isOtherSongsEnabled),
     });
 
     setActions(filteredData || []);

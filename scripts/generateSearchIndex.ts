@@ -7,6 +7,9 @@ import getParsedData from '../data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
 import { Hymn, hymnSchema } from '../schemas/hymn';
 import { writeFileSync } from 'fs';
+import { OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from '../contants';
+import getOtherSong from '../data/getOtherSong';
+import getOtherSongsIndex from '../data/getOtherSongsIndex';
 
 const index = new flexsearch.Document({
   document: {
@@ -25,8 +28,8 @@ const composeStanzaText = (stanza?: { number: string | number; text: string }) =
   return `${stanza.number}. ${stanza.text}`;
 };
 
-const composeLyrics = (hymn: Hymn): string => {
-  return hymn.lyrics
+const composeLyrics = ({ lyrics }: Pick<Hymn, 'lyrics'>): string => {
+  return lyrics
     .map((lyric) => {
       if (lyric.type === 'stanza') return composeStanzaText(lyric);
 
@@ -69,6 +72,25 @@ async function generateHymnsIndex() {
         .forEach((hymn) => index.add(hymn.id, hymn));
     })
   );
+
+  const otherSongs = await getOtherSongsIndex();
+  const otherSongDocuments = await Promise.all(
+    otherSongs.map(async (song) => {
+      const result = await getOtherSong(song.slug);
+      if (!result) return null;
+
+      return {
+        id: `${OTHER_SONGS_SLUG}/${song.slug}`,
+        title: song.title,
+        body: composeLyrics(result.content),
+        hymnBookName: OTHER_SONGS_NAME,
+      };
+    })
+  );
+
+  otherSongDocuments.forEach((song) => {
+    if (song) index.add(song.id, song);
+  });
 
   // // Quick test
   // console.log(

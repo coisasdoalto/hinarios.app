@@ -22,9 +22,8 @@ useBash();
  *  "hc/1"
  *  "he/1"
  *  "ccs/1"
- *  "ma/1"
  */
-const hymnArgRegex = /^(hc|he|ccs|ma)\/(\d+)/;
+const hymnArgRegex = /^(hc|he|ccs)\/(\d+)/;
 
 const argvSchema = z.object({
   hymn: z
@@ -39,7 +38,6 @@ const argvSchema = z.object({
         hc: 'hinos-e-canticos',
         he: 'hinos-espirituais',
         ccs: 'corinhos-e-canticos-de-salvacao',
-        ma: 'musicas-avulsas',
       }[book];
 
       return {
@@ -179,8 +177,7 @@ export const UpdateHymnsCommand: CommandModule = {
         Hymn books alias: 
           - hc: Hino e cânticos
           - he: Hinos espirituais
-          - ccs: Corinhos e cânticos de salvação
-          - ma: Músicas Avulsas`,
+          - ccs: Corinhos e cânticos de salvação`,
         alias: 'hymn',
       })
       .positional('message', {

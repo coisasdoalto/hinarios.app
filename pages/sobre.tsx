@@ -12,7 +12,10 @@ export default function Home() {
 
       <Space h="lg" />
       <TypographyStylesProvider>
-        <p>Este projeto é um agregador de hinários para uso pessoal online ou offline.</p>
+        <p>
+          Este projeto é um agregador de hinários e outras músicas para uso pessoal online ou
+          offline.
+        </p>
 
         <p>
           Este projeto não tem qualquer ligação ou filiação com as editoras ou publicadoras dos

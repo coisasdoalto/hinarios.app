@@ -53,7 +53,7 @@ yarn hymns <command>
 
 ```bash
 # Example
-yarn hymns update ma/1 -m "Removido (2x) da última linha"
+yarn hymns update he/1 -m "Correção na primeira estrofe"
 ```
 
 ##### Arguments
@@ -65,19 +65,18 @@ yarn hymns update ma/1 -m "Removido (2x) da última linha"
     - hc: Hinos e cânticos
     - he: Hinos espirituais
     - ccs: Corinhos e cânticos de salvação
-    - ma: Músicas Avulsas
 - `message`: Description of the update to be included in the release notes
 
 #### `hymns commit-release`: Commit release to Github (open prompt to see changes and confirm push)
 
 ```bash
 # Example
-yarn hymns update ma/1 -m "Removido (2x) da última linha"
+yarn hymns update he/1 -m "Correção na primeira estrofe"
 
 info: Release title: 2025-03-05-21-33
 info: Release body:
 # Ajustes de conteúdo
-- [MA 1 (O Senhor é o meu pastor, nada me faltará.)](http://hinarios.app/musicas-avulsas/1-O-Senhor-e-o-meu-pastor-(Salmo-23)): Removido (2x) da última linha
+- [HE 1 (Aba-Pai a Ti chegamos)](http://hinarios.app/hinos-espirituais/1-Aba-Pai-a-Ti-chegamos): Correção na primeira estrofe
 
 Are you sure you want to commit release 2025-03-05-21-33? (y/n) y
 info: Generating release in Github using gh...
@@ -85,6 +84,13 @@ info: Release created successfully!
 info: Link to release:
 https://github.com/coisasdoalto/hinarios.app/releases/tag/2025-03-05-21-33
 ```
+
+### Outras músicas
+
+Standalone songs are stored in Firebase Storage under `outras-musicas/`. Each JSON filename is its
+stable URL slug (for example, `O-Senhor-e-o-meu-pastor-(Salmo-23).json`) and its content follows the
+song schema without a `number` field. The build generates `outras-musicas/index.json` from those
+files.
 
 ## Mantine Next Template
 
