@@ -1,17 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Hymn } from 'schemas/hymn';
 import { HymnBookInfo } from 'schemas/hymnBookInfo';
 
-type UseHymnData = Pick<Hymn, 'title'> & {
+type UseHymnData = {
+  title: string;
   hymnBook: HymnBookInfo;
 };
 
-export function useHymn({ hymnNumber, hymnBook }: { hymnNumber: number; hymnBook: string }) {
+export function useHymn({
+  hymnIdentifier,
+  hymnBook,
+}: {
+  hymnIdentifier: number | string;
+  hymnBook: string;
+}) {
   return useQuery({
-    queryKey: ['hymns', hymnNumber, hymnBook],
+    queryKey: ['hymns', hymnIdentifier, hymnBook],
     queryFn: async () => {
-      const response = await axios.get<UseHymnData>(`/api/hymns/${hymnBook}/${hymnNumber}`);
+      const response = await axios.get<UseHymnData>(
+        `/api/hymns/${hymnBook}/${encodeURIComponent(hymnIdentifier)}`
+      );
 
       return response.data;
     },

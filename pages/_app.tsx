@@ -22,6 +22,7 @@ if (typeof window !== 'undefined') {
       featureFlags: {
         login: false,
         bookmarks: false,
+        'other-songs': false,
         'hymn-bottom-navigation': true,
       },
     },

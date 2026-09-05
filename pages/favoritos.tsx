@@ -62,10 +62,10 @@ export default function Bookmarks({ hymnBooks }: PageProps) {
         )}
 
         {bookmarks.map((bookmark) => (
-          <BookmarkListItem key={bookmark.number} bookmark={bookmark} />
+          <BookmarkListItem key={`${bookmark.hymnBook}/${bookmark.slug}`} bookmark={bookmark} />
         ))}
 
-        {!hasBookmarks && <Text>Você ainda não tem hinos favoritos</Text>}
+        {!hasBookmarks && <Text>Você ainda não tem músicas favoritas</Text>}
       </Container>
     </>
   );

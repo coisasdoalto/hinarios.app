@@ -1,6 +1,9 @@
 export const CONTACT_EMAIL = 'pablo.dinella@gmail.com';
 
 export const HC_HYMN_BOOK_SLUG = 'hinos-e-canticos';
+export const OTHER_SONGS_SLUG = 'outras-musicas';
+export const OTHER_SONGS_NAME = 'Outras músicas';
+export const OTHER_SONGS_FEATURE_FLAG = 'other-songs';
 export const HC_UNAVAILABLE_ALERT_TITLE = 'Hinos e Cânticos temporariamente indisponível';
 export const HC_UNAVAILABLE_MESSAGE =
   'Estamos trabalhando junto aos detentores dos direitos da editora para viabilizar a publicação do HC no app. Agradecemos a compreensão.';
@@ -26,11 +29,9 @@ export function isHymnBookVisible(slug: string, canAccessHc = false): boolean {
 // - hinos-espirituais (HE)
 // - corinhos-e-canticos-de-salvacao (CCS)
 // - hinario-alvorada (HA)
-// - musicas-avulsas (MA)
 export const HYMN_BOOKS_ORDER: string[] = [
   'hinos-e-canticos',
   'hinos-espirituais',
   'corinhos-e-canticos-de-salvacao',
   'hinario-alvorada',
-  'musicas-avulsas',
 ];

@@ -31,13 +31,6 @@ declare const self: ServiceWorkerGlobalScope & {
 //       cacheName: 'hymns-data',
 //     },
 //   },
-//   {
-//     urlPattern: /\/musicas-avulsas\/.*/,
-//     handler: 'CacheFirst',
-//     options: {
-//       cacheName: 'hymns-data',
-//     },
-//   },
 // ];
 
 installSerwist({

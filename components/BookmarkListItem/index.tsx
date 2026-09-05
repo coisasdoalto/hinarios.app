@@ -4,6 +4,8 @@ import Link from 'next/link';
 import {
   HC_HYMN_BOOK_SLUG,
   HC_UNAVAILABLE_FAVORITE_MESSAGE,
+  OTHER_SONGS_NAME,
+  OTHER_SONGS_SLUG,
   isHymnBookVisible,
 } from '../../contants';
 import { useHymnBooks } from '../../context/HymnBooks';
@@ -15,12 +17,13 @@ import { BookmarkListItemSkeleton } from './Skeleton';
 export function BookmarkListItem({ bookmark }: { bookmark: Bookmark }) {
   const [hymnBooks] = useHymnBooks();
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
-  const canAccessHymn = isHymnBookVisible(bookmark.hymnBook, canAccessHc);
+  const isOtherSong = bookmark.hymnBook === OTHER_SONGS_SLUG;
+  const canAccessHymn = isOtherSong || isHymnBookVisible(bookmark.hymnBook, canAccessHc);
   const hymnBook = hymnBooks?.find(({ slug }) => slug === bookmark.hymnBook);
   const indexedHymn = hymnBook?.index?.find(({ slug }) => slug === bookmark.slug);
 
   const { isLoading, data: hymn } = useHymn({
-    hymnNumber: bookmark.number,
+    hymnIdentifier: bookmark.number ?? bookmark.slug,
     hymnBook: bookmark.hymnBook,
   });
 
@@ -45,10 +48,10 @@ export function BookmarkListItem({ bookmark }: { bookmark: Bookmark }) {
     <NavLink
       key={bookmark.number}
       label={hymn?.title ?? indexedHymn?.title}
-      description={hymn?.hymnBook.name ?? hymnBook?.name}
-      icon={<Text size="sm">{bookmark.number}</Text>}
+      description={hymn?.hymnBook.name ?? hymnBook?.name ?? (isOtherSong ? OTHER_SONGS_NAME : '')}
+      icon={isOtherSong ? undefined : <Text size="sm">{bookmark.number}</Text>}
       component={Link}
-      href={`${bookmark.hymnBook}/${bookmark.slug}`}
+      href={`/${bookmark.hymnBook}/${bookmark.slug}`}
     />
   );
 }

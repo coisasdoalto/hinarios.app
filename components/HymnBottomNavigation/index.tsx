@@ -1,28 +1,29 @@
-import {
-  Affix,
-  Box,
-  Button,
-  Center,
-  Container,
-  Paper,
-  Text,
-  useMantineTheme,
-} from '@mantine/core';
+import { Affix, Box, Button, Center, Container, Paper, Text, useMantineTheme } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
-import { HymnsIndex } from 'schemas/hymnsIndex';
-
-type HymnNavigationItem = HymnsIndex[number];
+export type HymnNavigationItem = {
+  number?: number | string;
+  title: string;
+  subtitle?: string;
+  slug: string;
+};
 
 type NavigationButtonProps = {
   align: 'left' | 'right';
   directionLabel: string;
   href?: string;
   hymn?: HymnNavigationItem | null;
+  showNumbers: boolean;
 };
 
-function NavigationButton({ align, directionLabel, href, hymn }: NavigationButtonProps) {
+function NavigationButton({
+  align,
+  directionLabel,
+  href,
+  hymn,
+  showNumbers,
+}: NavigationButtonProps) {
   const content = (
     <Box
       sx={(theme) => ({
@@ -60,7 +61,7 @@ function NavigationButton({ align, directionLabel, href, hymn }: NavigationButto
           },
         })}
       >
-        {hymn ? `${hymn.number}. ${hymn.title}` : 'Indisponível'}
+        {hymn ? `${showNumbers ? `${hymn.number}. ` : ''}${hymn.title}` : 'Indisponível'}
       </Text>
       <Text
         size="sm"
@@ -72,7 +73,7 @@ function NavigationButton({ align, directionLabel, href, hymn }: NavigationButto
           },
         })}
       >
-        {hymn ? hymn.number : '-'}
+        {hymn ? (showNumbers ? hymn.number : hymn.title) : '-'}
       </Text>
     </Box>
   );
@@ -152,10 +153,11 @@ function NavigationButton({ align, directionLabel, href, hymn }: NavigationButto
 }
 
 type HymnBottomNavigationProps = {
-  currentHymnNumber: HymnNavigationItem['number'];
+  currentHymnNumber?: HymnNavigationItem['number'];
   hymnBookSlug: string;
   previousHymn?: HymnNavigationItem | null;
   nextHymn?: HymnNavigationItem | null;
+  showNumbers?: boolean;
 };
 
 export function HymnBottomNavigation({
@@ -163,6 +165,7 @@ export function HymnBottomNavigation({
   hymnBookSlug,
   previousHymn,
   nextHymn,
+  showNumbers = true,
 }: HymnBottomNavigationProps) {
   const isHymnBottomNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
   const theme = useMantineTheme();
@@ -220,6 +223,7 @@ export function HymnBottomNavigation({
               align="left"
               directionLabel="Anterior"
               hymn={previousHymn}
+              showNumbers={showNumbers}
               href={previousHymn ? `/${hymnBookSlug}/${previousHymn.slug}` : undefined}
             />
 
@@ -235,11 +239,13 @@ export function HymnBottomNavigation({
             >
               <Box ta="center">
                 <Text size="xs" color="dimmed">
-                  Hino
+                  {showNumbers ? 'Hino' : 'Música'}
                 </Text>
-                <Text size="sm" weight={700}>
-                  {currentHymnNumber}
-                </Text>
+                {showNumbers && (
+                  <Text size="sm" weight={700}>
+                    {currentHymnNumber}
+                  </Text>
+                )}
               </Box>
             </Center>
 
@@ -247,6 +253,7 @@ export function HymnBottomNavigation({
               align="right"
               directionLabel="Próximo"
               hymn={nextHymn}
+              showNumbers={showNumbers}
               href={nextHymn ? `/${hymnBookSlug}/${nextHymn.slug}` : undefined}
             />
           </Box>

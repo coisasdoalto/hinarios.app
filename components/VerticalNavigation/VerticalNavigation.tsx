@@ -1,5 +1,12 @@
 import { Box, Divider, NavLink } from '@mantine/core';
-import { IconBookmarks, IconBooks, IconChecklist, IconHome, IconInfoSquare } from '@tabler/icons';
+import {
+  IconBookmarks,
+  IconBooks,
+  IconChecklist,
+  IconHome,
+  IconInfoSquare,
+  IconMusic,
+} from '@tabler/icons';
 import Link from 'next/link';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useHymnBooks } from '../../context/HymnBooks';
@@ -7,6 +14,7 @@ import { useUser } from '../../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
 import { SidebarToggle } from './SidebarToggle';
 import { SlidePopupToggle } from './SlidePopupToggle';
+import { OTHER_SONGS_FEATURE_FLAG, OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from '../../contants';
 
 type VerticalNavigationProps = { onNavigation: () => void };
 
@@ -15,6 +23,7 @@ function VerticalNavigation({ onNavigation }: VerticalNavigationProps): JSX.Elem
 
   const { user } = useUser();
   const isBookmarksEnabled = useFeatureFlagEnabled('bookmarks');
+  const isOtherSongsEnabled = useFeatureFlagEnabled(OTHER_SONGS_FEATURE_FLAG);
 
   const shouldShowBookmarksLink = user && isBookmarksEnabled;
 
@@ -54,6 +63,16 @@ function VerticalNavigation({ onNavigation }: VerticalNavigationProps): JSX.Elem
           />
         ))}
       </NavLink>
+
+      {isOtherSongsEnabled && (
+        <NavLink
+          label={OTHER_SONGS_NAME}
+          icon={<IconMusic size={16} stroke={1.5} />}
+          component={Link}
+          href={`/${OTHER_SONGS_SLUG}`}
+          onClick={onNavigation}
+        />
+      )}
 
       <NavLink
         label="Sobre"

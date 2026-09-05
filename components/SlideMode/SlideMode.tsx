@@ -26,9 +26,10 @@ const SLIDE_MODE_VERTICAL_PADDING = 128;
 const SLIDE_MODE_PLUS_HOTKEYS = [{ key: '=', shift: true }, { key: '+' }, { key: 'Add' }] as const;
 
 export type SlideModeProps = {
-  number: number | string;
+  number?: number | string;
   title: string;
   lyrics: Hymn['lyrics'];
+  showNumber?: boolean;
 };
 
 type ContentDimensions = {
@@ -226,7 +227,12 @@ function SlideText({
  *
  * @example <SlideMode number={1} title="Hino" lyrics={lyrics} />
  */
-export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Element {
+export function SlideMode({
+  number,
+  title,
+  lyrics,
+  showNumber = true,
+}: SlideModeProps): JSX.Element {
   const screens = composeSlideScreens(lyrics);
   const isDesktopDevice = useIsDesktopDevice();
   const [isPopupEnabled] = useSlidePopupPreference();
@@ -412,7 +418,7 @@ export function SlideMode({ number, title, lyrics }: SlideModeProps): JSX.Elemen
         }}
       >
         <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 3vw, 2rem)' }}>
-          {number}. {title}
+          {showNumber ? `${number}. ${title}` : title}
         </h1>
         <p
           style={{

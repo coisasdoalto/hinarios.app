@@ -21,12 +21,12 @@ hymnsApp.get(
   zValidator(
     'param',
     z.object({
-      hymnNumber: z.coerce.number(),
+      hymnNumber: z.string(),
       hymnBook: z.string(),
     })
   ),
   async (c) => {
-    const { hymnBook, hymnNumber } = c.req.valid('param');
+    const { hymnBook, hymnNumber: hymnIdentifier } = c.req.valid('param');
 
     const access = hymnBook === HC_HYMN_BOOK_SLUG ? await getRequestUserAccess(c) : undefined;
 
@@ -35,7 +35,7 @@ hymnsApp.get(
       return c.json({ error: 'Hymn not found' });
     }
 
-    const hymn = await getHymnUsecase.execute({ hymnBook, hymnNumber });
+    const hymn = await getHymnUsecase.execute({ hymnBook, hymnIdentifier });
 
     if (!hymn) {
       c.status(404);
