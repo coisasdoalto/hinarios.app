@@ -443,8 +443,8 @@ export function SlideMode({
 
             return {
               color: buttonColor,
-              border: `1px solid ${buttonTheme.fn.rgba(buttonColor, 0.35)}`,
-              backgroundColor: buttonTheme.fn.rgba(buttonColor, 0.06),
+              border: 'none',
+              backgroundColor: 'none',
               '&:hover': {
                 backgroundColor: buttonTheme.fn.rgba(buttonColor, 0.14),
               },
