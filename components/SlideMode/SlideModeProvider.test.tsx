@@ -103,6 +103,24 @@ describe('persistent slide popup', () => {
     expect(closePopup).toHaveBeenCalledTimes(1);
   });
 
+  it.each([false, true])(
+    'closes the inline fallback on navigation (via list: %s)',
+    (viaList) => {
+      jest.spyOn(window, 'open').mockReturnValue(null);
+      const view = render(<App hymn={firstHymn} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir Modo Slide' }));
+      expect(screen.getByRole('dialog', { name: 'Modo Slide' })).toBeInTheDocument();
+
+      view.rerender(<App hymn={viaList ? null : nextHymn} />);
+      expect(screen.queryByRole('dialog', { name: 'Modo Slide' })).not.toBeInTheDocument();
+
+      view.rerender(<App hymn={nextHymn} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir Modo Slide' }));
+      expect(screen.getByRole('dialog', { name: 'Modo Slide' })).toBeInTheDocument();
+      expect(screen.getByText('Nova primeira estrofe')).toBeInTheDocument();
+    }
+  );
+
   it('closes the popup when the application unmounts', () => {
     const view = render(<App hymn={firstHymn} />);
     fireEvent.click(screen.getByRole('button', { name: 'Abrir Modo Slide' }));

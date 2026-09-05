@@ -1,12 +1,22 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { SlideMode, SlideModeProps } from './SlideMode';
 
 type Presentation = {
   hymn: SlideModeProps;
-  triggerContainer: HTMLElement;
+  triggerContainer: HTMLElement | null;
 };
 
-const SlideModeContext = createContext<((presentation: Presentation) => void) | null>(null);
+const SlideModeContext = createContext<Dispatch<SetStateAction<Presentation | null>> | null>(
+  null
+);
 
 export function SlideModeProvider({ children }: PropsWithChildren) {
   const [presentation, setPresentation] = useState<Presentation | null>(null);
@@ -34,6 +44,14 @@ export function HymnSlideMode({ hymnId, number, title, lyrics, showNumber }: Sli
       hymn: { hymnId, number, title, lyrics, showNumber },
       triggerContainer,
     });
+
+    return () => {
+      setPresentation((current) =>
+        current?.triggerContainer === triggerContainer
+          ? { ...current, triggerContainer: null }
+          : current
+      );
+    };
   }, [hymnId, number, title, lyrics, showNumber, triggerContainer, setPresentation]);
 
   return <span ref={setTriggerContainer} />;
