@@ -23,9 +23,14 @@ export const SLIDE_MODE_DEFAULT_FONT_SIZE = 64;
 const SLIDE_MODE_EMERGENCY_MIN_FONT_SIZE = 8;
 const SLIDE_MODE_HORIZONTAL_PADDING = 48;
 const SLIDE_MODE_VERTICAL_PADDING = 128;
-const SLIDE_MODE_PLUS_HOTKEYS = [{ key: '=', shift: true }, { key: '+' }, { key: 'Add' }] as const;
+const SLIDE_MODE_PLUS_HOTKEYS = [
+  { key: '=', shift: true },
+  { key: '+' },
+  { key: 'Add' },
+] as const;
 
 export type SlideModeProps = {
+  hymnId?: string;
   number?: number | string;
   title: string;
   lyrics: Hymn['lyrics'];
@@ -228,17 +233,31 @@ function SlideText({
  * @example <SlideMode number={1} title="Hino" lyrics={lyrics} />
  */
 export function SlideMode({
+  hymnId,
   number,
   title,
   lyrics,
   showNumber = true,
-}: SlideModeProps): JSX.Element {
+  triggerContainer,
+}: SlideModeProps & { triggerContainer?: HTMLElement | null }): JSX.Element {
   const screens = composeSlideScreens(lyrics);
   const isDesktopDevice = useIsDesktopDevice();
   const [isPopupEnabled] = useSlidePopupPreference();
   const [isOpen, setIsOpen] = useState(false);
   const [popupWindow, setPopupWindow] = useState<Window | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [previousHymn, setPreviousHymn] = useState({ hymnId, number, title, lyrics });
+
+  // Reset before committing the new hymn, even when the old index is out of range.
+  if (
+    previousHymn.hymnId !== hymnId ||
+    previousHymn.number !== number ||
+    previousHymn.title !== title ||
+    previousHymn.lyrics !== lyrics
+  ) {
+    setPreviousHymn({ hymnId, number, title, lyrics });
+    setCurrentIndex(0);
+  }
   const [requestedFontSize, setRequestedFontSize] = useState(SLIDE_MODE_DEFAULT_FONT_SIZE);
   const [fittingFontSize, setFittingFontSize] = useState(SLIDE_MODE_DEFAULT_FONT_SIZE);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -273,18 +292,24 @@ export function SlideMode({
   );
 
   const increaseFontSize = useCallback(() => {
-    setRequestedFontSize((size) => Math.min(SLIDE_MODE_MAX_FONT_SIZE, size + SLIDE_MODE_FONT_STEP));
+    setRequestedFontSize((size) =>
+      Math.min(SLIDE_MODE_MAX_FONT_SIZE, size + SLIDE_MODE_FONT_STEP)
+    );
   }, []);
 
   const decreaseFontSize = useCallback(() => {
-    setRequestedFontSize((size) => Math.max(SLIDE_MODE_MIN_FONT_SIZE, size - SLIDE_MODE_FONT_STEP));
+    setRequestedFontSize((size) =>
+      Math.max(SLIDE_MODE_MIN_FONT_SIZE, size - SLIDE_MODE_FONT_STEP)
+    );
   }, []);
 
-  useHotkey('Escape', close, { enabled: isOpen });
-  useHotkey('ArrowLeft', () => move(-1), { enabled: isOpen });
-  useHotkey('ArrowRight', () => move(1), { enabled: isOpen });
-  useHotkey({ key: '-' }, decreaseFontSize, { enabled: isOpen });
-  usePlusShortcut(isOpen, increaseFontSize);
+  const areMainWindowShortcutsEnabled = isOpen && !popupWindow;
+
+  useHotkey('Escape', close, { enabled: areMainWindowShortcutsEnabled });
+  useHotkey('ArrowLeft', () => move(-1), { enabled: areMainWindowShortcutsEnabled });
+  useHotkey('ArrowRight', () => move(1), { enabled: areMainWindowShortcutsEnabled });
+  useHotkey({ key: '-' }, decreaseFontSize, { enabled: areMainWindowShortcutsEnabled });
+  usePlusShortcut(areMainWindowShortcutsEnabled, increaseFontSize);
 
   useEffect(() => {
     if (!isOpen || !popupWindow) return;
@@ -373,13 +398,17 @@ export function SlideMode({
       observer?.disconnect();
       window.removeEventListener('resize', recalculateFontSize);
     };
-  }, [currentIndex, isOpen, requestedFontSize]);
+  }, [currentIndex, isOpen, requestedFontSize, lyrics]);
 
   const screen = screens[currentIndex];
   const backgroundColor = theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white;
   const foregroundColor = theme.colorScheme === 'dark' ? theme.white : theme.black;
 
   function openCurrentSlide(): void {
+    if (isOpen && popupWindow && !popupWindow.closed) {
+      popupWindow.focus();
+      return;
+    }
     setCurrentIndex(0);
     const popup = isDesktopDevice && isPopupEnabled ? openSlidePopup() : null;
     popupWindowRef.current = popup;
@@ -439,7 +468,9 @@ export function SlideMode({
           }}
           sx={(buttonTheme) => {
             const buttonColor =
-              buttonTheme.colorScheme === 'dark' ? buttonTheme.white : buttonTheme.colors.blue[9];
+              buttonTheme.colorScheme === 'dark'
+                ? buttonTheme.white
+                : buttonTheme.colors.blue[9];
 
             return {
               color: buttonColor,
@@ -473,20 +504,26 @@ export function SlideMode({
     </div>
   );
 
+  const trigger = (
+    <Tooltip label="Modo Slide">
+      <ActionIcon
+        ref={triggerRef}
+        aria-label="Abrir Modo Slide"
+        onClick={openCurrentSlide}
+        disabled={screens.length === 0}
+        size="lg"
+        variant="subtle"
+      >
+        <IconPresentation stroke={1.5} />
+      </ActionIcon>
+    </Tooltip>
+  );
+
   return (
     <>
-      <Tooltip label="Modo Slide">
-        <ActionIcon
-          ref={triggerRef}
-          aria-label="Abrir Modo Slide"
-          onClick={openCurrentSlide}
-          disabled={screens.length === 0}
-          size="lg"
-          variant="subtle"
-        >
-          <IconPresentation stroke={1.5} />
-        </ActionIcon>
-      </Tooltip>
+      {triggerContainer === undefined
+        ? trigger
+        : triggerContainer && createPortal(trigger, triggerContainer)}
 
       {popupWindow?.document.body && slideContent
         ? createPortal(slideContent, popupWindow.document.body)

@@ -6,6 +6,7 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import posthog from 'posthog-js';
 import Layout from '../components/Layout/Layout';
+import { SlideModeProvider } from '../components/SlideMode/SlideModeProvider';
 import { HymnBooksProvider, useCreateHymnBooksCache } from '../context/HymnBooks';
 import useColorScheme from '../hooks/useColorScheme';
 
@@ -104,9 +105,11 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
           <NotificationsProvider position="top-right">
             <QueryClientProvider client={queryClient}>
               <HymnBooksProvider hymnBooksCache={hymnBooksCache}>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
+                <SlideModeProvider>
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                </SlideModeProvider>
               </HymnBooksProvider>
             </QueryClientProvider>
           </NotificationsProvider>
