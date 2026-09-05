@@ -303,13 +303,11 @@ export function SlideMode({
     );
   }, []);
 
-  const areMainWindowShortcutsEnabled = isOpen && !popupWindow;
-
-  useHotkey('Escape', close, { enabled: areMainWindowShortcutsEnabled });
-  useHotkey('ArrowLeft', () => move(-1), { enabled: areMainWindowShortcutsEnabled });
-  useHotkey('ArrowRight', () => move(1), { enabled: areMainWindowShortcutsEnabled });
-  useHotkey({ key: '-' }, decreaseFontSize, { enabled: areMainWindowShortcutsEnabled });
-  usePlusShortcut(areMainWindowShortcutsEnabled, increaseFontSize);
+  useHotkey('Escape', close, { enabled: isOpen });
+  useHotkey('ArrowLeft', () => move(-1), { enabled: isOpen });
+  useHotkey('ArrowRight', () => move(1), { enabled: isOpen });
+  useHotkey({ key: '-' }, decreaseFontSize, { enabled: isOpen });
+  usePlusShortcut(isOpen, increaseFontSize);
 
   useEffect(() => {
     if (!isOpen || !popupWindow) return;
