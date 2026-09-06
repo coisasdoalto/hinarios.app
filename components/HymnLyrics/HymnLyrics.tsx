@@ -67,7 +67,21 @@ export function HymnLyrics({ fontSize, layout, lyrics }: HymnLyricsProps) {
       })}
     >
       {columns.map((column) => (
-        <Box key={column[0]?.index ?? 0} data-testid="lyrics-column" sx={{ minWidth: 0 }}>
+        <Box
+          key={column[0]?.index ?? 0}
+          data-testid="lyrics-column"
+          style={{
+            minWidth: 0,
+            ...(layout === 'normal'
+              ? {
+                  justifySelf: 'center',
+                  maxWidth: '100%',
+                  textAlign: 'left',
+                  width: 'fit-content',
+                }
+              : {}),
+          }}
+        >
           {column.map(({ index, lyric }) => (
             <Lyric key={index} fontSize={fontSize} lyric={lyric} />
           ))}

@@ -1,5 +1,6 @@
 import {
   Box,
+  Center,
   Container,
   Flex,
   Group,
@@ -8,6 +9,7 @@ import {
   Space,
   Title,
 } from '@mantine/core';
+import { IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -37,6 +39,18 @@ import { OtherSong } from '../../schemas/otherSong';
 import { HymnNavigationItem } from '../../components/HymnBottomNavigation';
 
 const validateFontSize = (fontSize: string): fontSize is MantineSize => /md|lg|xl/.test(fontSize);
+
+const visuallyHiddenStyles = {
+  border: 0,
+  clip: 'rect(0 0 0 0)',
+  height: 1,
+  margin: -1,
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute' as const,
+  whiteSpace: 'nowrap' as const,
+  width: 1,
+};
 
 export type HymnViewPageProps = {
   content: Hymn | OtherSong;
@@ -208,8 +222,24 @@ export default function HymnView(props: HymnViewPageProps) {
               value={lyricsLayout}
               onChange={(value: LyricsLayout) => setLyricsLayout(value)}
               data={[
-                { label: 'Normal', value: 'normal' },
-                { label: 'Grade', value: 'grid' },
+                {
+                  label: (
+                    <Center title="Visualização normal">
+                      <IconList aria-hidden size={18} stroke={1.8} />
+                      <span style={visuallyHiddenStyles}>Normal</span>
+                    </Center>
+                  ),
+                  value: 'normal',
+                },
+                {
+                  label: (
+                    <Center title="Visualização em grade">
+                      <IconLayoutGrid aria-hidden size={18} stroke={1.8} />
+                      <span style={visuallyHiddenStyles}>Grade</span>
+                    </Center>
+                  ),
+                  value: 'grid',
+                },
               ]}
             />
           </Box>

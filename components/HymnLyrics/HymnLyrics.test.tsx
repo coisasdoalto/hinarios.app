@@ -34,7 +34,11 @@ describe('HymnLyrics', () => {
     render(<HymnLyrics fontSize="md" layout="normal" lyrics={lyrics} />);
 
     expect(screen.getByTestId('hymn-lyrics').getAttribute('data-layout')).toBe('normal');
-    expect(screen.getAllByTestId('lyrics-column')).toHaveLength(1);
+    const columns = screen.getAllByTestId('lyrics-column');
+
+    expect(columns).toHaveLength(1);
+    expect(columns[0].style.justifySelf).toBe('center');
+    expect(columns[0].style.textAlign).toBe('left');
   });
 
   it('puts an odd extra item at the bottom of the first column', () => {
