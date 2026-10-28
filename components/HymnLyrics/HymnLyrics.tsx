@@ -1,4 +1,5 @@
-import { Box, MantineSize, Text } from '@mantine/core';
+import { Box, Text } from '@mantine/core';
+import { HymnFontSize, hymnFontPixels } from '../Store/useFontSizeStore';
 
 import { Hymn } from '../../schemas/hymn';
 import { HymnTextWithVariations } from '../HymnTextWithVariations';
@@ -11,7 +12,7 @@ type IndexedLyric = {
 };
 
 export type HymnLyricsProps = {
-  fontSize: MantineSize;
+  fontSize: HymnFontSize;
   layout: LyricsLayout;
   lyrics: Hymn['lyrics'];
 };
@@ -24,10 +25,10 @@ export const splitLyricsIntoColumns = <T,>(items: T[]): T[][] => {
   return [items.slice(0, secondColumnStart), items.slice(secondColumnStart)];
 };
 
-function Lyric({ fontSize, lyric }: { fontSize: MantineSize; lyric: IndexedLyric['lyric'] }) {
+function Lyric({ fontSize, lyric }: { fontSize: HymnFontSize; lyric: IndexedLyric['lyric'] }) {
   if (lyric.type === 'chorus') {
     return (
-      <Text size={fontSize} mt={16} pl={40} italic>
+      <Text size={hymnFontPixels[fontSize]} mt={16} pl={40} italic>
         <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
       </Text>
     );
@@ -35,16 +36,26 @@ function Lyric({ fontSize, lyric }: { fontSize: MantineSize; lyric: IndexedLyric
 
   if (lyric.type === 'unnumbered_stanza') {
     return (
-      <Text size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
+      <Text size={hymnFontPixels[fontSize]} mt={16} pl={20} style={{ position: 'relative' }}>
         <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
       </Text>
     );
   }
 
   return (
-    <Text size={fontSize} mt={16} pl={20} style={{ position: 'relative' }}>
-      <span style={{ position: 'absolute', left: 0 }}>{lyric.number}.</span>
-      <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
+    <Text
+      size={hymnFontPixels[fontSize]}
+      mt={16}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'max-content minmax(0, 1fr)',
+        columnGap: '0.25em',
+      }}
+    >
+      <span>{lyric.number}.</span>
+      <span>
+        <HymnTextWithVariations>{lyric.text}</HymnTextWithVariations>
+      </span>
     </Text>
   );
 }

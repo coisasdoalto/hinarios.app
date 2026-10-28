@@ -21,12 +21,12 @@ describe('HymnLyrics', () => {
     expect(
       within(columns[0])
         .getAllByText(/estrofe/)
-        .map((item) => item.textContent)
+        .map((item) => item.parentElement?.textContent)
     ).toEqual(['1.Primeira estrofe', '2.Segunda estrofe']);
     expect(
       within(columns[1])
         .getAllByText(/estrofe/)
-        .map((item) => item.textContent)
+        .map((item) => item.parentElement?.textContent)
     ).toEqual(['3.Terceira estrofe', '4.Quarta estrofe']);
   });
 
@@ -40,6 +40,27 @@ describe('HymnLyrics', () => {
     expect(columns[0].style.justifySelf).toBe('center');
     expect(columns[0].style.textAlign).toBe('left');
   });
+
+  it.each(['normal', 'grid'] as const)(
+    'keeps large stanza numbers separate in %s layout',
+    (layout) => {
+      render(
+        <HymnLyrics
+          fontSize="xxl"
+          layout={layout}
+          lyrics={[{ type: 'stanza', number: 123, text: 'Aba-Pai' }]}
+        />
+      );
+      const number = screen.getByText('123.');
+      const text = screen.getByText('Aba-Pai');
+      const row = number.parentElement;
+      expect(text.parentElement).toBe(row);
+      expect(row?.style.display).toBe('grid');
+      expect(row?.style.gridTemplateColumns).toBe('max-content minmax(0, 1fr)');
+      expect(row?.style.columnGap).toBe('0.25em');
+      expect(number.style.position).not.toBe('absolute');
+    }
+  );
 
   it('puts an odd extra item at the bottom of the first column', () => {
     expect(splitLyricsIntoColumns([1, 2, 3, 4, 5])).toEqual([

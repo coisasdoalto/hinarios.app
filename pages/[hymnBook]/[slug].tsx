@@ -1,19 +1,10 @@
-import {
-  Box,
-  Center,
-  Container,
-  Flex,
-  Group,
-  MantineSize,
-  SegmentedControl,
-  Space,
-  Title,
-} from '@mantine/core';
+import { Box, Center, Container, Flex, Group, SegmentedControl, Space, Title } from '@mantine/core';
 import { IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { useFontSizeStore } from 'components/Store/useFontSizeStore';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
@@ -37,7 +28,6 @@ import { Hymn, hymnSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
 import { OtherSong } from '../../schemas/otherSong';
 import { HymnNavigationItem } from '../../components/HymnBottomNavigation';
-
 
 const visuallyHiddenStyles = {
   border: 0,
@@ -81,23 +71,11 @@ export default function HymnView(props: HymnViewPageProps) {
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
 
-  const [fontSize, setFontSize] = useState<MantineSize>('md');
+  const [fontSize] = useFontSizeStore();
   const [lyricsLayout, setLyricsLayout] = useLocalStorage<LyricsLayout>({
     key: 'lyricsLayout',
     defaultValue: 'grid',
   });
-
-  useEffect(() => {
-    const localStorageFontSize = localStorage.getItem('fontSize') || '';
-
-    if (validateFontSize(localStorageFontSize)) {
-      setFontSize(localStorageFontSize);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('fontSize', fontSize);
-  }, [fontSize]);
 
   const router = useRouter();
 
@@ -135,12 +113,15 @@ export default function HymnView(props: HymnViewPageProps) {
 
       if (ipData.error) return;
 
-      setVisitId(ipData.data.id);   })();
+      setVisitId(ipData.data.id);
+      console.log('Saving visit');
+    })();
 
     return () => {
       (async () => {
         if (!visitId) return;
         await supabase.from('hymns_visits').delete().eq('id', visitId);
+        console.log('Deleting visit');
       })();
     };
   }, [canViewHymnBook, isLoading]);
@@ -197,16 +178,6 @@ export default function HymnView(props: HymnViewPageProps) {
         </Flex>
         <Space h="md" />
         <Group position="center" spacing="sm">
-          <SegmentedControl
-            aria-label="Tamanho da letra"
-            value={fontSize}
-            onChange={(value: MantineSize) => setFontSize(value)}
-            data={[
-              { label: 'Pequeno', value: 'md' },
-              { label: 'Médio', value: 'lg' },
-              { label: 'Grande', value: 'xl' },
-            ]}
-          />
           <Box
             sx={(theme) => ({
               display: 'none',

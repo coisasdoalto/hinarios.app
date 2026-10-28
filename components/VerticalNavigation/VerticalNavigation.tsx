@@ -12,6 +12,7 @@ import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useHymnBooks } from '../../context/HymnBooks';
 import { useUser } from '../../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
+import HymnTextSize from './HymnTextSize';
 import { SidebarToggle } from './SidebarToggle';
 import { SlidePopupToggle } from './SlidePopupToggle';
 import { OTHER_SONGS_FEATURE_FLAG, OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from '../../contants';
@@ -26,8 +27,6 @@ function VerticalNavigation({ onNavigation }: VerticalNavigationProps): JSX.Elem
   const isOtherSongsEnabled = useFeatureFlagEnabled(OTHER_SONGS_FEATURE_FLAG);
 
   const shouldShowBookmarksLink = user && isBookmarksEnabled;
-
-
 
   return (
     <Box>
@@ -95,6 +94,7 @@ function VerticalNavigation({ onNavigation }: VerticalNavigationProps): JSX.Elem
       <Divider my="md" label="Configurações" labelPosition="center" />
 
       <DarkModeToggle />
+      <HymnTextSize />
       <SidebarToggle />
       <SlidePopupToggle />
     </Box>
