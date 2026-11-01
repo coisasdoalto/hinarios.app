@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getDefaultZIndex } from '@mantine/styles';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 
 import { Feedback } from 'components/Feedback';
 import { PlayStoreButton } from 'components/PlayStoreButton';
@@ -31,7 +31,12 @@ import { NearbySongs } from 'components/NearbySongs';
 import { stringToAcronym } from 'utils/stringToAcronym';
 import { OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from 'contants';
 
-export default function AppShell({ children }: PropsWithChildren) {
+type AppShellProps = PropsWithChildren<{
+  /** Page-specific content rendered in the middle of the top bar. */
+  headerContent?: ReactNode;
+}>;
+
+export default function AppShell({ children, headerContent }: AppShellProps) {
   const theme = useMantineTheme();
   const [sidebarPreference, setSidebarPreference] = useSidebarPreference();
   const isMobileViewport = useMediaQuery('(max-width: 767px)');
@@ -68,7 +73,7 @@ export default function AppShell({ children }: PropsWithChildren) {
 
   return (
     <MantineAppShell
-      navbarOffsetBreakpoint={isSidebarOpen ? 'sm' : undefined}
+      navbarOffsetBreakpoint="sm"
       sx={{
         boxShadow: getFocusIndicatorShadow(isWindowFocused, focusColor),
       }}
@@ -78,20 +83,15 @@ export default function AppShell({ children }: PropsWithChildren) {
         },
       }}
       asideOffsetBreakpoint="sm"
+      // Mantine reserves the navbar width in <main> whenever a Navbar is rendered,
+      // even if it is hidden, so only render it while the sidebar is open. This
+      // keeps the page content centered when the sidebar is collapsed.
       navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="sm"
-          hidden={!isSidebarOpen}
-          sx={(navbarTheme) => ({
-            [navbarTheme.fn.largerThan('sm')]: {
-              display: isSidebarOpen ? 'flex' : 'none',
-            },
-          })}
-          width={{ sm: 200, lg: 300 }}
-        >
-          <VerticalNavigation onNavigation={closeSidebarAfterNavigation} />
-        </Navbar>
+        isSidebarOpen ? (
+          <Navbar p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 300 }}>
+            <VerticalNavigation onNavigation={closeSidebarAfterNavigation} />
+          </Navbar>
+        ) : undefined
       }
       // footer={
       //   <Footer height={60} p="md">
@@ -120,7 +120,7 @@ export default function AppShell({ children }: PropsWithChildren) {
               navigationToggle
             )}
 
-            <Breadcrumbs sx={{ marginRight: 'auto' }}>
+            <Breadcrumbs sx={{ flexShrink: 0 }}>
               <Button variant="subtle" component={Link} href="/" compact>
                 Hinários
               </Button>
@@ -136,7 +136,19 @@ export default function AppShell({ children }: PropsWithChildren) {
               )}
             </Breadcrumbs>
 
-            <Group spacing="xs">
+            <Box
+              sx={(headerTheme) => ({
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                paddingInline: headerTheme.spacing.xs,
+              })}
+            >
+              {headerContent}
+            </Box>
+
+            <Group spacing="xs" noWrap sx={{ flexShrink: 0 }}>
               <Search />
 
               <LoginMenu />

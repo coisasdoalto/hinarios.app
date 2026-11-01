@@ -57,8 +57,6 @@ export default function HymnView(props: HymnViewPageProps) {
   const {
     content,
     hymnBook: hymnBookSlug,
-    nextHymn,
-    previousHymn,
     backPath,
     routeBase = hymnBookSlug,
     showSongNumber = true,
@@ -144,24 +142,10 @@ export default function HymnView(props: HymnViewPageProps) {
         {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
+        <Flex justify="space-between">
           <BackButton to={backPath ?? hymnBook?.slug} />
 
-          <HymnNavigation
-            hymnBookSlug={routeBase}
-            previousHymn={previousHymn}
-            nextHymn={nextHymn}
-            showNumbers={showSongNumber}
-          />
-
-          <Group spacing="xs" noWrap>
+          <Group>
             <BookmarkButton
               hymnBook={hymnBookSlug}
               hymnNumber={number}
@@ -176,7 +160,7 @@ export default function HymnView(props: HymnViewPageProps) {
             />
             {allowEditing && <UpdateHymnButton />}
           </Group>
-        </Box>
+        </Flex>
         <Space h="md" />
         <Flex align="flex-start" gap="sm">
           <div>
@@ -249,6 +233,29 @@ export default function HymnView(props: HymnViewPageProps) {
     </>
   );
 }
+
+function HymnHeaderNavigation({
+  hymnBook,
+  routeBase = hymnBook,
+  previousHymn,
+  nextHymn,
+  showSongNumber = true,
+}: HymnViewPageProps) {
+  const { canAccessHc } = useAccess();
+
+  if (!isHymnBookVisible(hymnBook, canAccessHc)) return null;
+
+  return (
+    <HymnNavigation
+      hymnBookSlug={routeBase}
+      previousHymn={previousHymn}
+      nextHymn={nextHymn}
+      showNumbers={showSongNumber}
+    />
+  );
+}
+
+HymnView.renderHeaderContent = (props: HymnViewPageProps) => <HymnHeaderNavigation {...props} />;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const hymnBooks = await getHymnBooks();
