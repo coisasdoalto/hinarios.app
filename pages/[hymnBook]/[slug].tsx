@@ -235,6 +235,7 @@ export default function HymnView(props: HymnViewPageProps) {
 }
 
 function HymnHeaderNavigation({
+  content,
   hymnBook,
   routeBase = hymnBook,
   previousHymn,
@@ -248,6 +249,7 @@ function HymnHeaderNavigation({
   return (
     <HymnNavigation
       hymnBookSlug={routeBase}
+      currentNumber={'number' in content ? content.number : undefined}
       previousHymn={previousHymn}
       nextHymn={nextHymn}
       showNumbers={showSongNumber}

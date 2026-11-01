@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 const mockUseFeatureFlagEnabled = jest.fn();
 const mockPush = jest.fn();
@@ -31,24 +31,32 @@ jest.mock('../../hooks/useFeatureFlagEnabled', () => ({
 const { HymnNavigation } = jest.requireActual('./index') as typeof import('./index');
 
 describe('HymnNavigation', () => {
-  it('renders compact previous and next links inline', () => {
+  it('renders the top bar and the mobile floating bar', () => {
     mockUseFeatureFlagEnabled.mockReturnValue(true);
 
     render(
       <HymnNavigation
         hymnBookSlug="hinos"
+        currentNumber={2}
         previousHymn={{ number: 1, title: 'Primeiro', slug: '1-primeiro' }}
         nextHymn={{ number: 3, title: 'Terceiro', slug: '3-terceiro' }}
       />
     );
 
-    expect(screen.getByRole('navigation', { name: 'Navegação entre hinos' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Anterior: 1. Primeiro' }).getAttribute('href')).toBe(
-      '/hinos/1-primeiro'
-    );
-    expect(screen.getByRole('link', { name: 'Próximo: 3. Terceiro' }).getAttribute('href')).toBe(
-      '/hinos/3-terceiro'
-    );
+    const [topBar, floatingBar] = screen.getAllByRole('navigation', {
+      name: 'Navegação entre hinos',
+    });
+
+    [topBar, floatingBar].forEach((nav) => {
+      expect(
+        within(nav).getByRole('link', { name: 'Anterior: 1. Primeiro' }).getAttribute('href')
+      ).toBe('/hinos/1-primeiro');
+      expect(
+        within(nav).getByRole('link', { name: 'Próximo: 3. Terceiro' }).getAttribute('href')
+      ).toBe('/hinos/3-terceiro');
+    });
+    expect(within(topBar).getByText('1. Primeiro')).toBeTruthy();
+    expect(within(floatingBar).getByText('Hino 2')).toBeTruthy();
   });
 
   it('disables the direction without a hymn', () => {
@@ -62,7 +70,9 @@ describe('HymnNavigation', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: 'Anterior' })).toHaveProperty('disabled', true);
+    screen
+      .getAllByRole('button', { name: 'Anterior' })
+      .forEach((button) => expect(button).toHaveProperty('disabled', true));
   });
 
   it('renders nothing when the feature flag is disabled', () => {
@@ -107,7 +117,8 @@ describe('HymnNavigation', () => {
     it('shows the arrow key hint and shortcut on desktop', () => {
       renderNavigation();
 
-      const next = screen.getByRole('link', { name: 'Próximo: 3. Terceiro' });
+      const [topBar] = screen.getAllByRole('navigation', { name: 'Navegação entre hinos' });
+      const next = within(topBar).getByRole('link', { name: 'Próximo: 3. Terceiro' });
       expect(next.getAttribute('aria-keyshortcuts')).toBe('ArrowRight');
       expect(next.getAttribute('title')).toBe('3. Terceiro (→)');
       expect(next.textContent).toContain('→');
