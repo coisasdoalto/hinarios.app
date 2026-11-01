@@ -8,7 +8,7 @@ import { useFontSizeStore } from 'components/Store/useFontSizeStore';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
-import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
+import { HymnNavigation } from 'components/HymnNavigation';
 import { HymnLyrics, LyricsLayout } from 'components/HymnLyrics';
 import { HymnSlideMode } from 'components/SlideMode/SlideModeProvider';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
@@ -27,7 +27,7 @@ import { useAccess } from '../../hooks/useAccess';
 import { Hymn, hymnSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
 import { OtherSong } from '../../schemas/otherSong';
-import { HymnNavigationItem } from '../../components/HymnBottomNavigation';
+import { HymnNavigationItem } from '../../components/HymnNavigation';
 
 const visuallyHiddenStyles = {
   border: 0,
@@ -144,10 +144,24 @@ export default function HymnView(props: HymnViewPageProps) {
         {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
-        <Flex justify="space-between">
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           <BackButton to={backPath ?? hymnBook?.slug} />
 
-          <Group>
+          <HymnNavigation
+            hymnBookSlug={routeBase}
+            previousHymn={previousHymn}
+            nextHymn={nextHymn}
+            showNumbers={showSongNumber}
+          />
+
+          <Group spacing="xs" noWrap>
             <BookmarkButton
               hymnBook={hymnBookSlug}
               hymnNumber={number}
@@ -162,7 +176,7 @@ export default function HymnView(props: HymnViewPageProps) {
             />
             {allowEditing && <UpdateHymnButton />}
           </Group>
-        </Flex>
+        </Box>
         <Space h="md" />
         <Flex align="flex-start" gap="sm">
           <div>
@@ -231,14 +245,6 @@ export default function HymnView(props: HymnViewPageProps) {
             />
           </>
         ) : null}
-
-        <HymnBottomNavigation
-          currentHymnNumber={number}
-          hymnBookSlug={routeBase}
-          previousHymn={previousHymn}
-          nextHymn={nextHymn}
-          showNumbers={showSongNumber}
-        />
       </Container>
     </>
   );

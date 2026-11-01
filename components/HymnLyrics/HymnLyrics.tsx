@@ -73,7 +73,8 @@ export function HymnLyrics({ fontSize, layout, lyrics }: HymnLyricsProps) {
         gridTemplateColumns: '1fr',
         columnGap: theme.spacing.lg,
         [theme.fn.largerThan('md')]: {
-          gridTemplateColumns: columns.length > 1 ? 'repeat(2, minmax(0, 1fr))' : '1fr',
+          gridTemplateColumns: columns.length > 1 ? 'repeat(2, minmax(0, max-content))' : '1fr',
+          justifyContent: 'center',
         },
       })}
     >
