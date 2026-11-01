@@ -2,7 +2,8 @@ import { Affix, ActionIcon, Drawer, NavLink } from '@mantine/core';
 import { IconGlobeFilled } from '@tabler/icons-react';
 import { useProximityHymns } from 'hooks/useProximityHymns';
 import Link from 'next/link';
-import { useFeatureFlagEnabled, usePostHog } from 'posthog-js/react';
+import { usePostHog } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { useState } from 'react';
 import { OTHER_SONGS_FEATURE_FLAG, OTHER_SONGS_SLUG } from 'contants';
 

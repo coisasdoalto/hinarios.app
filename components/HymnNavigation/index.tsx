@@ -1,7 +1,7 @@
 import { Box, Button, ButtonProps, Text } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 
 export type HymnNavigationItem = {
   number?: number | string;

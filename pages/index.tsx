@@ -2,7 +2,7 @@ import { Alert, Card, Group, Stack, Text, Title } from '@mantine/core';
 import { IconMusic } from '@tabler/icons-react';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../hooks/useFeatureFlagEnabled';
 
 import {
   HC_HYMN_BOOK_SLUG,

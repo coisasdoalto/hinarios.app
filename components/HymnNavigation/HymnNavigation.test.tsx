@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 const mockUseFeatureFlagEnabled = jest.fn();
 
-jest.mock('posthog-js/react', () => ({
+jest.mock('../../hooks/useFeatureFlagEnabled', () => ({
   useFeatureFlagEnabled: mockUseFeatureFlagEnabled,
 }));
 

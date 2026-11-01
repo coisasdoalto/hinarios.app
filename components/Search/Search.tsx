@@ -5,7 +5,7 @@ import { SpotlightProvider, openSpotlight } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import flexsearch from 'flexsearch';
 import { useRouter } from 'next/router';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { useEffect, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';

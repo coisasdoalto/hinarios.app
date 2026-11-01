@@ -1,6 +1,6 @@
 import { ActionIcon, Avatar, Button, Menu as MantineMenu } from '@mantine/core';
 import { IconLogout } from '@tabler/icons';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { signInWithGoogle, signOut } from '../../firebase/web/auth';
 import { useUser } from '../../hooks/useUser';
 

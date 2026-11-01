@@ -15,7 +15,7 @@ jest.mock('../../hooks/useAccess', () => ({
   useAccess: mockUseAccess,
 }));
 
-jest.mock('posthog-js/react', () => ({
+jest.mock('../../hooks/useFeatureFlagEnabled', () => ({
   useFeatureFlagEnabled: mockUseFeatureFlagEnabled,
 }));
 
