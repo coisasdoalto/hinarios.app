@@ -1,7 +1,12 @@
-import { Box, Button, ButtonProps, Text } from '@mantine/core';
+import { Box, Button, ButtonProps, Kbd, Text } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
+import { ReactNode } from 'react';
+
 import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
+import { useIsDesktopDevice } from '../../hooks/useIsDesktopDevice';
+import { NEXT_KEY, PREVIOUS_KEY, usePagerNavigation } from '../../hooks/usePagerNavigation';
+import { useIsSlideModeOpen } from '../SlideMode/SlideModeProvider';
 
 export type HymnNavigationItem = {
   number?: number | string;
@@ -10,8 +15,23 @@ export type HymnNavigationItem = {
   slug: string;
 };
 
+/**
+ * Arrow key hint on computers (they have a keyboard); the chevron stays on
+ * touch devices, where swiping also navigates.
+ */
+function ArrowHint({ arrow, icon, showKey }: { arrow: string; icon: ReactNode; showKey: boolean }) {
+  if (!showKey) return <>{icon}</>;
+
+  return (
+    <Kbd aria-hidden sx={{ fontSize: 12, lineHeight: 1.2, paddingInline: 6 }}>
+      {arrow}
+    </Kbd>
+  );
+}
+
 type NavigationButtonProps = {
   align: 'left' | 'right';
+  showKeyHint: boolean;
   directionLabel: string;
   href?: string;
   hymn?: HymnNavigationItem | null;
@@ -20,12 +40,16 @@ type NavigationButtonProps = {
 
 function NavigationButton({
   align,
+  showKeyHint,
   directionLabel,
   href,
   hymn,
   showNumbers,
 }: NavigationButtonProps) {
   const hymnLabel = hymn ? `${showNumbers ? `${hymn.number}. ` : ''}${hymn.title}` : undefined;
+  const arrow = align === 'left' ? '←' : '→';
+  const shortcut = align === 'left' ? PREVIOUS_KEY : NEXT_KEY;
+  const title = `${hymnLabel ?? directionLabel} (${arrow})`;
   const label = (
     <Text
       component="span"
@@ -52,13 +76,19 @@ function NavigationButton({
       [theme.fn.smallerThan('sm')]: { paddingInline: 6 },
     }),
     styles: { label: { minWidth: 0 } },
-    leftIcon: align === 'left' ? <IconChevronLeft size="1rem" /> : undefined,
-    rightIcon: align === 'right' ? <IconChevronRight size="1rem" /> : undefined,
+    leftIcon:
+      align === 'left' ? (
+        <ArrowHint arrow={arrow} icon={<IconChevronLeft size="1rem" />} showKey={showKeyHint} />
+      ) : undefined,
+    rightIcon:
+      align === 'right' ? (
+        <ArrowHint arrow={arrow} icon={<IconChevronRight size="1rem" />} showKey={showKeyHint} />
+      ) : undefined,
   };
 
   if (!hymn || !href) {
     return (
-      <Button {...buttonProps} title={hymnLabel} disabled aria-label={directionLabel}>
+      <Button {...buttonProps} disabled aria-label={directionLabel}>
         {label}
       </Button>
     );
@@ -67,10 +97,11 @@ function NavigationButton({
   return (
     <Button
       {...buttonProps}
-      title={hymnLabel}
+      title={title}
       component={Link}
       href={href}
       aria-label={`${directionLabel}: ${hymnLabel}`}
+      aria-keyshortcuts={shortcut}
     >
       {label}
     </Button>
@@ -91,6 +122,16 @@ export function HymnNavigation({
   showNumbers = true,
 }: HymnNavigationProps) {
   const isHymnNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
+  const isSlideModeOpen = useIsSlideModeOpen();
+  const isDesktopDevice = useIsDesktopDevice();
+  const previousHref = previousHymn ? `/${hymnBookSlug}/${previousHymn.slug}` : undefined;
+  const nextHref = nextHymn ? `/${hymnBookSlug}/${nextHymn.slug}` : undefined;
+
+  usePagerNavigation({
+    previousHref,
+    nextHref,
+    enabled: Boolean(isHymnNavigationEnabled) && !isSlideModeOpen,
+  });
 
   if (!isHymnNavigationEnabled) {
     return null;
@@ -111,17 +152,19 @@ export function HymnNavigation({
     >
       <NavigationButton
         align="left"
+        showKeyHint={isDesktopDevice}
         directionLabel="Anterior"
         hymn={previousHymn}
         showNumbers={showNumbers}
-        href={previousHymn ? `/${hymnBookSlug}/${previousHymn.slug}` : undefined}
+        href={previousHref}
       />
       <NavigationButton
         align="right"
+        showKeyHint={isDesktopDevice}
         directionLabel="Próximo"
         hymn={nextHymn}
         showNumbers={showNumbers}
-        href={nextHymn ? `/${hymnBookSlug}/${nextHymn.slug}` : undefined}
+        href={nextHref}
       />
     </Box>
   );
