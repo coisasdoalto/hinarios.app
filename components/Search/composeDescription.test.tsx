@@ -1,4 +1,3 @@
-import { expect, test } from 'bun:test';
 import { composeDescription } from './composeDescription';
 
 function createStrongHelper(key: number, content: string) {
