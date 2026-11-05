@@ -22,8 +22,6 @@ export type SideArrowBounds = {
 export type SideArrowLayout = {
   /** x of the left edge of each arrow, or null when they do not fit */
   arrows: { previous: number; next: number } | null;
-  /** Left edge of the page area, for centering the bottom bar there */
-  areaLeft: number;
 };
 
 /**
@@ -58,7 +56,6 @@ function measure(): SideArrowLayout | null {
   const mainRect = main.getBoundingClientRect();
 
   return {
-    areaLeft: mainRect.left,
     arrows: computeSideArrows({
       contentLeft: contentRect.left + parseFloat(contentStyle.paddingLeft || '0'),
       contentRight: contentRect.right - parseFloat(contentStyle.paddingRight || '0'),

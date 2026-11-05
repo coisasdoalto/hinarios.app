@@ -1,4 +1,4 @@
-import { Affix, Box, Button, Center, Container, Paper, Text, useMantineTheme } from '@mantine/core';
+import { Box, Button, Center, Container, Paper, Text } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
 
@@ -158,13 +158,12 @@ type HymnBottomNavigationProps = {
    * `visible`/`hidden` follow whether the side arrows fit.
    */
   visibility?: 'auto' | 'visible' | 'hidden';
-  /** Left edge of the page area (right of the sidebar), to center the bar there */
-  areaLeft?: number;
 };
 
 /**
- * The original floating previous/next bar, used on phones and whenever the
- * side arrows do not fit next to the content.
+ * The original previous/next bar, placed after the hymn content (not
+ * floating). Used on phones and whenever the side arrows do not fit next to
+ * the content.
  */
 export function HymnBottomNavigation({
   currentHymnNumber,
@@ -173,19 +172,10 @@ export function HymnBottomNavigation({
   nextHymn,
   showNumbers = true,
   visibility = 'auto',
-  areaLeft = 0,
 }: HymnBottomNavigationProps) {
-  const theme = useMantineTheme();
-
-  const backgroundColor =
-    theme.colorScheme === 'dark'
-      ? theme.fn.rgba(theme.colors.dark[7], 0.94)
-      : theme.fn.rgba(theme.white, 0.94);
-
   return (
-    <Affix
-      position={{ bottom: 16, left: areaLeft, right: 0 }}
-      zIndex={3}
+    <Box
+      mt="xl"
       sx={(themeValue) => ({
         display: visibility === 'hidden' ? 'none' : undefined,
         ...(visibility === 'auto' && {
@@ -193,15 +183,12 @@ export function HymnBottomNavigation({
         }),
       })}
     >
-      <Container size="xs" px="xs">
+      <Container size="xs" px={0}>
         <Paper
           withBorder
           radius="xl"
-          shadow="xl"
           p={6}
           sx={(themeValue) => ({
-            backgroundColor,
-            backdropFilter: 'blur(12px)',
             [themeValue.fn.smallerThan('sm')]: {
               borderRadius: 999,
               padding: 4,
@@ -260,6 +247,6 @@ export function HymnBottomNavigation({
           </Box>
         </Paper>
       </Container>
-    </Affix>
+    </Box>
   );
 }
