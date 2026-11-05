@@ -17,16 +17,29 @@ type Presentation = {
 const SlideModeContext = createContext<Dispatch<SetStateAction<Presentation | null>> | null>(
   null
 );
+const SlideModeOpenContext = createContext(false);
+
+/** Whether a slide presentation is open (it uses the arrow keys itself) */
+export function useIsSlideModeOpen(): boolean {
+  return useContext(SlideModeOpenContext);
+}
 
 export function SlideModeProvider({ children }: PropsWithChildren) {
   const [presentation, setPresentation] = useState<Presentation | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <SlideModeContext.Provider value={setPresentation}>
-      {children}
-      {presentation && (
-        <SlideMode {...presentation.hymn} triggerContainer={presentation.triggerContainer} />
-      )}
+      <SlideModeOpenContext.Provider value={Boolean(presentation) && isOpen}>
+        {children}
+        {presentation && (
+          <SlideMode
+            {...presentation.hymn}
+            triggerContainer={presentation.triggerContainer}
+            onOpenChange={setIsOpen}
+          />
+        )}
+      </SlideModeOpenContext.Provider>
     </SlideModeContext.Provider>
   );
 }

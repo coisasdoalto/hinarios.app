@@ -239,7 +239,11 @@ export function SlideMode({
   lyrics,
   showNumber = true,
   triggerContainer,
-}: SlideModeProps & { triggerContainer?: HTMLElement | null }): JSX.Element {
+  onOpenChange,
+}: SlideModeProps & {
+  triggerContainer?: HTMLElement | null;
+  onOpenChange?: (isOpen: boolean) => void;
+}): JSX.Element {
   const screens = composeSlideScreens(lyrics);
   const isDesktopDevice = useIsDesktopDevice();
   const [isPopupEnabled] = useSlidePopupPreference();
@@ -316,6 +320,10 @@ export function SlideMode({
       Math.max(SLIDE_MODE_MIN_FONT_SIZE, size - SLIDE_MODE_FONT_STEP)
     );
   }, []);
+
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
 
   useHotkey('Escape', close, { enabled: isOpen });
   useHotkey('ArrowLeft', () => move(-1), { enabled: isOpen });

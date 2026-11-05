@@ -1,13 +1,8 @@
-import { Affix, Box, Button, Center, Container, Paper, Text, useMantineTheme } from '@mantine/core';
+import { Box, Button, Center, Container, Paper, Text } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
-export type HymnNavigationItem = {
-  number?: number | string;
-  title: string;
-  subtitle?: string;
-  slug: string;
-};
+
+import type { HymnNavigationItem } from './index';
 
 type NavigationButtonProps = {
   align: 'left' | 'right';
@@ -160,6 +155,10 @@ type HymnBottomNavigationProps = {
   showNumbers?: boolean;
 };
 
+/**
+ * The original previous/next bar, placed after the hymn content (not
+ * floating). Phones only; larger screens use the side arrows.
+ */
 export function HymnBottomNavigation({
   currentHymnNumber,
   hymnBookSlug,
@@ -167,40 +166,19 @@ export function HymnBottomNavigation({
   nextHymn,
   showNumbers = true,
 }: HymnBottomNavigationProps) {
-  const isHymnBottomNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
-  const theme = useMantineTheme();
-
-  const backgroundColor =
-    theme.colorScheme === 'dark'
-      ? theme.fn.rgba(theme.colors.dark[7], 0.94)
-      : theme.fn.rgba(theme.white, 0.94);
-
-  if (!isHymnBottomNavigationEnabled) {
-    return null;
-  }
-
   return (
-    <Affix
-      position={{ bottom: 16, left: 0, right: 0 }}
-      zIndex={3}
+    <Box
+      mt="xl"
       sx={(themeValue) => ({
-        [themeValue.fn.largerThan('sm')]: {
-          left: 200,
-        },
-        [themeValue.fn.largerThan('lg')]: {
-          left: 300,
-        },
+        [themeValue.fn.largerThan('sm')]: { display: 'none' },
       })}
     >
-      <Container size="xs" px="xs">
+      <Container size="xs" px={0}>
         <Paper
           withBorder
           radius="xl"
-          shadow="xl"
           p={6}
           sx={(themeValue) => ({
-            backgroundColor,
-            backdropFilter: 'blur(12px)',
             [themeValue.fn.smallerThan('sm')]: {
               borderRadius: 999,
               padding: 4,
@@ -259,6 +237,6 @@ export function HymnBottomNavigation({
           </Box>
         </Paper>
       </Container>
-    </Affix>
+    </Box>
   );
 }

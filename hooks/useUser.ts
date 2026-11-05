@@ -17,7 +17,13 @@ export function useUser() {
       setUser(authUser);
       setIsLoading(false);
 
-      if (!authUser) return posthog.reset();
+      if (!authUser) {
+        // Only reset when an identified user logs out. Resetting anonymous
+        // visitors on every mount wipes the bootstrapped feature flags (hiding
+        // flagged UI after client-side navigation) and the anonymous id.
+        if (posthog.get_property('$user_state') === 'identified') posthog.reset();
+        return;
+      }
 
       posthog.identify(authUser.uid, {
         email: authUser.email,

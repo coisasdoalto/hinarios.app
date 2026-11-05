@@ -68,7 +68,7 @@ export default function AppShell({ children }: PropsWithChildren) {
 
   return (
     <MantineAppShell
-      navbarOffsetBreakpoint={isSidebarOpen ? 'sm' : undefined}
+      navbarOffsetBreakpoint="sm"
       sx={{
         boxShadow: getFocusIndicatorShadow(isWindowFocused, focusColor),
       }}
@@ -78,20 +78,15 @@ export default function AppShell({ children }: PropsWithChildren) {
         },
       }}
       asideOffsetBreakpoint="sm"
+      // Mantine reserves the navbar width in <main> whenever a Navbar is rendered,
+      // even if it is hidden, so only render it while the sidebar is open. This
+      // keeps the page content centered when the sidebar is collapsed.
       navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="sm"
-          hidden={!isSidebarOpen}
-          sx={(navbarTheme) => ({
-            [navbarTheme.fn.largerThan('sm')]: {
-              display: isSidebarOpen ? 'flex' : 'none',
-            },
-          })}
-          width={{ sm: 200, lg: 300 }}
-        >
-          <VerticalNavigation onNavigation={closeSidebarAfterNavigation} />
-        </Navbar>
+        isSidebarOpen ? (
+          <Navbar p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 300 }}>
+            <VerticalNavigation onNavigation={closeSidebarAfterNavigation} />
+          </Navbar>
+        ) : undefined
       }
       // footer={
       //   <Footer height={60} p="md">

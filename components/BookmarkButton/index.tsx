@@ -1,7 +1,7 @@
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconBookmark, IconBookmarkFilled } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 
 import { useAddBookmark } from '../../hooks/bookmarks/add';
 import { useGetBookmarks } from '../../hooks/bookmarks/get';

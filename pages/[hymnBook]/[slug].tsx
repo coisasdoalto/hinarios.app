@@ -8,7 +8,8 @@ import { useFontSizeStore } from 'components/Store/useFontSizeStore';
 import { z } from 'zod';
 
 import { useLocalStorage } from '@mantine/hooks';
-import { HymnBottomNavigation } from 'components/HymnBottomNavigation';
+import { HymnNavigation } from 'components/HymnNavigation';
+import { SIDE_INSET_VARIABLE } from 'components/HymnNavigation/sideArrowLayout';
 import { HymnLyrics, LyricsLayout } from 'components/HymnLyrics';
 import { HymnSlideMode } from 'components/SlideMode/SlideModeProvider';
 import { UpdateHymnButton } from 'components/UpdateHymnButton';
@@ -27,7 +28,7 @@ import { useAccess } from '../../hooks/useAccess';
 import { Hymn, hymnSchema } from '../../schemas/hymn';
 import { HymnBook } from '../../schemas/hymnBook';
 import { OtherSong } from '../../schemas/otherSong';
-import { HymnNavigationItem } from '../../components/HymnBottomNavigation';
+import { HymnNavigationItem } from '../../components/HymnNavigation';
 
 const visuallyHiddenStyles = {
   border: 0,
@@ -140,7 +141,15 @@ export default function HymnView(props: HymnViewPageProps) {
         <title>{`${showSongNumber ? `${number}. ` : ''}${title} | Hinários`}</title>
       </Head>
 
-      <Container size="lg">
+      <Container
+        size="lg"
+        data-hymn-content
+        sx={(theme) => ({
+          // Room for the side arrows (HymnNavigation) when they do not fit outside
+          paddingLeft: `calc(${theme.spacing.md}px + var(${SIDE_INSET_VARIABLE}, 0px))`,
+          paddingRight: `calc(${theme.spacing.md}px + var(${SIDE_INSET_VARIABLE}, 0px))`,
+        })}
+      >
         {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
@@ -232,9 +241,9 @@ export default function HymnView(props: HymnViewPageProps) {
           </>
         ) : null}
 
-        <HymnBottomNavigation
-          currentHymnNumber={number}
+        <HymnNavigation
           hymnBookSlug={routeBase}
+          currentNumber={number}
           previousHymn={previousHymn}
           nextHymn={nextHymn}
           showNumbers={showSongNumber}

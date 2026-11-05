@@ -8,7 +8,7 @@ import {
   IconMusic,
 } from '@tabler/icons';
 import Link from 'next/link';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { useHymnBooks } from '../../context/HymnBooks';
 import { useUser } from '../../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
