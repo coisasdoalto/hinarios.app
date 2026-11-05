@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 const mockUseFeatureFlagEnabled = jest.fn();
 const mockPush = jest.fn();
@@ -28,13 +28,20 @@ jest.mock('../../hooks/useFeatureFlagEnabled', () => ({
   useFeatureFlagEnabled: mockUseFeatureFlagEnabled,
 }));
 
+const mockUseSideArrowLayout = jest.fn<unknown, []>(() => null);
+
+jest.mock('./sideArrowLayout', () => ({
+  ...(jest.requireActual('./sideArrowLayout') as object),
+  useSideArrowLayout: () => mockUseSideArrowLayout(),
+}));
+
 const { HymnNavigation } = jest.requireActual('./index') as typeof import('./index');
 
 describe('HymnNavigation', () => {
-  it('renders the top bar and the original bottom bar for phones', () => {
+  const renderBetweenHymns = () => {
     mockUseFeatureFlagEnabled.mockReturnValue(true);
 
-    render(
+    return render(
       <HymnNavigation
         hymnBookSlug="hinos"
         currentNumber={2}
@@ -42,25 +49,34 @@ describe('HymnNavigation', () => {
         nextHymn={{ number: 3, title: 'Terceiro', slug: '3-terceiro' }}
       />
     );
+  };
 
-    const topBar = screen.getByRole('navigation', { name: 'Navegação entre hinos' });
-    expect(
-      within(topBar).getByRole('link', { name: 'Anterior: 1. Primeiro' }).getAttribute('href')
-    ).toBe('/hinos/1-primeiro');
-    expect(
-      within(topBar).getByRole('link', { name: 'Próximo: 3. Terceiro' }).getAttribute('href')
-    ).toBe('/hinos/3-terceiro');
+  it('uses the original bottom bar when the side arrows do not fit', () => {
+    mockUseSideArrowLayout.mockReturnValue({ arrows: null, areaLeft: 0 });
+    renderBetweenHymns();
 
-    // The bottom bar links to the same hymns, outside the top bar
+    expect(screen.queryByRole('link', { name: 'Anterior: 1. Primeiro' })).toBeNull();
     const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'));
-    expect(hrefs.filter((href) => href === '/hinos/1-primeiro')).toHaveLength(2);
-    expect(hrefs.filter((href) => href === '/hinos/3-terceiro')).toHaveLength(2);
-    expect(screen.getAllByText('Anterior').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Próximo').length).toBeGreaterThan(0);
+    expect(hrefs).toEqual(['/hinos/1-primeiro', '/hinos/3-terceiro']);
+    expect(screen.getByText('Anterior')).toBeTruthy();
+    expect(screen.getByText('Próximo')).toBeTruthy();
   });
 
-  it('disables the direction without a hymn', () => {
+  it('shows arrows on the sides of the content when they fit', () => {
+    mockUseSideArrowLayout.mockReturnValue({ arrows: { previous: 180, next: 1220 }, areaLeft: 0 });
+    renderBetweenHymns();
+
+    const previous = screen.getByRole('link', { name: 'Anterior: 1. Primeiro' });
+    const next = screen.getByRole('link', { name: 'Próximo: 3. Terceiro' });
+    expect(previous.getAttribute('href')).toBe('/hinos/1-primeiro');
+    expect(previous.getAttribute('aria-keyshortcuts')).toBe('ArrowLeft');
+    expect(next.getAttribute('href')).toBe('/hinos/3-terceiro');
+    expect(next.getAttribute('aria-keyshortcuts')).toBe('ArrowRight');
+  });
+
+  it('has no side arrow past the first hymn', () => {
     mockUseFeatureFlagEnabled.mockReturnValue(true);
+    mockUseSideArrowLayout.mockReturnValue({ arrows: { previous: 180, next: 1220 }, areaLeft: 0 });
 
     render(
       <HymnNavigation
@@ -70,9 +86,8 @@ describe('HymnNavigation', () => {
       />
     );
 
-    screen
-      .getAllByRole('button', { name: 'Anterior' })
-      .forEach((button) => expect(button).toHaveProperty('disabled', true));
+    expect(screen.queryByRole('link', { name: /Anterior/ })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Próximo: 2. Segundo' })).toBeTruthy();
   });
 
   it('renders nothing when the feature flag is disabled', () => {
@@ -112,16 +127,6 @@ describe('HymnNavigation', () => {
       fireEvent.keyDown(document.body, { key: 'ArrowLeft' });
 
       expect(mockPush.mock.calls).toEqual([['/hinos/3-terceiro'], ['/hinos/1-primeiro']]);
-    });
-
-    it('shows the arrow key hint and shortcut on desktop', () => {
-      renderNavigation();
-
-      const topBar = screen.getByRole('navigation', { name: 'Navegação entre hinos' });
-      const next = within(topBar).getByRole('link', { name: 'Próximo: 3. Terceiro' });
-      expect(next.getAttribute('aria-keyshortcuts')).toBe('ArrowRight');
-      expect(next.getAttribute('title')).toBe('3. Terceiro (→)');
-      expect(next.textContent).toContain('→');
     });
 
     it('ignores arrow keys typed in inputs', () => {

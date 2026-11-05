@@ -2,32 +2,29 @@ import { Affix, ActionIcon, Drawer, NavLink } from '@mantine/core';
 import { IconGlobeFilled } from '@tabler/icons-react';
 import { useProximityHymns } from 'hooks/useProximityHymns';
 import Link from 'next/link';
-import { usePostHog } from 'posthog-js/react';
-import { useMediaQuery } from '@mantine/hooks';
 import { useRouter } from 'next/router';
+import { usePostHog } from 'posthog-js/react';
 import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { useState } from 'react';
 import { OTHER_SONGS_FEATURE_FLAG, OTHER_SONGS_SLUG } from 'contants';
 
 export function NearbySongs() {
   const { data: proximityHymns } = useProximityHymns();
+  const router = useRouter();
 
   const [opened, setOpened] = useState(false);
 
   const isNearbySongsEnabled = useFeatureFlagEnabled('nearby-songs');
   const isHymnBottomNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
-  const router = useRouter();
-  // The hymn navigation floats at the bottom on phones; stay above it
-  const isPhone = useMediaQuery('(max-width: 767px)');
-  const isHymnPage = ['/[hymnBook]/[slug]', `/${OTHER_SONGS_SLUG}/[slug]`].includes(
-    router.pathname
-  );
   const isOtherSongsEnabled = useFeatureFlagEnabled(OTHER_SONGS_FEATURE_FLAG);
   const visibleProximityHymns = proximityHymns?.filter(
     (item) => item.hymn_book_slug !== OTHER_SONGS_SLUG || isOtherSongsEnabled
   );
 
   const posthog = usePostHog();
+  const isHymnPage = ['/[hymnBook]/[slug]', `/${OTHER_SONGS_SLUG}/[slug]`].includes(
+    router.pathname
+  );
 
   if (!isNearbySongsEnabled || !visibleProximityHymns?.length) {
     return null;
@@ -37,7 +34,7 @@ export function NearbySongs() {
     <>
       <Affix
         position={{
-          bottom: isHymnPage && isHymnBottomNavigationEnabled && isPhone ? '106px' : '30px',
+          bottom: isHymnPage && isHymnBottomNavigationEnabled ? '106px' : '30px',
           right: '30px',
         }}
         zIndex={2}

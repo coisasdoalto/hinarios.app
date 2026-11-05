@@ -153,10 +153,18 @@ type HymnBottomNavigationProps = {
   previousHymn?: HymnNavigationItem | null;
   nextHymn?: HymnNavigationItem | null;
   showNumbers?: boolean;
+  /**
+   * `auto` shows the bar on phones only (before the page is measured);
+   * `visible`/`hidden` follow whether the side arrows fit.
+   */
+  visibility?: 'auto' | 'visible' | 'hidden';
+  /** Left edge of the page area (right of the sidebar), to center the bar there */
+  areaLeft?: number;
 };
 
 /**
- * The original floating previous/next bar, shown on phones.
+ * The original floating previous/next bar, used on phones and whenever the
+ * side arrows do not fit next to the content.
  */
 export function HymnBottomNavigation({
   currentHymnNumber,
@@ -164,6 +172,8 @@ export function HymnBottomNavigation({
   previousHymn,
   nextHymn,
   showNumbers = true,
+  visibility = 'auto',
+  areaLeft = 0,
 }: HymnBottomNavigationProps) {
   const theme = useMantineTheme();
 
@@ -174,13 +184,13 @@ export function HymnBottomNavigation({
 
   return (
     <Affix
-      position={{ bottom: 16, left: 0, right: 0 }}
+      position={{ bottom: 16, left: areaLeft, right: 0 }}
       zIndex={3}
       sx={(themeValue) => ({
-        // Phones only; larger screens use the navigation in the top bar
-        [themeValue.fn.largerThan('sm')]: {
-          display: 'none',
-        },
+        display: visibility === 'hidden' ? 'none' : undefined,
+        ...(visibility === 'auto' && {
+          [themeValue.fn.largerThan('sm')]: { display: 'none' },
+        }),
       })}
     >
       <Container size="xs" px="xs">

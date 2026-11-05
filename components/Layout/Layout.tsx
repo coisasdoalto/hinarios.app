@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getDefaultZIndex } from '@mantine/styles';
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren } from 'react';
 
 import { Feedback } from 'components/Feedback';
 import { PlayStoreButton } from 'components/PlayStoreButton';
@@ -31,12 +31,7 @@ import { NearbySongs } from 'components/NearbySongs';
 import { stringToAcronym } from 'utils/stringToAcronym';
 import { OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from 'contants';
 
-type AppShellProps = PropsWithChildren<{
-  /** Page-specific content rendered in the middle of the top bar. */
-  headerContent?: ReactNode;
-}>;
-
-export default function AppShell({ children, headerContent }: AppShellProps) {
+export default function AppShell({ children }: PropsWithChildren) {
   const theme = useMantineTheme();
   const [sidebarPreference, setSidebarPreference] = useSidebarPreference();
   const isMobileViewport = useMediaQuery('(max-width: 767px)');
@@ -120,7 +115,7 @@ export default function AppShell({ children, headerContent }: AppShellProps) {
               navigationToggle
             )}
 
-            <Breadcrumbs sx={{ flexShrink: 0 }}>
+            <Breadcrumbs sx={{ marginRight: 'auto' }}>
               <Button variant="subtle" component={Link} href="/" compact>
                 Hinários
               </Button>
@@ -136,19 +131,7 @@ export default function AppShell({ children, headerContent }: AppShellProps) {
               )}
             </Breadcrumbs>
 
-            <Box
-              sx={(headerTheme) => ({
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                justifyContent: 'center',
-                paddingInline: headerTheme.spacing.xs,
-              })}
-            >
-              {headerContent}
-            </Box>
-
-            <Group spacing="xs" noWrap sx={{ flexShrink: 0 }}>
+            <Group spacing="xs">
               <Search />
 
               <LoginMenu />

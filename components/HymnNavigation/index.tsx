@@ -1,13 +1,13 @@
-import { Box, Button, ButtonProps, CSSObject, Kbd, MantineTheme, Text } from '@mantine/core';
+import { ActionIcon, Group, Kbd, Text, Tooltip } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
-import { ReactNode } from 'react';
 
 import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { useIsDesktopDevice } from '../../hooks/useIsDesktopDevice';
 import { NEXT_KEY, PREVIOUS_KEY, usePagerNavigation } from '../../hooks/usePagerNavigation';
 import { useIsSlideModeOpen } from '../SlideMode/SlideModeProvider';
 import { HymnBottomNavigation } from './HymnBottomNavigation';
+import { SIDE_ARROW_SIZE, useSideArrowLayout } from './sideArrowLayout';
 
 export type HymnNavigationItem = {
   number?: number | string;
@@ -22,9 +22,6 @@ const DIRECTIONS = {
   previous: { label: 'Anterior', arrow: '←', shortcut: PREVIOUS_KEY, Icon: IconChevronLeft },
   next: { label: 'Próximo', arrow: '→', shortcut: NEXT_KEY, Icon: IconChevronRight },
 } as const;
-
-/** Phones get the original bottom bar; larger screens get the top bar buttons */
-const FLOATING_BAR_BREAKPOINT = 'sm';
 
 /** Subtle outlined key cap, as in biblias.app */
 const subtleKbdStyles = {
@@ -41,139 +38,78 @@ const subtleKbdStyles = {
   fontSize: 12,
   fontWeight: 500,
   lineHeight: 1,
-  opacity: 0.6,
+  opacity: 0.7,
 };
 
-/**
- * Joins the two buttons into one outlined segmented control. Mantine's
- * Button.Group picks the rounded corners with :first-of-type, which breaks
- * when a link sits next to a disabled button.
- */
-function segmentStyles(theme: MantineTheme, position: 'first' | 'last'): CSSObject {
-  const colors = theme.fn.variant({ variant: 'default' });
-  const borderColor = theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4];
-  const radius = theme.radius.sm;
-
-  return {
-    minWidth: 0,
-    border: `1px solid ${borderColor}`,
-    ...(position === 'first'
-      ? { borderRadius: `${radius}px 0 0 ${radius}px` }
-      : { borderRadius: `0 ${radius}px ${radius}px 0`, marginLeft: -1 }),
-    '&[data-disabled]': {
-      backgroundColor: colors.background,
-      borderColor,
-      color: colors.color,
-      '& .mantine-Button-inner': { opacity: 0.4 },
-    },
-  };
-}
-
-/**
- * Arrow key hint on computers (they have a keyboard); the chevron stays on
- * touch devices, where swiping also navigates.
- */
-function ArrowHint({ direction, showKey }: { direction: Direction; showKey: boolean }) {
-  const { arrow, Icon } = DIRECTIONS[direction];
-
-  if (!showKey) return <Icon size="1rem" />;
-
-  return (
-    <Kbd aria-hidden sx={subtleKbdStyles}>
-      {arrow}
-    </Kbd>
-  );
-}
-
-type PagerItem = { direction: Direction; href?: string; hymnLabel?: string };
-
-type PagerLinkProps = PagerItem & {
-  buttonProps: ButtonProps;
-  children: ReactNode;
+type SideArrowProps = {
+  direction: Direction;
+  href: string;
+  hymnLabel: string;
+  x: number;
+  showKeyHint: boolean;
 };
 
-/** Link to the previous/next hymn, or a disabled button at the ends of the list */
-function PagerLink({ direction, href, hymnLabel, buttonProps, children }: PagerLinkProps) {
-  const { label, arrow, shortcut } = DIRECTIONS[direction];
-
-  if (!href || !hymnLabel) {
-    return (
-      <Button {...buttonProps} disabled aria-label={label}>
-        {children}
-      </Button>
-    );
-  }
+/** Arrow fixed at mid-screen height, next to the content column */
+function SideArrow({ direction, href, hymnLabel, x, showKeyHint }: SideArrowProps) {
+  const { label, arrow, shortcut, Icon } = DIRECTIONS[direction];
+  const keyHint = showKeyHint && <Kbd sx={subtleKbdStyles}>{arrow}</Kbd>;
 
   return (
-    <Button
-      {...buttonProps}
-      component={Link}
-      href={href}
-      title={`${hymnLabel} (${arrow})`}
-      aria-label={`${label}: ${hymnLabel}`}
-      aria-keyshortcuts={shortcut}
+    <Tooltip
+      withinPortal
+      position={direction === 'previous' ? 'right' : 'left'}
+      label={
+        <Group spacing={8} noWrap>
+          {direction === 'previous' && keyHint}
+          <Text size="sm">
+            {label}: {hymnLabel}
+          </Text>
+          {direction === 'next' && keyHint}
+        </Group>
+      }
     >
-      {children}
-    </Button>
-  );
-}
-
-/** Outlined, joined buttons in the app top bar (tablets and computers) */
-function TopBarNavigation({ items, showKeyHint }: { items: PagerItem[]; showKeyHint: boolean }) {
-  return (
-    <Box
-      component="nav"
-      aria-label="Navegação entre hinos"
-      sx={(theme) => ({
-        minWidth: 0,
-        display: 'flex',
-        [theme.fn.smallerThan(FLOATING_BAR_BREAKPOINT)]: { display: 'none' },
-      })}
-    >
-      <Box sx={{ display: 'flex', minWidth: 0 }}>
-        {items.map((item, index) => {
-          const hint = <ArrowHint direction={item.direction} showKey={showKeyHint} />;
-
-          return (
-            <PagerLink
-              key={item.direction}
-              {...item}
-              buttonProps={{
-                variant: 'default',
-                size: 'xs',
-                sx: (theme) => ({
-                  ...segmentStyles(theme, index === 0 ? 'first' : 'last'),
-                  flexShrink: 1,
-                  fontWeight: 500,
-                }),
-                styles: { label: { minWidth: 0 } },
-                leftIcon: item.direction === 'previous' ? hint : undefined,
-                rightIcon: item.direction === 'next' ? hint : undefined,
-              }}
-            >
-              <Text
-                component="span"
-                sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-              >
-                {item.hymnLabel ?? DIRECTIONS[item.direction].label}
-              </Text>
-            </PagerLink>
-          );
+      <ActionIcon
+        component={Link}
+        href={href}
+        aria-label={`${label}: ${hymnLabel}`}
+        aria-keyshortcuts={shortcut}
+        variant="default"
+        radius="xl"
+        size={SIDE_ARROW_SIZE}
+        sx={(theme) => ({
+          position: 'fixed',
+          zIndex: 3,
+          left: x,
+          // Middle of the visible area below the app header. Not centered with
+          // a transform: Mantine sets one on :active, which would move the
+          // arrow away from the pointer mid-click.
+          top: `calc(50% + var(--mantine-header-height, 0px) / 2 - ${SIDE_ARROW_SIZE / 2}px)`,
+          opacity: 0.7,
+          boxShadow: theme.shadows.sm,
+          transition: 'opacity 150ms ease',
+          '&:hover, &:focus-visible': { opacity: 1 },
         })}
-      </Box>
-    </Box>
+      >
+        <Icon size="1.5rem" stroke={1.5} />
+      </ActionIcon>
+    </Tooltip>
   );
 }
 
 type HymnNavigationProps = {
   hymnBookSlug: string;
-  /** Number of the hymn being shown, displayed in the mobile bottom bar */
+  /** Number of the hymn being shown, displayed in the bottom bar */
   currentNumber?: number | string;
   previousHymn?: HymnNavigationItem | null;
   nextHymn?: HymnNavigationItem | null;
   showNumbers?: boolean;
 };
 
+/**
+ * Previous/next hymn navigation: arrows on the sides of the content when
+ * there is room (desktop), otherwise the original floating bottom bar.
+ * Arrow keys and swipes work in both.
+ */
 export function HymnNavigation({
   hymnBookSlug,
   currentNumber,
@@ -184,7 +120,9 @@ export function HymnNavigation({
   const isHymnNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
   const isSlideModeOpen = useIsSlideModeOpen();
   const isDesktopDevice = useIsDesktopDevice();
-  const toItem = (direction: Direction, hymn?: HymnNavigationItem | null): PagerItem => ({
+  const layout = useSideArrowLayout();
+
+  const toItem = (direction: Direction, hymn?: HymnNavigationItem | null) => ({
     direction,
     href: hymn ? `/${hymnBookSlug}/${hymn.slug}` : undefined,
     hymnLabel: hymn ? `${showNumbers ? `${hymn.number}. ` : ''}${hymn.title}` : undefined,
@@ -202,15 +140,33 @@ export function HymnNavigation({
     return null;
   }
 
+  const arrows = layout?.arrows;
+
   return (
     <>
-      <TopBarNavigation items={items} showKeyHint={isDesktopDevice} />
+      {arrows &&
+        items.map(
+          ({ direction, href, hymnLabel }) =>
+            href &&
+            hymnLabel && (
+              <SideArrow
+                key={direction}
+                direction={direction}
+                href={href}
+                hymnLabel={hymnLabel}
+                x={arrows[direction]}
+                showKeyHint={isDesktopDevice}
+              />
+            )
+        )}
       <HymnBottomNavigation
         currentHymnNumber={currentNumber}
         hymnBookSlug={hymnBookSlug}
         previousHymn={previousHymn}
         nextHymn={nextHymn}
         showNumbers={showNumbers}
+        visibility={layout === undefined ? 'auto' : arrows ? 'hidden' : 'visible'}
+        areaLeft={layout?.areaLeft}
       />
     </>
   );

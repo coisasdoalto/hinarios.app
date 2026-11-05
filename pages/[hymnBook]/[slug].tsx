@@ -57,6 +57,8 @@ export default function HymnView(props: HymnViewPageProps) {
   const {
     content,
     hymnBook: hymnBookSlug,
+    nextHymn,
+    previousHymn,
     backPath,
     routeBase = hymnBookSlug,
     showSongNumber = true,
@@ -138,7 +140,7 @@ export default function HymnView(props: HymnViewPageProps) {
         <title>{`${showSongNumber ? `${number}. ` : ''}${title} | Hinários`}</title>
       </Head>
 
-      <Container size="lg">
+      <Container size="lg" data-hymn-content>
         {/* <Title order={2} size="h3">
         {hymnBook?.name
       </Title> */}
@@ -229,35 +231,18 @@ export default function HymnView(props: HymnViewPageProps) {
             />
           </>
         ) : null}
+
+        <HymnNavigation
+          hymnBookSlug={routeBase}
+          currentNumber={number}
+          previousHymn={previousHymn}
+          nextHymn={nextHymn}
+          showNumbers={showSongNumber}
+        />
       </Container>
     </>
   );
 }
-
-function HymnHeaderNavigation({
-  content,
-  hymnBook,
-  routeBase = hymnBook,
-  previousHymn,
-  nextHymn,
-  showSongNumber = true,
-}: HymnViewPageProps) {
-  const { canAccessHc } = useAccess();
-
-  if (!isHymnBookVisible(hymnBook, canAccessHc)) return null;
-
-  return (
-    <HymnNavigation
-      hymnBookSlug={routeBase}
-      currentNumber={'number' in content ? content.number : undefined}
-      previousHymn={previousHymn}
-      nextHymn={nextHymn}
-      showNumbers={showSongNumber}
-    />
-  );
-}
-
-HymnView.renderHeaderContent = (props: HymnViewPageProps) => <HymnHeaderNavigation {...props} />;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const hymnBooks = await getHymnBooks();

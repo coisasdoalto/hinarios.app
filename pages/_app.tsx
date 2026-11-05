@@ -6,7 +6,6 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import posthog from 'posthog-js';
 import Layout from '../components/Layout/Layout';
-import { PageWithHeaderContent } from '../types/page';
 import { PwaUpdateNotification } from '../components/PwaUpdateNotification/PwaUpdateNotification';
 import { SlideModeProvider } from '../components/SlideMode/SlideModeProvider';
 import { HymnBooksProvider, useCreateHymnBooksCache } from '../context/HymnBooks';
@@ -109,11 +108,7 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
             <QueryClientProvider client={queryClient}>
               <HymnBooksProvider hymnBooksCache={hymnBooksCache}>
                 <SlideModeProvider>
-                  <Layout
-                    headerContent={(Component as PageWithHeaderContent).renderHeaderContent?.(
-                      pageProps
-                    )}
-                  >
+                  <Layout>
                     <Component {...pageProps} />
                   </Layout>
                 </SlideModeProvider>
