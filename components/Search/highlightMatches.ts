@@ -3,9 +3,6 @@ export const HIGHLIGHT_MARKER = '@@@';
 /** Query terms shorter than this are only highlighted as part of a phrase match. */
 const MIN_STANDALONE_TERM_LENGTH = 3;
 
-/** Number of words kept before the best match when building the snippet. */
-const WORDS_BEFORE_MATCH = 3;
-
 interface Token {
   /** Normalized (lowercase, without diacritics) word */
   value: string;
@@ -103,8 +100,9 @@ function collapseWhitespace(text: string): string {
 }
 
 /**
- * Builds a search result description: a snippet of `text` starting a few words
- * before the best match for `query`, with matches wrapped in `@@@`.
+ * Builds a search result description: a snippet of `text` starting at the best
+ * match for `query` (prefixed with `…` when there is text before it), with
+ * matches wrapped in `@@@`.
  *
  * The best match is the longest run of consecutive words matching the query
  * (so long phrases are highlighted as a whole, at the right place). Other
@@ -145,9 +143,9 @@ export function highlightMatches(text: string, query: string): string | null {
     }
   }
 
-  const snippetStartToken = Math.max(0, bestMatch.start - WORDS_BEFORE_MATCH);
-  let cursor = tokens[snippetStartToken].start;
-  let result = snippetStartToken > 0 ? '…' : '';
+  // The snippet starts at the best match, with an ellipsis when there is text before it
+  let cursor = tokens[bestMatch.start].start;
+  let result = text.slice(0, cursor).trim() ? '…' : '';
 
   for (const [first, last] of ranges) {
     const start = tokens[first].start;
