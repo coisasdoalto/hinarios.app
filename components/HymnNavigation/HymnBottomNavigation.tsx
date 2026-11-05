@@ -153,17 +153,11 @@ type HymnBottomNavigationProps = {
   previousHymn?: HymnNavigationItem | null;
   nextHymn?: HymnNavigationItem | null;
   showNumbers?: boolean;
-  /**
-   * `auto` shows the bar on phones only (before the page is measured);
-   * `visible`/`hidden` follow whether the side arrows fit.
-   */
-  visibility?: 'auto' | 'visible' | 'hidden';
 };
 
 /**
  * The original previous/next bar, placed after the hymn content (not
- * floating). Used on phones and whenever the side arrows do not fit next to
- * the content.
+ * floating). Phones only; larger screens use the side arrows.
  */
 export function HymnBottomNavigation({
   currentHymnNumber,
@@ -171,16 +165,12 @@ export function HymnBottomNavigation({
   previousHymn,
   nextHymn,
   showNumbers = true,
-  visibility = 'auto',
 }: HymnBottomNavigationProps) {
   return (
     <Box
       mt="xl"
       sx={(themeValue) => ({
-        display: visibility === 'hidden' ? 'none' : undefined,
-        ...(visibility === 'auto' && {
-          [themeValue.fn.largerThan('sm')]: { display: 'none' },
-        }),
+        [themeValue.fn.largerThan('sm')]: { display: 'none' },
       })}
     >
       <Container size="xs" px={0}>

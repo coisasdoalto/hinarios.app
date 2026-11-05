@@ -106,8 +106,8 @@ type HymnNavigationProps = {
 };
 
 /**
- * Previous/next hymn navigation: arrows on the sides of the content when
- * there is room (desktop), otherwise the original bar after the content.
+ * Previous/next hymn navigation: arrows on the sides of the content on
+ * anything larger than a phone, the original bar after the content on phones.
  * Arrow keys and swipes work in both.
  */
 export function HymnNavigation({
@@ -120,7 +120,7 @@ export function HymnNavigation({
   const isHymnNavigationEnabled = useFeatureFlagEnabled('hymn-bottom-navigation');
   const isSlideModeOpen = useIsSlideModeOpen();
   const isDesktopDevice = useIsDesktopDevice();
-  const layout = useSideArrowLayout();
+  const layout = useSideArrowLayout(Boolean(isHymnNavigationEnabled));
 
   const toItem = (direction: Direction, hymn?: HymnNavigationItem | null) => ({
     direction,
@@ -165,7 +165,6 @@ export function HymnNavigation({
         previousHymn={previousHymn}
         nextHymn={nextHymn}
         showNumbers={showNumbers}
-        visibility={layout === undefined ? 'auto' : arrows ? 'hidden' : 'visible'}
       />
     </>
   );

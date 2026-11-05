@@ -51,7 +51,7 @@ describe('HymnNavigation', () => {
     );
   };
 
-  it('uses the original bottom bar when the side arrows do not fit', () => {
+  it('uses the original bottom bar on phones', () => {
     mockUseSideArrowLayout.mockReturnValue({ arrows: null });
     renderBetweenHymns();
 
@@ -62,8 +62,8 @@ describe('HymnNavigation', () => {
     expect(screen.getByText('Próximo')).toBeTruthy();
   });
 
-  it('shows arrows on the sides of the content when they fit', () => {
-    mockUseSideArrowLayout.mockReturnValue({ arrows: { previous: 180, next: 1220 } });
+  it('shows arrows on the sides of the content on larger screens', () => {
+    mockUseSideArrowLayout.mockReturnValue({ arrows: { previous: 180, next: 1220, inset: 0 } });
     renderBetweenHymns();
 
     const previous = screen.getByRole('link', { name: 'Anterior: 1. Primeiro' });
@@ -76,7 +76,7 @@ describe('HymnNavigation', () => {
 
   it('has no side arrow past the first hymn', () => {
     mockUseFeatureFlagEnabled.mockReturnValue(true);
-    mockUseSideArrowLayout.mockReturnValue({ arrows: { previous: 180, next: 1220 } });
+    mockUseSideArrowLayout.mockReturnValue({ arrows: { previous: 180, next: 1220, inset: 0 } });
 
     render(
       <HymnNavigation
