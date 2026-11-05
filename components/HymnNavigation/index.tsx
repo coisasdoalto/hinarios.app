@@ -1,4 +1,4 @@
-import { Affix, Box, Button, ButtonProps, CSSObject, Kbd, MantineTheme, Text } from '@mantine/core';
+import { Box, Button, ButtonProps, CSSObject, Kbd, MantineTheme, Text } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
 import { ReactNode } from 'react';
@@ -7,6 +7,7 @@ import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { useIsDesktopDevice } from '../../hooks/useIsDesktopDevice';
 import { NEXT_KEY, PREVIOUS_KEY, usePagerNavigation } from '../../hooks/usePagerNavigation';
 import { useIsSlideModeOpen } from '../SlideMode/SlideModeProvider';
+import { HymnBottomNavigation } from './HymnBottomNavigation';
 
 export type HymnNavigationItem = {
   number?: number | string;
@@ -22,7 +23,7 @@ const DIRECTIONS = {
   next: { label: 'Próximo', arrow: '→', shortcut: NEXT_KEY, Icon: IconChevronRight },
 } as const;
 
-/** Phones get the floating bar; larger screens get the top bar buttons */
+/** Phones get the original bottom bar; larger screens get the top bar buttons */
 const FLOATING_BAR_BREAKPOINT = 'sm';
 
 /** Subtle outlined key cap, as in biblias.app */
@@ -43,45 +44,26 @@ const subtleKbdStyles = {
   opacity: 0.6,
 };
 
-type SegmentPosition = 'first' | 'middle' | 'last';
-
 /**
- * Joins buttons into one segmented control. Mantine's Button.Group picks the
- * rounded corners with :first-of-type, which breaks when the segments mix
- * links, disabled buttons and spans.
+ * Joins the two buttons into one outlined segmented control. Mantine's
+ * Button.Group picks the rounded corners with :first-of-type, which breaks
+ * when a link sits next to a disabled button.
  */
-function segmentStyles(
-  theme: MantineTheme,
-  position: SegmentPosition,
-  variant: 'default' | 'filled',
-  radius: number
-): CSSObject {
-  const colors = theme.fn.variant({ variant, color: variant === 'filled' ? undefined : 'gray' });
-  const borderColor =
-    variant === 'filled'
-      ? theme.fn.rgba(theme.white, 0.15)
-      : theme.colorScheme === 'dark'
-      ? theme.colors.dark[4]
-      : theme.colors.gray[4];
+function segmentStyles(theme: MantineTheme, position: 'first' | 'last'): CSSObject {
+  const colors = theme.fn.variant({ variant: 'default' });
+  const borderColor = theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4];
+  const radius = theme.radius.sm;
 
   return {
     minWidth: 0,
     border: `1px solid ${borderColor}`,
-    borderRadius: 0,
-    ...(position !== 'first' && { marginLeft: -1 }),
-    ...(position === 'first' && {
-      borderTopLeftRadius: radius,
-      borderBottomLeftRadius: radius,
-    }),
-    ...(position === 'last' && {
-      borderTopRightRadius: radius,
-      borderBottomRightRadius: radius,
-    }),
+    ...(position === 'first'
+      ? { borderRadius: `${radius}px 0 0 ${radius}px` }
+      : { borderRadius: `0 ${radius}px ${radius}px 0`, marginLeft: -1 }),
     '&[data-disabled]': {
       backgroundColor: colors.background,
       borderColor,
       color: colors.color,
-      opacity: 1,
       '& .mantine-Button-inner': { opacity: 0.4 },
     },
   };
@@ -160,12 +142,7 @@ function TopBarNavigation({ items, showKeyHint }: { items: PagerItem[]; showKeyH
                 variant: 'default',
                 size: 'xs',
                 sx: (theme) => ({
-                  ...segmentStyles(
-                    theme,
-                    index === 0 ? 'first' : 'last',
-                    'default',
-                    theme.radius.sm
-                  ),
+                  ...segmentStyles(theme, index === 0 ? 'first' : 'last'),
                   flexShrink: 1,
                   fontWeight: 500,
                 }),
@@ -188,63 +165,9 @@ function TopBarNavigation({ items, showKeyHint }: { items: PagerItem[]; showKeyH
   );
 }
 
-const FLOATING_RADIUS = 999;
-
-const floatingSegmentProps = (position: SegmentPosition): ButtonProps => ({
-  variant: 'filled',
-  h: 44,
-  px: position === 'middle' ? 'md' : 14,
-  sx: (theme) => ({
-    ...segmentStyles(theme, position, 'filled', FLOATING_RADIUS),
-    // The current hymn is a label, not a control
-    ...(position === 'middle' && { pointerEvents: 'none' }),
-  }),
-});
-
-/** Floating bar at the bottom of the screen (phones) */
-function FloatingNavigation({ items, current }: { items: PagerItem[]; current?: string }) {
-  const [previous, next] = items;
-
-  return (
-    <Affix
-      position={{ bottom: 0, left: 0, right: 0 }}
-      zIndex={3}
-      sx={(theme) => ({
-        pointerEvents: 'none',
-        display: 'flex',
-        justifyContent: 'center',
-        paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-        [theme.fn.largerThan(FLOATING_BAR_BREAKPOINT)]: { display: 'none' },
-      })}
-    >
-      <Box component="nav" aria-label="Navegação entre hinos" sx={{ pointerEvents: 'auto' }}>
-        <Box
-          sx={(theme) => ({
-            display: 'flex',
-            borderRadius: FLOATING_RADIUS,
-            boxShadow: theme.shadows.md,
-          })}
-        >
-          <PagerLink {...previous} buttonProps={floatingSegmentProps('first')}>
-            <IconChevronLeft size="1.25rem" />
-          </PagerLink>
-          {current && (
-            <Button component="span" {...floatingSegmentProps('middle')}>
-              {current}
-            </Button>
-          )}
-          <PagerLink {...next} buttonProps={floatingSegmentProps('last')}>
-            <IconChevronRight size="1.25rem" />
-          </PagerLink>
-        </Box>
-      </Box>
-    </Affix>
-  );
-}
-
 type HymnNavigationProps = {
   hymnBookSlug: string;
-  /** Number of the hymn being shown, displayed in the mobile floating bar */
+  /** Number of the hymn being shown, displayed in the mobile bottom bar */
   currentNumber?: number | string;
   previousHymn?: HymnNavigationItem | null;
   nextHymn?: HymnNavigationItem | null;
@@ -282,9 +205,12 @@ export function HymnNavigation({
   return (
     <>
       <TopBarNavigation items={items} showKeyHint={isDesktopDevice} />
-      <FloatingNavigation
-        items={items}
-        current={showNumbers && currentNumber !== undefined ? `Hino ${currentNumber}` : undefined}
+      <HymnBottomNavigation
+        currentHymnNumber={currentNumber}
+        hymnBookSlug={hymnBookSlug}
+        previousHymn={previousHymn}
+        nextHymn={nextHymn}
+        showNumbers={showNumbers}
       />
     </>
   );

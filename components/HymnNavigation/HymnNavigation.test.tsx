@@ -31,7 +31,7 @@ jest.mock('../../hooks/useFeatureFlagEnabled', () => ({
 const { HymnNavigation } = jest.requireActual('./index') as typeof import('./index');
 
 describe('HymnNavigation', () => {
-  it('renders the top bar and the mobile floating bar', () => {
+  it('renders the top bar and the original bottom bar for phones', () => {
     mockUseFeatureFlagEnabled.mockReturnValue(true);
 
     render(
@@ -43,20 +43,20 @@ describe('HymnNavigation', () => {
       />
     );
 
-    const [topBar, floatingBar] = screen.getAllByRole('navigation', {
-      name: 'Navegação entre hinos',
-    });
+    const topBar = screen.getByRole('navigation', { name: 'Navegação entre hinos' });
+    expect(
+      within(topBar).getByRole('link', { name: 'Anterior: 1. Primeiro' }).getAttribute('href')
+    ).toBe('/hinos/1-primeiro');
+    expect(
+      within(topBar).getByRole('link', { name: 'Próximo: 3. Terceiro' }).getAttribute('href')
+    ).toBe('/hinos/3-terceiro');
 
-    [topBar, floatingBar].forEach((nav) => {
-      expect(
-        within(nav).getByRole('link', { name: 'Anterior: 1. Primeiro' }).getAttribute('href')
-      ).toBe('/hinos/1-primeiro');
-      expect(
-        within(nav).getByRole('link', { name: 'Próximo: 3. Terceiro' }).getAttribute('href')
-      ).toBe('/hinos/3-terceiro');
-    });
-    expect(within(topBar).getByText('1. Primeiro')).toBeTruthy();
-    expect(within(floatingBar).getByText('Hino 2')).toBeTruthy();
+    // The bottom bar links to the same hymns, outside the top bar
+    const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'));
+    expect(hrefs.filter((href) => href === '/hinos/1-primeiro')).toHaveLength(2);
+    expect(hrefs.filter((href) => href === '/hinos/3-terceiro')).toHaveLength(2);
+    expect(screen.getAllByText('Anterior').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Próximo').length).toBeGreaterThan(0);
   });
 
   it('disables the direction without a hymn', () => {
@@ -117,7 +117,7 @@ describe('HymnNavigation', () => {
     it('shows the arrow key hint and shortcut on desktop', () => {
       renderNavigation();
 
-      const [topBar] = screen.getAllByRole('navigation', { name: 'Navegação entre hinos' });
+      const topBar = screen.getByRole('navigation', { name: 'Navegação entre hinos' });
       const next = within(topBar).getByRole('link', { name: 'Próximo: 3. Terceiro' });
       expect(next.getAttribute('aria-keyshortcuts')).toBe('ArrowRight');
       expect(next.getAttribute('title')).toBe('3. Terceiro (→)');
