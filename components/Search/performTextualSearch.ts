@@ -2,6 +2,7 @@ import { SpotlightAction } from '@mantine/spotlight';
 import { Document } from 'flexsearch';
 import { NextRouter } from 'next/router';
 import { isHymnBookVisible, OTHER_SONGS_SLUG } from 'contants';
+import { highlightMatches } from './highlightMatches';
 
 function docCheck(
   doc: unknown
@@ -30,7 +31,6 @@ export function performTextualSearch({
     limit: 10,
     suggest: true,
     enrich: true,
-    highlight: '@@@$1@@@',
   });
 
   if (!Array.isArray(searchResultsByIndex)) {
@@ -65,12 +65,15 @@ export function performTextualSearch({
           return null;
         }
 
-        // Gets 3 words before the first highlight (@@@term@@@), and the rest of the string
-        // Sometimes, for some reason, flexsearch doesn't properly highlight the search term
-        // and returns the whole body as the highlight.
-        // In this case the match won't be found, so I just use the whole highlight/body.
+        // flexsearch's own highlighting doesn't work well with long queries: it uses
+        // the index's forward tokenization, so short words like "a" or "os" get
+        // highlighted inside other words. We build the highlight ourselves instead,
+        // looking for the query as a sequence of whole words.
+        // When no word matches (e.g. results from `suggest`), show the body as is.
+        const isTitle = searchResultByIndex.field === 'title';
         const description =
-          result.highlight?.match(/(?:\S+\s+){0,3}@@@.+@@@.*/)?.[0] ?? result.highlight;
+          highlightMatches(isTitle ? doc.title : doc.body, query) ??
+          (isTitle ? undefined : doc.body);
 
         const action = {
           id: `${doc.hymnBookName}${doc.title}`,
