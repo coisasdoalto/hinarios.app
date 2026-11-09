@@ -14,7 +14,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths: songs.map(({ slug }) => ({ params: { slug } })),
-    fallback: 'blocking',
+    fallback: false,
   };
 };
 
@@ -43,7 +43,6 @@ export const getStaticProps: GetStaticProps<HymnViewPageProps> = async (context)
       backPath: OTHER_SONGS_SLUG,
       routeBase: OTHER_SONGS_SLUG,
       showSongNumber: false,
-      allowEditing: false,
       previousHymn: songIndex > 0 ? toNavigationItem(songs[songIndex - 1]) : null,
       nextHymn:
         songIndex >= 0 && songIndex < songs.length - 1

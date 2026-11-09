@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import type { UserAccess } from 'types/UserAccess';
 import { auth } from '../firebase/web';
+import { rememberBrowserCoordinates } from '../utils/hcRequest';
 import { useUser } from './useUser';
 
 const NO_ACCESS: UserAccess = {
@@ -37,7 +38,7 @@ function requestBrowserLocation(): Promise<BrowserCoordinates | undefined> {
 async function fetchUserAccess(options: AccessRequestOptions = {}): Promise<UserAccess> {
   const user = auth.currentUser;
   const idToken = user ? await user.getIdToken() : undefined;
-  const response = await axios.get<UserAccess>('/api/hymns/access/', {
+  const response = await axios.get<UserAccess>('/api/hc/access', {
     params: {
       ...(options.browserCoordinates ?? {}),
       ...(options.useExpandedIpRadius ? { locationFallback: 'expanded' } : {}),
@@ -53,6 +54,7 @@ async function requestUserAccess(): Promise<UserAccess> {
   if (initialAccess.canAccessHc) return initialAccess;
 
   const browserCoordinates = await requestBrowserLocation();
+  rememberBrowserCoordinates(browserCoordinates);
   if (browserCoordinates) return fetchUserAccess({ browserCoordinates });
 
   return fetchUserAccess({ useExpandedIpRadius: true });

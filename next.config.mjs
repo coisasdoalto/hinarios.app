@@ -1,13 +1,31 @@
 import serwist from '@serwist/next';
-import { readFileSync } from 'fs';
-import { nanoid } from 'nanoid';
+import { createHash } from 'crypto';
+import { readdirSync, readFileSync } from 'fs';
+import path from 'path';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants.js';
 
 // const withBundleAnalyzer = require('@next/bundle-analyzer')({
 //   enabled: process.env.ANALYZE === 'true',
 // });
 
-const buildId = nanoid();
+/**
+ * Hashes the hymn data so the build id only changes when the content does.
+ * A random id would invalidate every precached page on every deploy.
+ */
+function hashDirectory(directory, hash = createHash('sha256')) {
+  for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  )) {
+    const entryPath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) hashDirectory(entryPath, hash);
+    else hash.update(entryPath).update(readFileSync(entryPath));
+  }
+
+  return hash;
+}
+
+const buildId = hashDirectory('./hymnsData').update(process.env.CF_PAGES_COMMIT_SHA ?? '').digest('hex').slice(0, 16);
 const revision = buildId;
 
 export default async (phase, { defaultConfig }) => {
@@ -34,19 +52,10 @@ export default async (phase, { defaultConfig }) => {
    * @type {import('next').NextConfig}
    */
   const nextConfig = {
+    // Static export for Cloudflare Pages: every page is prerendered, and
+    // `public/_headers` sets the caching rules that `headers()` used to set.
+    output: 'export',
     env: { NEXT_PUBLIC_APP_BUILD_ID: buildId },
-    async headers() {
-      return [
-        {
-          source: '/sw.js',
-          headers: [
-            { key: 'Cache-Control', value: 'no-cache, max-age=0, must-revalidate' },
-            { key: 'CDN-Cache-Control', value: 'no-store' },
-            { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
-          ],
-        },
-      ];
-    },
     eslint: {
       ignoreDuringBuilds: true,
     },
@@ -54,8 +63,9 @@ export default async (phase, { defaultConfig }) => {
     experimental: { scrollRestoration: true },
     trailingSlash: true,
     generateBuildId: () => buildId,
-    productionBrowserSourceMaps: true,
+    productionBrowserSourceMaps: false,
     images: {
+      unoptimized: true,
       remotePatterns: [
         {
           protocol: 'https',

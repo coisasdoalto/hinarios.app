@@ -5,7 +5,8 @@ import slugify from 'slugify';
 import getHymnBooks from '../data/getHymnBooks';
 import getParsedData from '../data/getParsedData';
 import { joinDataPath } from 'data/joinDataPath';
-import { Hymn, hymnSchema } from '../schemas/hymn';
+import { hymnSchema } from '../schemas/hymn';
+import { composeLyrics } from './searchDocument';
 import { writeFileSync } from 'fs';
 import { OTHER_SONGS_NAME, OTHER_SONGS_SLUG } from '../contants';
 import getOtherSong from '../data/getOtherSong';
@@ -19,24 +20,6 @@ const index = new flexsearch.Document({
   },
   tokenize: 'forward',
 });
-
-const composeStanzaText = (stanza?: { number: string | number; text: string }) => {
-  if (!stanza) {
-    return null;
-  }
-
-  return `${stanza.number}. ${stanza.text}`;
-};
-
-const composeLyrics = ({ lyrics }: Pick<Hymn, 'lyrics'>): string => {
-  return lyrics
-    .map((lyric) => {
-      if (lyric.type === 'stanza') return composeStanzaText(lyric);
-
-      return lyric.text;
-    })
-    .join('\n\n');
-};
 
 async function generateHymnsIndex() {
   const hymnBooks = await getHymnBooks();
