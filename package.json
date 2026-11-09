@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "rm -rf ./hymnsData && yarn data:download && yarn generate:index && yarn generate:searchIndex && yarn generate:pathsForPrecache",
+    "prebuild": "rm -rf ./hymnsData && yarn data:download && yarn generate:index && yarn generate:searchIndex && yarn generate:pathsForPrecache && yarn generate:titlesIndex && yarn generate:hcData",
     "build": "next build",
     "build:only": "next build",
     "analyze": "ANALYZE=true next build",
@@ -29,7 +29,9 @@
     "generate:pathsForPrecache": "yarn scripts:run scripts/generatePathsForPrecache.ts",
     "generate:supabaseTypes": "yarn scripts:run scripts/generateSupabaseTypes.ts",
     "hymns": "tsx cli/hymns/index.ts",
-    "test:pwa": "node --experimental-strip-types --test tests/pwa-updates.test.mjs"
+    "test:pwa": "node --experimental-strip-types --test tests/pwa-updates.test.mjs",
+    "generate:titlesIndex": "yarn scripts:run scripts/generateTitlesIndex.ts",
+    "generate:hcData": "yarn scripts:run scripts/generateHcData.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -70,6 +72,7 @@
     "firebase-admin": "^12.0.0",
     "flexsearch": "^0.8.212",
     "hono": "^4.9.7",
+    "jose": "^5",
     "json-diff-ts": "^4.10.4",
     "lodash-es": "^4.17.21",
     "next": "^14.1.0",

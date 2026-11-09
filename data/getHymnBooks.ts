@@ -1,14 +1,20 @@
 import { readdir } from 'fs/promises';
-import { OTHER_SONGS_SLUG } from '../contants';
+import { HIDDEN_HYMN_BOOK_SLUGS, OTHER_SONGS_SLUG } from '../contants';
 import getHymnBookInfo from './getHymnBookInfo';
 import { joinDataPath } from './joinDataPath';
 import getHymnsIndex from './getHymnsIndex';
 
-const getHymnBooks = async (options?: { withIndex?: boolean }) => {
+/**
+ * Lists the hymn books that the public static build may expose.
+ * Hidden books (HC, pending rights clearance) are left out unless `includeHidden` is set.
+ * @example getHymnBooks({ includeHidden: true }); // includes hinos-e-canticos
+ */
+const getHymnBooks = async (options?: { withIndex?: boolean; includeHidden?: boolean }) => {
   const withIndex = options?.withIndex ?? true;
+  const includeHidden = options?.includeHidden ?? false;
 
   const hymnBooksSlugs = (await readdir(joinDataPath(''))).filter(
-    (slug) => slug !== OTHER_SONGS_SLUG
+    (slug) => slug !== OTHER_SONGS_SLUG && (includeHidden || !HIDDEN_HYMN_BOOK_SLUGS.includes(slug))
   );
 
   const hymnBooks = await Promise.all(

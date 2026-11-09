@@ -1,0 +1,154 @@
+import { Hono } from 'hono';
+import { importX509, jwtVerify } from 'jose';
+
+import { parseRequestCoordinates } from '../../../api_src/locationAccess';
+import type { Coordinates, IpLocation } from '../../../api_src/locationAccess';
+import { getUserAccess } from '../../../api_src/userAccess';
+import hcData from '../../generated/hc-data.json';
+
+/**
+ * Protected endpoints for the Hinos e Cânticos (HC) book.
+ * HC is paused for rights clearance, so its data only leaves this Function for users
+ * that `getUserAccess` allows. Responses are never cached, because they depend on the user.
+ */
+const FIREBASE_PROJECT_ID = 'hinos-online';
+// Firebase publishes its ID-token signing keys as X.509 certificates, keyed by `kid`.
+const FIREBASE_CERTIFICATES_URL =
+  'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
+const CERTIFICATES_TTL_MS = 60 * 60 * 1000;
+
+let cachedCertificates: { pems: Record<string, string>; expiresAt: number } | undefined;
+
+async function firebaseSigningKey(kid?: string) {
+  if (
+    !cachedCertificates ||
+    cachedCertificates.expiresAt < Date.now() ||
+    !(kid && cachedCertificates.pems[kid])
+  ) {
+    const response = await fetch(FIREBASE_CERTIFICATES_URL);
+    if (!response.ok) throw new Error('certificates-unavailable');
+
+    cachedCertificates = {
+      pems: (await response.json()) as Record<string, string>,
+      expiresAt: Date.now() + CERTIFICATES_TTL_MS,
+    };
+  }
+
+  const pem = kid ? cachedCertificates.pems[kid] : undefined;
+  if (!pem) throw new Error('unknown-kid');
+
+  return importX509(pem, 'RS256');
+}
+
+type CloudflareGeo = {
+  city?: string;
+  regionCode?: string;
+  country?: string;
+  latitude?: string;
+  longitude?: string;
+};
+
+async function resolveEmail(authorization: string | null): Promise<string | undefined> {
+  if (!authorization?.startsWith('Bearer ')) return undefined;
+
+  try {
+    const { payload } = await jwtVerify(
+      authorization.slice('Bearer '.length),
+      ({ kid }) => firebaseSigningKey(kid),
+      {
+        algorithms: ['RS256'],
+        issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
+        audience: FIREBASE_PROJECT_ID,
+      }
+    );
+
+    return typeof payload.email === 'string' ? payload.email : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Uses the location Cloudflare already resolved for the connection, so no third-party lookup is needed.
+ * @example locationFromCloudflare({ city: 'Piracicaba', regionCode: 'SP', country: 'BR', latitude: '-22.72', longitude: '-47.64' });
+ */
+function locationFromCloudflare(geo?: CloudflareGeo): IpLocation | undefined {
+  const latitude = Number(geo?.latitude);
+  const longitude = Number(geo?.longitude);
+
+  if (
+    !geo?.latitude ||
+    !geo?.longitude ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude)
+  ) {
+    return undefined;
+  }
+
+  return {
+    city: geo.city ?? '',
+    region_code: geo.regionCode ?? '',
+    country_code: geo.country ?? '',
+    latitude,
+    longitude,
+  };
+}
+
+async function resolveAccess(request: Request) {
+  const url = new URL(request.url);
+  const browserLocation: Coordinates | undefined = parseRequestCoordinates(
+    url.searchParams.get('latitude') ?? undefined,
+    url.searchParams.get('longitude') ?? undefined
+  );
+  const email = await resolveEmail(request.headers.get('Authorization'));
+  const location =
+    browserLocation ?? locationFromCloudflare((request as Request & { cf?: CloudflareGeo }).cf);
+  const useExpandedIpRadius =
+    !browserLocation && url.searchParams.get('locationFallback') === 'expanded';
+
+  return getUserAccess(email, location, useExpandedIpRadius);
+}
+
+const hcHymnBookSlug = 'hinos-e-canticos';
+
+const app = new Hono().basePath('/api/hc');
+
+app.use('*', async (c, next) => {
+  c.header('Cache-Control', 'private, no-store');
+  await next();
+});
+
+app.get('/access', async (c) => c.json(await resolveAccess(c.req.raw)));
+
+app.use('*', async (c, next) => {
+  if (c.req.path.endsWith('/access')) return next();
+
+  const access = await resolveAccess(c.req.raw);
+  if (!access.canAccessHc) return c.json({ error: 'Hymn not found' }, 404);
+
+  return next();
+});
+
+app.get('/book', (c) => c.json({ hymnBook: hcData.hymnBookInfo, index: hcData.index }));
+
+app.get('/titles', (c) =>
+  c.json({
+    name: hcData.hymnBookInfo.name,
+    hymns: Object.fromEntries(hcData.index.map(({ slug, title }) => [slug, title])),
+  })
+);
+
+app.get('/hymns/:slug', (c) => {
+  const number = c.req.param('slug').split('-')[0];
+  const hymn = (hcData.hymns as Record<string, unknown>)[number];
+
+  if (!hymn) return c.json({ error: 'Hymn not found' }, 404);
+
+  return c.json(hymn);
+});
+
+app.get('/search', (c) =>
+  c.json({ hymnBookSlug: hcHymnBookSlug, keys: hcData.searchKeys, shards: hcData.searchShards })
+);
+
+export const onRequest = (context: { request: Request }) => app.fetch(context.request);

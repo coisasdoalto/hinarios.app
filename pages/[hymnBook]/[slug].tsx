@@ -12,7 +12,6 @@ import { HymnNavigation } from 'components/HymnNavigation';
 import { SIDE_INSET_VARIABLE } from 'components/HymnNavigation/sideArrowLayout';
 import { HymnLyrics, LyricsLayout } from 'components/HymnLyrics';
 import { HymnSlideMode } from 'components/SlideMode/SlideModeProvider';
-import { UpdateHymnButton } from 'components/UpdateHymnButton';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { supabase } from 'supabase';
@@ -44,14 +43,13 @@ const visuallyHiddenStyles = {
 
 export type HymnViewPageProps = {
   content: Hymn | OtherSong;
-  hymnBooks: HymnBook[];
+  hymnBooks?: HymnBook[];
   hymnBook: string;
   nextHymn: HymnNavigationItem | null;
   previousHymn: HymnNavigationItem | null;
   backPath?: string;
   routeBase?: string;
   showSongNumber?: boolean;
-  allowEditing?: boolean;
 };
 
 export default function HymnView(props: HymnViewPageProps) {
@@ -63,7 +61,6 @@ export default function HymnView(props: HymnViewPageProps) {
     backPath,
     routeBase = hymnBookSlug,
     showSongNumber = true,
-    allowEditing = true,
   } = props;
   const { title, subtitle, lyrics } = content;
   const number = 'number' in content ? content.number : undefined;
@@ -169,7 +166,6 @@ export default function HymnView(props: HymnViewPageProps) {
               lyrics={lyrics}
               showNumber={showSongNumber}
             />
-            {allowEditing && <UpdateHymnButton />}
           </Group>
         </Flex>
         <Space h="md" />
@@ -272,7 +268,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths: allPaths,
-    fallback: 'blocking',
+    fallback: false,
   };
 };
 

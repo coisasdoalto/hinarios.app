@@ -8,28 +8,22 @@ import {
   OTHER_SONGS_SLUG,
   isHymnBookVisible,
 } from '../../contants';
-import { useHymnBooks } from '../../context/HymnBooks';
 import { useAccess } from '../../hooks/useAccess';
-import { useHymn } from '../../hooks/useHymn';
+import { useHymnTitles } from '../../hooks/useHymnTitles';
 import { Bookmark } from '../../types/database/Bookmark';
 import { BookmarkListItemSkeleton } from './Skeleton';
 
 export function BookmarkListItem({ bookmark }: { bookmark: Bookmark }) {
-  const [hymnBooks] = useHymnBooks();
+  const { data: titles, isLoading: isLoadingTitles } = useHymnTitles();
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const isOtherSong = bookmark.hymnBook === OTHER_SONGS_SLUG;
   const canAccessHymn = isOtherSong || isHymnBookVisible(bookmark.hymnBook, canAccessHc);
-  const hymnBook = hymnBooks?.find(({ slug }) => slug === bookmark.hymnBook);
-  const indexedHymn = hymnBook?.index?.find(({ slug }) => slug === bookmark.slug);
-
-  const { isLoading, data: hymn } = useHymn({
-    hymnIdentifier: bookmark.number ?? bookmark.slug,
-    hymnBook: bookmark.hymnBook,
-  });
+  const hymnBook = titles?.[bookmark.hymnBook];
+  const hymnTitle = hymnBook?.hymns[bookmark.slug];
 
   const isLoadingHcAccess = bookmark.hymnBook === HC_HYMN_BOOK_SLUG && isLoadingAccess;
 
-  if (isLoadingHcAccess || isLoading) return <BookmarkListItemSkeleton />;
+  if (isLoadingHcAccess || isLoadingTitles) return <BookmarkListItemSkeleton />;
 
   if (!canAccessHymn) {
     return (
@@ -42,13 +36,13 @@ export function BookmarkListItem({ bookmark }: { bookmark: Bookmark }) {
     );
   }
 
-  if (!hymn && !indexedHymn) return null;
+  if (!hymnTitle) return null;
 
   return (
     <NavLink
       key={bookmark.number}
-      label={hymn?.title ?? indexedHymn?.title}
-      description={hymn?.hymnBook.name ?? hymnBook?.name ?? (isOtherSong ? OTHER_SONGS_NAME : '')}
+      label={hymnTitle}
+      description={hymnBook?.name ?? (isOtherSong ? OTHER_SONGS_NAME : '')}
       icon={isOtherSong ? undefined : <Text size="sm">{bookmark.number}</Text>}
       component={Link}
       href={`/${bookmark.hymnBook}/${bookmark.slug}`}

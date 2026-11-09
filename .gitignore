@@ -60,4 +60,6 @@ supabase/.temp/
 .release_data
 
 # yarn
-.yarn
+.yarn/
+/public/data/titles.json
+/functions/generated

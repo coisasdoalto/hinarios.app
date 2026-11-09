@@ -1,4 +1,5 @@
-import { HYMN_BOOKS_ORDER, isHymnBookVisible } from 'contants';
+import { useQuery } from '@tanstack/react-query';
+import { HC_HYMN_BOOK_SLUG, HYMN_BOOKS_ORDER, isHymnBookVisible } from 'contants';
 import {
   createContext,
   Dispatch,
@@ -10,6 +11,25 @@ import {
 } from 'react';
 import { useAccess } from '../hooks/useAccess';
 import { HymnBook } from '../schemas/hymnBook';
+import { hcGet } from '../utils/hcRequest';
+
+type HcBookResponse = { hymnBook: { name: string }; index: HymnBook['index'] };
+
+/**
+ * Loads the HC book only for users that the server allows to see it.
+ * @example const { data } = useHcBook(canAccessHc);
+ */
+const useHcBook = (enabled: boolean) =>
+  useQuery({
+    queryKey: ['hc_book'],
+    queryFn: async (): Promise<HymnBook> => {
+      const { data } = await hcGet<HcBookResponse>('/api/hc/book');
+
+      return { slug: HC_HYMN_BOOK_SLUG, name: data.hymnBook.name, index: data.index };
+    },
+    enabled,
+    staleTime: Infinity,
+  });
 
 export type HymnBooksState = HymnBook[] | null;
 
@@ -40,8 +60,15 @@ export const HymnBooksProvider = ({
   children,
   hymnBooksCache,
 }: PropsWithChildren<{ hymnBooksCache: ReturnType<typeof useCreateHymnBooksCache> }>) => {
-  const [hymnBooks, setHymnBooks] = hymnBooksCache;
+  const [publicHymnBooks, setHymnBooks] = hymnBooksCache;
   const { canAccessHc } = useAccess();
+  const { data: hcBook } = useHcBook(canAccessHc);
+
+  // Public pages only ship the visible books, so the HC book joins the list when access allows it.
+  const hymnBooks =
+    publicHymnBooks && hcBook
+      ? [...publicHymnBooks.filter(({ slug }) => slug !== HC_HYMN_BOOK_SLUG), hcBook]
+      : publicHymnBooks;
 
   const orderedHymnBooks = orderHymnBooks(hymnBooks, canAccessHc);
 
@@ -54,10 +81,10 @@ export const HymnBooksProvider = ({
 
 export const useHymnBooks = () => useContext(HymnBooksContext);
 
-export const useHymnBooksSave = (hymnBooks: HymnBook[]) => {
+export const useHymnBooksSave = (hymnBooks?: HymnBook[]) => {
   const [, setHymnBooks] = useHymnBooks();
 
   useEffect(() => {
-    setHymnBooks(hymnBooks);
+    if (hymnBooks) setHymnBooks(hymnBooks);
   }, []);
 };

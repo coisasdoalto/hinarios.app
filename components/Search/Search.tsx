@@ -15,9 +15,18 @@ import { useAccess } from 'hooks/useAccess';
 import { debug } from 'utils/debug';
 import { performTextualSearch } from './performTextualSearch';
 import { performNumericSearch } from './performNumericSearch';
+import { hcGet } from '../../utils/hcRequest';
 import { OTHER_SONGS_FEATURE_FLAG } from 'contants';
 
 const searchIndex = new flexsearch.Document({
+  document: {
+    id: 'id',
+    index: ['number', 'title', 'body'],
+  },
+});
+
+// HC has its own index: its shard keys match the public ones, so importing both into one index would overwrite it.
+const hcSearchIndex = new flexsearch.Document({
   document: {
     id: 'id',
     index: ['number', 'title', 'body'],
@@ -29,6 +38,24 @@ keys.forEach(async (key) => {
 
   searchIndex.import(key, data);
 });
+
+let hcSearchRequest: Promise<void> | undefined;
+
+/**
+ * Adds the HC shards to the index. They come from the protected API, so this only runs for
+ * users that the server allows to see HC, and the request is shared between mounts.
+ */
+function loadHcSearchIndex() {
+  hcSearchRequest ??= hcGet<{ keys: string[]; shards: Record<string, unknown> }>('/api/hc/search')
+    .then(({ data }) => {
+      data.keys.forEach((key) => hcSearchIndex.import(key, data.shards[key] as never));
+    })
+    .catch(() => {
+      hcSearchRequest = undefined;
+    });
+
+  return hcSearchRequest;
+}
 
 interface SearchControlProps extends DefaultProps, React.ComponentPropsWithoutRef<'button'> {
   onClick(): void;
@@ -94,15 +121,22 @@ function Search() {
       return;
     }
 
-    const filteredData = performTextualSearch({
-      searchIndex,
+    const searchOptions = {
       query,
       router,
       canAccessHc,
       canAccessOtherSongs: Boolean(isOtherSongsEnabled),
-    });
+    };
+    if (canAccessHc) await loadHcSearchIndex();
 
-    setActions(filteredData || []);
+    const filteredData = [
+      ...(performTextualSearch({ searchIndex, ...searchOptions }) ?? []),
+      ...(canAccessHc
+        ? performTextualSearch({ searchIndex: hcSearchIndex, ...searchOptions }) ?? []
+        : []),
+    ];
+
+    setActions(filteredData);
   };
 
   return (
