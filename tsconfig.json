@@ -27,7 +27,9 @@
       }
     ],
     "types": [
-      "@serwist/next/typings"
+      "@serwist/next/typings",
+      "jest",
+      "@testing-library/jest-dom"
     ]
   },
   "include": [
