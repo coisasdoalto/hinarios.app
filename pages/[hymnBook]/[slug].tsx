@@ -69,8 +69,8 @@ export default function HymnView(props: HymnViewPageProps) {
   useHymnBooksSave(props.hymnBooks);
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
-  // The editor exists for the public books only; HC and "Outras músicas" have no editor route.
-  const canEdit = hymnBookSlug !== HC_HYMN_BOOK_SLUG && hymnBookSlug !== OTHER_SONGS_SLUG;
+  // "Outras músicas" has no editor route; HC is edited through its protected shell.
+  const canEdit = hymnBookSlug !== OTHER_SONGS_SLUG;
 
   const [fontSize] = useFontSizeStore();
   const [lyricsLayout, setLyricsLayout] = useLocalStorage<LyricsLayout>({
