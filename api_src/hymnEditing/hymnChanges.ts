@@ -101,21 +101,24 @@ class HymnChanges {
    */
   generateReleaseBody({
     hymnBook,
+    hymnBookName,
     hymnNumber,
     hymnTitle,
     changes,
     message,
   }: {
     hymnBook: string;
+    /** Display name, such as "Hinos e Cânticos"; the slug has no capitals to build the acronym from. */
+    hymnBookName?: string;
     hymnNumber: number;
     hymnTitle: string;
     changes: StanzaChange[];
     message?: string;
   }): string {
     const hymnSlug = `${hymnNumber}-${slugify(hymnTitle)}`;
-    const hymnUrl = `http://hinarios.app/${hymnBook}/${hymnSlug}`;
+    const hymnUrl = `https://hinarios.app/${hymnBook}/${hymnSlug}/`;
 
-    const bookAlias = stringToAcronym(hymnBook);
+    const bookAlias = stringToAcronym(hymnBookName ?? hymnBook) || hymnBook;
     const hymnReference = `[${bookAlias} ${hymnNumber} (${hymnTitle})](${hymnUrl})`;
 
     let body = `# Ajustes de conteúdo\n\n`;

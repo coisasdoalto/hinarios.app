@@ -72,6 +72,15 @@ app.patch(
 
     await writeHymnFile(c.env, filePath, updated);
 
+    // Pages are prerendered, so a new production build publishes the edit.
+    if (c.env.DEPLOY_HOOK_URL) {
+      try {
+        await fetch(c.env.DEPLOY_HOOK_URL, { method: 'POST' });
+      } catch (error) {
+        console.error('deploy-hook-failed', error instanceof Error ? error.message : error);
+      }
+    }
+
     if (changes.length > 0) {
       try {
         const releaseTitle = new Date()
@@ -79,8 +88,12 @@ app.patch(
           .replace(/T/, '-')
           .replace(/\..+/, '')
           .replace(/:/g, '-');
+        const bookInfo = (await readHymnFile(c.env, `${hymnBook}/hymnBookInfo.json`)) as {
+          name?: string;
+        } | null;
         const body = hymnChanges.generateReleaseBody({
           hymnBook,
+          hymnBookName: bookInfo?.name,
           hymnNumber,
           hymnTitle: title,
           changes,

@@ -222,7 +222,7 @@ function HymnEditForm({ content, hymnBookSlug, hymnSlug }: EditorProps) {
     onSuccess: (data) => {
       showNotification({
         title: 'Hino atualizado',
-        message: 'O hino foi salvo. O site mostra a mudança no próximo deploy.',
+        message: 'O hino foi salvo. O site atualiza em alguns minutos.',
         color: 'green',
       });
 
