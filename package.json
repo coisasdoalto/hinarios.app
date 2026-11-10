@@ -106,6 +106,7 @@
     "@types/progress": "^2.0.5",
     "@types/react": "18.0.21",
     "@types/react-lazyload": "^3.2.0",
+    "@types/yargs": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "babel-loader": "^8.2.4",
