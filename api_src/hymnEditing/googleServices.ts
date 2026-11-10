@@ -7,6 +7,8 @@ export type EditorEnv = {
   GITHUB_APP_ID?: string;
   GITHUB_APP_PRIVATE_KEY?: string;
   GITHUB_APP_INSTALLATION_ID?: string;
+  /** Cloudflare Pages deploy hook for `main`; a saved edit triggers a production build. */
+  DEPLOY_HOOK_URL?: string;
 };
 
 const STORAGE_BUCKET = 'hinos-online.appspot.com';
