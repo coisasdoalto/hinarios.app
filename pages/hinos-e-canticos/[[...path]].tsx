@@ -25,7 +25,9 @@ export default function HinosECanticosPage() {
   const router = useRouter();
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canView = isHymnBookVisible(HC_HYMN_BOOK_SLUG, canAccessHc);
-  const hymnSlug = Array.isArray(router.query.path) ? router.query.path[0] : undefined;
+  // Read the slug from the real URL: the shell is prerendered for the bare book path, so on a
+  // direct load `router.query` stays empty even when the URL names a hymn.
+  const hymnSlug = router.asPath.split(/[?#]/)[0].split('/').filter(Boolean)[1];
   const isEnabled = router.isReady && canView;
 
   const index = useQuery({
