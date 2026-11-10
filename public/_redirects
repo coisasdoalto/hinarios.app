@@ -1,1 +1,3 @@
+# Next.js fetches page data per URL on client navigation; HC hymns share the shell's data.
+/_next/data/:build/hinos-e-canticos/*  /_next/data/:build/hinos-e-canticos.json  200
 /hinos-e-canticos/*  /hinos-e-canticos/  200
