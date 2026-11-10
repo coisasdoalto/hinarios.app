@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { AccessLoading } from '../../components/AccessLoading';
 import HymnsList from '../../components/HymnsList/HymnsList';
 import { HymnBookUnavailable } from '../../components/HymnBookUnavailable';
+import { AdminHymnEditor } from '../../components/HymnEditor';
 import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from '../../contants';
 import { useAccess } from '../../hooks/useAccess';
 import { hcGet } from '../../utils/hcRequest';
@@ -27,7 +28,9 @@ export default function HinosECanticosPage() {
   const canView = isHymnBookVisible(HC_HYMN_BOOK_SLUG, canAccessHc);
   // Read the slug from the real URL: the shell is prerendered for the bare book path, so on a
   // direct load `router.query` stays empty even when the URL names a hymn.
-  const hymnSlug = router.asPath.split(/[?#]/)[0].split('/').filter(Boolean)[1];
+  const segments = router.asPath.split(/[?#]/)[0].split('/').filter(Boolean);
+  const hymnSlug = segments[1];
+  const isEditing = segments[2] === 'editar';
   const isEnabled = router.isReady && canView;
 
   const index = useQuery({
@@ -50,6 +53,10 @@ export default function HinosECanticosPage() {
   });
 
   if (!router.isReady || isLoadingAccess) return <AccessLoading />;
+  // Admin edit route: the editor checks admin access itself and loads the hymn from the API.
+  if (hymnSlug && isEditing) {
+    return <AdminHymnEditor hymnBookSlug={HC_HYMN_BOOK_SLUG} hymnSlug={hymnSlug} />;
+  }
   if (!canView) return <HymnBookUnavailable />;
   if (!index.data) return <AccessLoading />;
 

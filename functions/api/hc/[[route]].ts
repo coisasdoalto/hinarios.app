@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { importX509, jwtVerify } from 'jose';
 
+import { resolveVerifiedEmail } from '../../../api_src/firebaseAuth';
 import { parseRequestCoordinates } from '../../../api_src/locationAccess';
 import type { Coordinates, IpLocation } from '../../../api_src/locationAccess';
 import { getUserAccess } from '../../../api_src/userAccess';
@@ -11,35 +11,6 @@ import hcData from '../../generated/hc-data.json';
  * HC is paused for rights clearance, so its data only leaves this Function for users
  * that `getUserAccess` allows. Responses are never cached, because they depend on the user.
  */
-const FIREBASE_PROJECT_ID = 'hinos-online';
-// Firebase publishes its ID-token signing keys as X.509 certificates, keyed by `kid`.
-const FIREBASE_CERTIFICATES_URL =
-  'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
-const CERTIFICATES_TTL_MS = 60 * 60 * 1000;
-
-let cachedCertificates: { pems: Record<string, string>; expiresAt: number } | undefined;
-
-async function firebaseSigningKey(kid?: string) {
-  if (
-    !cachedCertificates ||
-    cachedCertificates.expiresAt < Date.now() ||
-    !(kid && cachedCertificates.pems[kid])
-  ) {
-    const response = await fetch(FIREBASE_CERTIFICATES_URL);
-    if (!response.ok) throw new Error('certificates-unavailable');
-
-    cachedCertificates = {
-      pems: (await response.json()) as Record<string, string>,
-      expiresAt: Date.now() + CERTIFICATES_TTL_MS,
-    };
-  }
-
-  const pem = kid ? cachedCertificates.pems[kid] : undefined;
-  if (!pem) throw new Error('unknown-kid');
-
-  return importX509(pem, 'RS256');
-}
-
 type CloudflareGeo = {
   city?: string;
   regionCode?: string;
@@ -47,26 +18,6 @@ type CloudflareGeo = {
   latitude?: string;
   longitude?: string;
 };
-
-async function resolveEmail(authorization: string | null): Promise<string | undefined> {
-  if (!authorization?.startsWith('Bearer ')) return undefined;
-
-  try {
-    const { payload } = await jwtVerify(
-      authorization.slice('Bearer '.length),
-      ({ kid }) => firebaseSigningKey(kid),
-      {
-        algorithms: ['RS256'],
-        issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
-        audience: FIREBASE_PROJECT_ID,
-      }
-    );
-
-    return typeof payload.email === 'string' ? payload.email : undefined;
-  } catch {
-    return undefined;
-  }
-}
 
 /**
  * Uses the location Cloudflare already resolved for the connection, so no third-party lookup is needed.
@@ -100,7 +51,7 @@ async function resolveAccess(request: Request) {
     url.searchParams.get('latitude') ?? undefined,
     url.searchParams.get('longitude') ?? undefined
   );
-  const email = await resolveEmail(request.headers.get('Authorization'));
+  const email = await resolveVerifiedEmail(request.headers.get('Authorization'));
   const location =
     browserLocation ?? locationFromCloudflare((request as Request & { cf?: CloudflareGeo }).cf);
   const useExpandedIpRadius =

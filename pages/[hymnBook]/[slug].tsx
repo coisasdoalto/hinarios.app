@@ -12,7 +12,8 @@ import { HymnNavigation } from 'components/HymnNavigation';
 import { SIDE_INSET_VARIABLE } from 'components/HymnNavigation/sideArrowLayout';
 import { HymnLyrics, LyricsLayout } from 'components/HymnLyrics';
 import { HymnSlideMode } from 'components/SlideMode/SlideModeProvider';
-import { HC_HYMN_BOOK_SLUG, isHymnBookVisible } from 'contants';
+import { UpdateHymnButton } from 'components/UpdateHymnButton';
+import { HC_HYMN_BOOK_SLUG, isHymnBookVisible, OTHER_SONGS_SLUG } from 'contants';
 import { useGeolocationFromIp } from 'hooks/useGeolocationFromIp';
 import { supabase } from 'supabase';
 import { AccessLoading } from '../../components/AccessLoading';
@@ -68,6 +69,8 @@ export default function HymnView(props: HymnViewPageProps) {
   useHymnBooksSave(props.hymnBooks);
   const { canAccessHc, isLoading: isLoadingAccess } = useAccess();
   const canViewHymnBook = isHymnBookVisible(hymnBookSlug, canAccessHc);
+  // "Outras músicas" has no editor route; HC is edited through its protected shell.
+  const canEdit = hymnBookSlug !== OTHER_SONGS_SLUG;
 
   const [fontSize] = useFontSizeStore();
   const [lyricsLayout, setLyricsLayout] = useLocalStorage<LyricsLayout>({
@@ -166,6 +169,7 @@ export default function HymnView(props: HymnViewPageProps) {
               lyrics={lyrics}
               showNumber={showSongNumber}
             />
+            {canEdit && <UpdateHymnButton />}
           </Group>
         </Flex>
         <Space h="md" />
