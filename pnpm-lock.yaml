@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@types/react': ^18.0.21
+  '@types/react-dom': 18.0.11
 
 importers:
 
@@ -216,6 +217,9 @@ importers:
       '@types/react':
         specifier: ^18.0.21
         version: 18.0.28
+      '@types/react-dom':
+        specifier: 18.0.11
+        version: 18.0.11
       '@types/react-lazyload':
         specifier: ^3.2.0
         version: 3.2.0
@@ -2616,8 +2620,8 @@ packages:
   '@types/range-parser@1.2.4':
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
 
-  '@types/react-dom@17.0.14':
-    resolution: {integrity: sha512-H03xwEP1oXmSfl3iobtmQ/2dHF5aBHr8aUMwyGZya6OW45G+xtdzmq6HkncefiBt5JU8DVyaWl/nWZbjZCnzAQ==}
+  '@types/react-dom@18.0.11':
+    resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
 
   '@types/react-lazyload@3.2.0':
     resolution: {integrity: sha512-4+r+z8Cf7L/mgxA1vl5uHx5GS/8gY2jqq2p5r5WCm+nUsg9KilwQ+8uaJA3EUlLj57AOzOfGGwwRJ5LOVl8fwA==}
@@ -11367,7 +11371,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.23.9
       '@testing-library/dom': 8.12.0
-      '@types/react-dom': 17.0.14
+      '@types/react-dom': 18.0.11
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
@@ -11563,7 +11567,7 @@ snapshots:
 
   '@types/range-parser@1.2.4': {}
 
-  '@types/react-dom@17.0.14':
+  '@types/react-dom@18.0.11':
     dependencies:
       '@types/react': 18.0.28
 

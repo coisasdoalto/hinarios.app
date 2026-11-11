@@ -105,6 +105,7 @@
     "@types/node": "22",
     "@types/progress": "^2.0.5",
     "@types/react": "18.0.21",
+    "@types/react-dom": "^18.0.11",
     "@types/react-lazyload": "^3.2.0",
     "@types/yargs": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
@@ -134,7 +135,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "^18.0.21"
+      "@types/react": "^18.0.21",
+      "@types/react-dom": "18.0.11"
     }
   }
 }
