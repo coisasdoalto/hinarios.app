@@ -223,6 +223,9 @@ importers:
       '@types/react-lazyload':
         specifier: ^3.2.0
         version: 3.2.0
+      '@types/testing-library__jest-dom':
+        specifier: ^5.14.3
+        version: 5.14.3
       '@types/yargs':
         specifier: ^17.0.35
         version: 17.0.35
