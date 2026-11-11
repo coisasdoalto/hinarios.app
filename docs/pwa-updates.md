@@ -21,9 +21,9 @@ A primeira instalação não produz um aviso de atualização se o build coincid
 
 ## Validação
 
-Execute `yarn test:pwa` com Node 22 recente (suporte a `--experimental-strip-types`).
+Execute `pnpm test:pwa` com Node 22 recente (suporte a `--experimental-strip-types`).
 Os testes usam o runner nativo do Node e não precisam das dependências da UI.
-Também fazem parte de `yarn test`.
+Também fazem parte de `pnpm test`.
 
 Para validar em produção/preview:
 

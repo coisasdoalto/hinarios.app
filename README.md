@@ -41,10 +41,10 @@ The hymns CLI is a command-line tool for managing hymns and releases in the hina
 
 ### Installation
 
-The CLI is included in the project as a npm script:
+The CLI is included in the project as a pnpm script:
 
 ```bash
-yarn hymns <command>
+pnpm hymns <command>
 ```
 
 ### Available commands
@@ -53,7 +53,7 @@ yarn hymns <command>
 
 ```bash
 # Example
-yarn hymns update he/1 -m "Correção na primeira estrofe"
+pnpm hymns update he/1 -m "Correção na primeira estrofe"
 ```
 
 ##### Arguments
@@ -71,7 +71,7 @@ yarn hymns update he/1 -m "Correção na primeira estrofe"
 
 ```bash
 # Example
-yarn hymns update he/1 -m "Correção na primeira estrofe"
+pnpm hymns update he/1 -m "Correção na primeira estrofe"
 
 info: Release title: 2025-03-05-21-33
 info: Release body:
@@ -108,7 +108,7 @@ This template comes with several essential features:
 - Jest with react testing library
 - ESLint setup with [eslint-config-mantine](https://github.com/mantinedev/eslint-config-mantine)
 
-### npm scripts
+### pnpm scripts
 
 #### Build and dev scripts
 
