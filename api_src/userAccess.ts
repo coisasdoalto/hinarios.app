@@ -15,6 +15,7 @@ const HC_ALLOWED_EMAILS = new Set([
   'pablo.dinella@gmail.com',
   'mateusbenicio0123@gmail.com',
   'dok.rec@gmail.com',
+  'kaformentini@gmail.com'
 ]);
 
 /**
