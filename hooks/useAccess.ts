@@ -3,17 +3,16 @@ import axios from 'axios';
 
 import type { UserAccess } from 'types/UserAccess';
 import { auth } from '../firebase/web';
-import { rememberBrowserCoordinates } from '../utils/hcRequest';
+import {
+  BrowserCoordinates,
+  getRememberedCoordinates,
+  rememberHcAccessParams,
+} from '../utils/hcRequest';
 import { useUser } from './useUser';
 
 const NO_ACCESS: UserAccess = {
   isAdmin: false,
   canAccessHc: false,
-};
-
-type BrowserCoordinates = {
-  latitude: number;
-  longitude: number;
 };
 
 type AccessRequestOptions = {
@@ -49,14 +48,27 @@ async function fetchUserAccess(options: AccessRequestOptions = {}): Promise<User
   return response.data;
 }
 
-async function requestUserAccess(): Promise<UserAccess> {
+/**
+ * Asks the server for access, trying the connection's location and e-mail first, then the
+ * browser location, then the expanded IP radius. Whatever granted access is remembered, so the
+ * HC requests that follow (book, titles, search) are checked the same way.
+ * @example const { canAccessHc } = await requestUserAccess();
+ */
+export async function requestUserAccess(): Promise<UserAccess> {
   const initialAccess = await fetchUserAccess();
-  if (initialAccess.canAccessHc) return initialAccess;
+  if (initialAccess.canAccessHc) {
+    rememberHcAccessParams(undefined);
+    return initialAccess;
+  }
 
-  const browserCoordinates = await requestBrowserLocation();
-  rememberBrowserCoordinates(browserCoordinates);
-  if (browserCoordinates) return fetchUserAccess({ browserCoordinates });
+  // A later check can fail to read the location (timeout, GPS off), so keep the last one that was read.
+  const browserCoordinates = (await requestBrowserLocation()) ?? getRememberedCoordinates();
+  if (browserCoordinates) {
+    rememberHcAccessParams(browserCoordinates);
+    return fetchUserAccess({ browserCoordinates });
+  }
 
+  rememberHcAccessParams({ locationFallback: 'expanded' });
   return fetchUserAccess({ useExpandedIpRadius: true });
 }
 
@@ -71,7 +83,11 @@ export function useAccess() {
     queryFn: requestUserAccess,
     enabled: !isLoadingUser,
     retry: false,
-    staleTime: 5 * 60 * 1000,
+    // Check once per page load (and on login/logout, which changes the key). Rechecking on focus
+    // could ask for the location again and drop HC from the open app when that read fails.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   return {

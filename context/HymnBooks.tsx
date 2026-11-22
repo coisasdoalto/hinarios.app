@@ -65,10 +65,11 @@ export const HymnBooksProvider = ({
   const { data: hcBook } = useHcBook(canAccessHc);
 
   // Public pages only ship the visible books, so the HC book joins the list when access allows it.
-  const hymnBooks =
-    publicHymnBooks && hcBook
-      ? [...publicHymnBooks.filter(({ slug }) => slug !== HC_HYMN_BOOK_SLUG), hcBook]
-      : publicHymnBooks;
+  // The HC shell page ships no books, so on a direct load HC is the only one known until a
+  // public page saves the rest; numeric search and navigation still find HC hymns meanwhile.
+  const hymnBooks = hcBook
+    ? [...(publicHymnBooks ?? []).filter(({ slug }) => slug !== HC_HYMN_BOOK_SLUG), hcBook]
+    : publicHymnBooks;
 
   const orderedHymnBooks = orderHymnBooks(hymnBooks, canAccessHc);
 
