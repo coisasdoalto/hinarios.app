@@ -1,15 +1,12 @@
 import { ActionIcon, Avatar, Button, Menu as MantineMenu } from '@mantine/core';
 import { IconLogout } from '@tabler/icons';
-import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
 import { signInWithGoogle, signOut } from '../../firebase/web/auth';
 import { useUser } from '../../hooks/useUser';
 
 function LoginMenu() {
-  const {user, isLoading} = useUser();
+  const { user, isLoading } = useUser();
 
-  const isLoginEnabled = useFeatureFlagEnabled('login');
-
-  if (!isLoginEnabled || isLoading) {
+  if (isLoading) {
     return null;
   }
 
