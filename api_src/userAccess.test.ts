@@ -1,41 +1,25 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { IpLocation } from './locationAccess';
 import { getUserAccess } from './userAccess';
 
-const piracicabaLocation: IpLocation = {
-  city: 'Piracicaba',
-  region_code: 'SP',
-  country_code: 'BR',
-  latitude: -22.7253,
-  longitude: -47.6492,
-};
-
 describe('getUserAccess', () => {
-  it('grants HC access from a Piracicaba location before checking email', () => {
-    expect(getUserAccess('person@example.com', piracicabaLocation)).toEqual({
-      isAdmin: false,
-      canAccessHc: true,
-    });
-  });
-
   it('grants HC access to an allowed email regardless of casing', () => {
-    expect(getUserAccess(' IRMAOSDIADEMA@GMAIL.COM ', undefined)).toEqual({
+    expect(getUserAccess(' IRMAOSDIADEMA@GMAIL.COM ')).toEqual({
       isAdmin: false,
       canAccessHc: true,
     });
   });
 
   it('grants admin access only to configured administrators', () => {
-    expect(getUserAccess('raphaeldeoliveiracorrea@gmail.com', undefined)).toEqual({
+    expect(getUserAccess('raphaeldeoliveiracorrea@gmail.com')).toEqual({
       isAdmin: true,
       canAccessHc: true,
     });
   });
 
   it('denies access when the email is absent or not allowed', () => {
-    expect(getUserAccess(undefined, undefined)).toEqual({ isAdmin: false, canAccessHc: false });
-    expect(getUserAccess('person@example.com', undefined)).toEqual({
+    expect(getUserAccess(undefined)).toEqual({ isAdmin: false, canAccessHc: false });
+    expect(getUserAccess('person@example.com')).toEqual({
       isAdmin: false,
       canAccessHc: false,
     });
