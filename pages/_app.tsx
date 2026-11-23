@@ -22,7 +22,6 @@ if (typeof window !== 'undefined') {
     capture_pageleave: process.env.NODE_ENV === 'production',
     bootstrap: {
       featureFlags: {
-        login: false,
         bookmarks: false,
         'other-songs': false,
         'hymn-bottom-navigation': true,
