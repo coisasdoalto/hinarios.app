@@ -2,12 +2,13 @@
   "name": "hinarios-app",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.26.2",
   "engines": {
     "node": "22"
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "rm -rf ./hymnsData && yarn data:download && yarn generate:index && yarn generate:searchIndex && yarn generate:pathsForPrecache && yarn generate:titlesIndex && yarn generate:hcData",
+    "prebuild": "rm -rf ./hymnsData && pnpm data:download && pnpm generate:index && pnpm generate:searchIndex && pnpm generate:pathsForPrecache && pnpm generate:titlesIndex && pnpm generate:hcData",
     "build": "next build",
     "build:only": "next build",
     "analyze": "ANALYZE=true next build",
@@ -19,19 +20,19 @@
     "jest:watch": "jest --watch",
     "prettier:check": "prettier --check \"**/*.{ts,tsx}\"",
     "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
-    "test": "npm run test:pwa && npm run prettier:check && npm run lint && npm run typecheck && npm run jest",
-    "storybook": "start-storybook -p 7001",
-    "storybook:build": "build-storybook",
+    "test": "pnpm test:pwa && pnpm prettier:check && pnpm lint && pnpm typecheck && pnpm jest",
+    "storybook": "NODE_OPTIONS=\"--openssl-legacy-provider\" start-storybook -p 7001",
+    "storybook:build": "NODE_OPTIONS=\"--openssl-legacy-provider\" build-storybook",
     "scripts:run": "tsx",
-    "data:download": "yarn scripts:run scripts/downloadData.ts",
-    "generate:index": "yarn scripts:run scripts/generateHymnsIndex.ts",
-    "generate:searchIndex": "rm ./search/*.json || true && yarn scripts:run scripts/generateSearchIndex.ts",
-    "generate:pathsForPrecache": "yarn scripts:run scripts/generatePathsForPrecache.ts",
-    "generate:supabaseTypes": "yarn scripts:run scripts/generateSupabaseTypes.ts",
+    "data:download": "pnpm scripts:run scripts/downloadData.ts",
+    "generate:index": "pnpm scripts:run scripts/generateHymnsIndex.ts",
+    "generate:searchIndex": "rm ./search/*.json || true && pnpm scripts:run scripts/generateSearchIndex.ts",
+    "generate:pathsForPrecache": "pnpm scripts:run scripts/generatePathsForPrecache.ts",
+    "generate:supabaseTypes": "pnpm scripts:run scripts/generateSupabaseTypes.ts",
     "hymns": "tsx cli/hymns/index.ts",
     "test:pwa": "node --experimental-strip-types --test tests/pwa-updates.test.mjs",
-    "generate:titlesIndex": "yarn scripts:run scripts/generateTitlesIndex.ts",
-    "generate:hcData": "yarn scripts:run scripts/generateHcData.ts"
+    "generate:titlesIndex": "pnpm scripts:run scripts/generateTitlesIndex.ts",
+    "generate:hcData": "pnpm scripts:run scripts/generateHcData.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -104,7 +105,10 @@
     "@types/node": "22",
     "@types/progress": "^2.0.5",
     "@types/react": "18.0.21",
+    "@types/react-dom": "^18.0.11",
     "@types/react-lazyload": "^3.2.0",
+    "@types/testing-library__jest-dom": "^5.14.3",
+    "@types/yargs": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "babel-loader": "^8.2.4",
@@ -130,8 +134,10 @@
     "typescript": "^5.3.3",
     "webpack": "^5.90.3"
   },
-  "resolutions": {
-    "@types/react": "^18.0.21"
-  },
-  "packageManager": "yarn@1.22.22"
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^18.0.21",
+      "@types/react-dom": "18.0.11"
+    }
+  }
 }

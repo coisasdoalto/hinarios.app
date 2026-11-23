@@ -14,23 +14,23 @@ are colocated with their components (for example,
 
 ## Build, Test, and Development Commands
 
-Use Node 22 and Yarn with the committed `yarn.lock`:
+Use Node 22 and pnpm with the committed `pnpm-lock.yaml`:
 
-- `yarn dev` starts the local Next.js development server.
-- `yarn test` runs Prettier checks, ESLint, TypeScript checking, and Jest.
-- `yarn jest:watch` runs the Jest suite interactively.
-- `yarn build` downloads hymn data, regenerates indexes and precache paths,
-  then creates a production build. Use `yarn build:only` when data is already
+- `pnpm dev` starts the local Next.js development server.
+- `pnpm test` runs Prettier checks, ESLint, TypeScript checking, and Jest.
+- `pnpm jest:watch` runs the Jest suite interactively.
+- `pnpm build` downloads hymn data, regenerates indexes and precache paths,
+  then creates a production build. Use `pnpm build:only` when data is already
   prepared.
-- `yarn start` serves the production build; `yarn storybook` runs Storybook on
+- `pnpm start` serves the production build; `pnpm storybook` runs Storybook on
   port 7001.
-- `yarn hymns <command>` runs the hymn-maintenance CLI described in `README.md`.
+- `pnpm hymns <command>` runs the hymn-maintenance CLI described in `README.md`.
 
 ## Coding Style & Naming Conventions
 
 Write strict TypeScript and React components using the existing feature-folder
 layout. Follow the repository's Mantine ESLint configuration and Prettier
-settings; run `yarn prettier:write` for formatting. Use PascalCase for React
+settings; run `pnpm prettier:write` for formatting. Use PascalCase for React
 components, camelCase for functions and variables, and descriptive names for
 hooks beginning with `use`. Keep API routes trailing-slash compatible with the
 `trailingSlash` setting.
@@ -39,7 +39,7 @@ hooks beginning with `use`. Keep API routes trailing-slash compatible with the
 
 Jest with React Testing Library is the test stack. Name tests `*.test.ts` or
 `*.test.tsx` and place them beside the implementation. Add regression coverage
-for behavior changes and run `yarn test` before submitting changes. No explicit
+for behavior changes and run `pnpm test` before submitting changes. No explicit
 coverage threshold is configured.
 
 ## Commit & Pull Request Guidelines

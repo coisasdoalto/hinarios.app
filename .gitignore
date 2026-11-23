@@ -23,6 +23,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # local env files
 .env.local
@@ -35,6 +36,7 @@ yarn-error.log*
 *.tsbuildinfo
 
 # storybook
+storybook-static/
 storybook-static.env*
 
 # local data
@@ -59,7 +61,7 @@ supabase/.temp/
 # internal scripts
 .release_data
 
-# yarn
-.yarn/
+# pnpm
+.pnpm-store/
 /public/data/titles.json
 /functions/generated

@@ -10,9 +10,9 @@ import {
   Navbar,
   Tooltip,
   useMantineTheme,
+  getDefaultZIndex,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { getDefaultZIndex } from '@mantine/styles';
 import { PropsWithChildren } from 'react';
 
 import { Feedback } from 'components/Feedback';

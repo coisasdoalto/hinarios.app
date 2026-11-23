@@ -4,9 +4,9 @@ import { chalk } from 'zx';
 
 import { logger } from './logger';
 
-type YargsFailHandlerArgs = Parameters<yargs.Argv<{}>['fail']>[0];
+type YargsFailFunction = Extract<Parameters<yargs.Argv<{}>['fail']>[0], (...args: any[]) => any>;
 
-export function yargsErrorHandler(...args: Parameters<YargsFailHandlerArgs>) {
+export function yargsErrorHandler(...args: Parameters<YargsFailFunction>) {
   const [errorMessage, error, yargs] = args;
 
   if (error instanceof ZodError) {
