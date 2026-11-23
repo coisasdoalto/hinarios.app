@@ -1,8 +1,6 @@
 import { Hono } from 'hono';
 
 import { resolveVerifiedEmail } from '../../../api_src/firebaseAuth';
-import { parseRequestCoordinates } from '../../../api_src/locationAccess';
-import type { Coordinates, IpLocation } from '../../../api_src/locationAccess';
 import { getUserAccess } from '../../../api_src/userAccess';
 import hcData from '../../generated/hc-data.json';
 
@@ -11,53 +9,13 @@ import hcData from '../../generated/hc-data.json';
  * HC is paused for rights clearance, so its data only leaves this Function for users
  * that `getUserAccess` allows. Responses are never cached, because they depend on the user.
  */
-type CloudflareGeo = {
-  city?: string;
-  regionCode?: string;
-  country?: string;
-  latitude?: string;
-  longitude?: string;
-};
 
 /**
- * Uses the location Cloudflare already resolved for the connection, so no third-party lookup is needed.
- * @example locationFromCloudflare({ city: 'Piracicaba', regionCode: 'SP', country: 'BR', latitude: '-22.72', longitude: '-47.64' });
+ * Resolves access from the e-mail of the request's verified Firebase ID token.
+ * @example await resolveAccess(request); // { isAdmin: false, canAccessHc: true }
  */
-function locationFromCloudflare(geo?: CloudflareGeo): IpLocation | undefined {
-  const latitude = Number(geo?.latitude);
-  const longitude = Number(geo?.longitude);
-
-  if (
-    !geo?.latitude ||
-    !geo?.longitude ||
-    !Number.isFinite(latitude) ||
-    !Number.isFinite(longitude)
-  ) {
-    return undefined;
-  }
-
-  return {
-    city: geo.city ?? '',
-    region_code: geo.regionCode ?? '',
-    country_code: geo.country ?? '',
-    latitude,
-    longitude,
-  };
-}
-
 async function resolveAccess(request: Request) {
-  const url = new URL(request.url);
-  const browserLocation: Coordinates | undefined = parseRequestCoordinates(
-    url.searchParams.get('latitude') ?? undefined,
-    url.searchParams.get('longitude') ?? undefined
-  );
-  const email = await resolveVerifiedEmail(request.headers.get('Authorization'));
-  const location =
-    browserLocation ?? locationFromCloudflare((request as Request & { cf?: CloudflareGeo }).cf);
-  const useExpandedIpRadius =
-    !browserLocation && url.searchParams.get('locationFallback') === 'expanded';
-
-  return getUserAccess(email, location, useExpandedIpRadius);
+  return getUserAccess(await resolveVerifiedEmail(request.headers.get('Authorization')));
 }
 
 const hcHymnBookSlug = 'hinos-e-canticos';

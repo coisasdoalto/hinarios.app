@@ -6,7 +6,7 @@ import { IconSearch } from '@tabler/icons';
 import flexsearch from 'flexsearch';
 import { useRouter } from 'next/router';
 import { useFeatureFlagEnabled } from '../../hooks/useFeatureFlagEnabled';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import keys from '../../search/_keys.json';
 import useStyles from './SearchControl.styles';
 import { CustomAction } from './CustomAction';
@@ -108,10 +108,17 @@ function Search() {
   const isOtherSongsEnabled = useFeatureFlagEnabled(OTHER_SONGS_FEATURE_FLAG);
 
   const [actions, setActions] = useState<SpotlightAction[]>([]);
+  const latestQuery = useRef('');
 
   debug('search results: %O', actions);
 
+  // Download the HC index as soon as access is confirmed, so the first query doesn't wait for it.
+  useEffect(() => {
+    if (canAccessHc) loadHcSearchIndex();
+  }, [canAccessHc]);
+
   const onQueryChange = async (query: string) => {
+    latestQuery.current = query;
     const queryAsNumber = parseInt(query, 10);
 
     if (!Number.isNaN(queryAsNumber)) {
@@ -127,7 +134,11 @@ function Search() {
       canAccessHc,
       canAccessOtherSongs: Boolean(isOtherSongsEnabled),
     };
-    if (canAccessHc) await loadHcSearchIndex();
+    if (canAccessHc) {
+      await loadHcSearchIndex();
+      // The user kept typing while the HC index loaded: a newer query owns the results.
+      if (latestQuery.current !== query) return;
+    }
 
     const filteredData = [
       ...(performTextualSearch({ searchIndex, ...searchOptions }) ?? []),

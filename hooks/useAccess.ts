@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 
 import type { UserAccess } from 'types/UserAccess';
-import { auth } from '../firebase/web';
-import { rememberBrowserCoordinates } from '../utils/hcRequest';
+import { hcGet } from '../utils/hcRequest';
 import { useUser } from './useUser';
 
 const NO_ACCESS: UserAccess = {
@@ -11,53 +9,12 @@ const NO_ACCESS: UserAccess = {
   canAccessHc: false,
 };
 
-type BrowserCoordinates = {
-  latitude: number;
-  longitude: number;
-};
-
-type AccessRequestOptions = {
-  browserCoordinates?: BrowserCoordinates;
-  useExpandedIpRadius?: boolean;
-};
-
-function requestBrowserLocation(): Promise<BrowserCoordinates | undefined> {
-  if (typeof navigator === 'undefined' || !navigator.geolocation) {
-    return Promise.resolve(undefined);
-  }
-
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => resolve({ latitude: coords.latitude, longitude: coords.longitude }),
-      () => resolve(undefined),
-      { enableHighAccuracy: true, maximumAge: 5 * 60 * 1000, timeout: 10 * 1000 }
-    );
-  });
-}
-
-async function fetchUserAccess(options: AccessRequestOptions = {}): Promise<UserAccess> {
-  const user = auth.currentUser;
-  const idToken = user ? await user.getIdToken() : undefined;
-  const response = await axios.get<UserAccess>('/api/hc/access', {
-    params: {
-      ...(options.browserCoordinates ?? {}),
-      ...(options.useExpandedIpRadius ? { locationFallback: 'expanded' } : {}),
-    },
-    headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
-  });
-
-  return response.data;
-}
-
-async function requestUserAccess(): Promise<UserAccess> {
-  const initialAccess = await fetchUserAccess();
-  if (initialAccess.canAccessHc) return initialAccess;
-
-  const browserCoordinates = await requestBrowserLocation();
-  rememberBrowserCoordinates(browserCoordinates);
-  if (browserCoordinates) return fetchUserAccess({ browserCoordinates });
-
-  return fetchUserAccess({ useExpandedIpRadius: true });
+/**
+ * Asks the server for the signed-in user's access. HC is granted by e-mail only.
+ * @example const { canAccessHc } = await requestUserAccess();
+ */
+export async function requestUserAccess(): Promise<UserAccess> {
+  return (await hcGet<UserAccess>('/api/hc/access')).data;
 }
 
 /**
@@ -71,7 +28,10 @@ export function useAccess() {
     queryFn: requestUserAccess,
     enabled: !isLoadingUser,
     retry: false,
-    staleTime: 5 * 60 * 1000,
+    // Access only depends on the signed-in user, and login/logout changes the key.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   return {
